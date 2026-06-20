@@ -99,13 +99,13 @@
             line-height: 1.6;
         }
 
-        /* Social Links Grid */
+        /* Standard Social Links (Rows Setup) */
         .social-links {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 16px;
             flex-wrap: wrap; 
-            margin: 30px 0;
+            margin: 25px 0 15px 0;
             max-width: 100%;
         }
 
@@ -115,40 +115,70 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 212, 255, 0.1);
-            border: 2px solid rgba(0, 212, 255, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             transition: all 0.3s ease;
             cursor: pointer;
             overflow: hidden; 
-            padding: 11px; 
+            padding: 12px; 
         }
 
-        /* Style specifically for the Exophase card so it fits well if it's wider */
-        .social-link.exophase-card {
-            width: auto;
-            min-width: 120px;
-            border-radius: 12px;
-            padding: 4px;
-        }
-
+        /* Forces clean SVG rendering and colors icons white */
         .social-link img {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            filter: drop-shadow(0px 0px 2px rgba(0, 212, 255, 0.5)); 
+            filter: brightness(0) invert(1);
+            transition: all 0.3s ease;
         }
 
         .social-link:hover {
-            background: rgba(0, 212, 255, 0.2);
+            background: rgba(0, 212, 255, 0.15);
             border-color: rgba(0, 212, 255, 0.6);
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+            transform: translateY(-4px);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+        }
+
+        .social-link:hover img {
+            filter: brightness(0) invert(1) drop-shadow(0px 0px 2px rgba(0, 212, 255, 0.8));
+        }
+
+        /* Dedicated Showcase Container for Exophase Card */
+        .card-showcase {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin: 20px 0 30px 0;
+        }
+
+        .showcase-card {
+            display: block;
+            width: 100%;
+            max-width: 420px; /* Bigger prominent display size */
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .showcase-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: contain;
+        }
+
+        .showcase-card:hover {
+            transform: scale(1.03);
+            border-color: rgba(0, 212, 255, 0.5);
+            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.25);
         }
 
         /* Music Player */
         .music-player {
-            margin-top: 30px;
             padding-top: 30px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
@@ -167,10 +197,10 @@
             accent-color: #00d4ff;
         }
 
-        /* Responsive */
+        /* Responsive adjustments */
         @media (max-width: 600px) {
             .profile {
-                padding: 25px;
+                padding: 25px 20px;
             }
 
             .profile h1 {
@@ -178,13 +208,14 @@
             }
 
             .social-link {
-                width: 45px;
-                height: 45px;
-                padding: 10px;
+                width: 44px;
+                height: 44px;
+                padding: 11px;
+                gap: 12px;
             }
-            
-            .social-link.exophase-card {
-                min-width: 100px;
+
+            .showcase-card {
+                max-width: 100%;
             }
         }
     </style>
@@ -198,7 +229,11 @@
             <h1 id="profileName"></h1>
             <p id="profileBio"></p>
 
+            <!-- Standard icons grid -->
             <div class="social-links" id="socialLinks"></div>
+
+            <!-- Centered large showcase card container -->
+            <div class="card-showcase" id="cardShowcase"></div>
 
             <div class="music-player">
                 <label for="bgMusic">🎵 Background Music</label>
@@ -210,6 +245,9 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!--          MAJOR CUSTOMIZATION BLOCK         -->
+    <!-- ========================================== -->
     <script>
         const CONFIG = {
             name: "cxsir",
@@ -221,82 +259,67 @@
                 {
                     name: "Snapchat",
                     url: "https://snapchat.com/add/gangangcuh",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/2111/2111615.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/snapchat.svg"
                 },
                 {
                     name: "Instagram",
                     url: "https://instagram.com/cxsirr",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/174/174855.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/instagram.svg"
                 },
                 {
                     name: "YouTube",
                     url: "https://youtube.com/@cxsirr",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/174/174883.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/youtube.svg"
                 },
                 {
                     name: "Spotify",
                     url: "https://open.spotify.com/user/dandandaman1234",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/174/174872.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/spotify.svg"
                 },
                 {
                     name: "Last.fm",
                     url: "https://last.fm/user/cxsir",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/4494/4494639.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/lastdotfm.svg"
                 },
                 {
                     name: "PlayStation",
                     url: "https://profile.playstation.com/IGOTTMT",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/5968/5968816.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/playstation.svg"
                 },
                 {
                     name: "Xbox",
                     url: "https://xbox.com/play/user/cxsirr",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/5968/5968940.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/xbox.svg"
                 },
                 {
                     name: "Steam",
                     url: "https://steamcommunity.com/id/cxsir",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/220/220223.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/steam.svg"
                 },
                 {
                     name: "Discord",
                     url: "https://discord.com/users/803306255062007818",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/3670/3670157.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/discord.svg"
                 },
                 {
                     name: "Roblox",
                     url: "https://roblox.com/users/2242266391/profile",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/4494/4494519.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/roblox.svg"
                 },
                 {
                     name: "GitHub",
                     url: "https://github.com/cxsirr",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/25/25231.png",
-                    isCard: false
-                },
-                {
-                    name: "Exophase",
-                    url: "https://card.exophase.com/2/0/327032.png",
-                    iconImage: "https://card.exophase.com/2/0/327032.png", 
-                    isCard: true // Special sizing for the achievement card image
+                    iconImage: "https://simpleicons.org/icons/github.svg"
                 },
                 {
                     name: "Email",
                     url: "mailto:cxsir@proton.me",
-                    iconImage: "https://cdn-icons-png.flaticon.com/512/542/542689.png",
-                    isCard: false
+                    iconImage: "https://simpleicons.org/icons/proton.svg"
                 }
-            ]
+            ],
+
+            // The Exophase banner URL goes here so it stays separate and centered below the rows
+            exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
         };
 
         // --- AUTOMATIC LOAD LOGIC (Safe to ignore) ---
@@ -314,11 +337,12 @@
                 audio.load();
             }
 
+            // Build out standard rows of social buttons
             const linksContainer = document.getElementById('socialLinks');
             CONFIG.links.forEach(link => {
                 const a = document.createElement('a');
                 a.href = link.url;
-                a.className = link.isCard ? 'social-link exophase-card' : 'social-link';
+                a.className = 'social-link';
                 a.title = link.name;
                 a.target = '_blank';
 
@@ -329,6 +353,23 @@
                 a.appendChild(img);
                 linksContainer.appendChild(a);
             });
+
+            // Build out larger centered Exophase banner card block
+            if (CONFIG.exophaseCardUrl) {
+                const showcaseContainer = document.getElementById('cardShowcase');
+                const aCard = document.createElement('a');
+                aCard.href = "https://www.exophase.com"; // Links back to main platform or choice profile link
+                aCard.className = 'showcase-card';
+                aCard.target = '_blank';
+                aCard.title = "Exophase Card";
+
+                const imgCard = document.createElement('img');
+                imgCard.src = CONFIG.exophaseCardUrl;
+                imgCard.alt = "Exophase Achievement Card";
+
+                aCard.appendChild(imgCard);
+                showcaseContainer.appendChild(aCard);
+            }
         });
     </script>
 </body>
