@@ -32,6 +32,9 @@
             background-repeat: no-repeat;
             opacity: 0.3;
             z-index: -2;
+            
+            /* ADD YOUR BACKGROUND IMAGE URL BELOW */
+            background-image: url('YOUR_IMAGE_URL_HERE');
         }
 
         body::before {
@@ -151,107 +154,6 @@
             accent-color: #00d4ff;
         }
 
-        /* Settings Panel */
-        .settings {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 100;
-        }
-
-        .settings-btn {
-            width: 50px;
-            height: 50px;
-            background: rgba(0, 212, 255, 0.1);
-            border: 2px solid rgba(0, 212, 255, 0.3);
-            border-radius: 50%;
-            color: #00d4ff;
-            cursor: pointer;
-            font-size: 1.5em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-        }
-
-        .settings-btn:hover {
-            background: rgba(0, 212, 255, 0.2);
-            border-color: rgba(0, 212, 255, 0.6);
-            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
-        }
-
-        .settings-panel {
-            display: none;
-            position: absolute;
-            bottom: 70px;
-            right: 0;
-            background: rgba(20, 20, 20, 0.95);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 20px;
-            min-width: 300px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-        }
-
-        .settings-panel.active {
-            display: block;
-            animation: slideUp 0.3s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .settings-panel input {
-            width: 100%;
-            padding: 10px;
-            margin: 10px 0;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 8px;
-            color: #e0e0e0;
-            font-size: 0.9em;
-        }
-
-        .settings-panel input::placeholder {
-            color: #707070;
-        }
-
-        .settings-panel label {
-            display: block;
-            color: #00d4ff;
-            font-size: 0.9em;
-            margin-top: 15px;
-            margin-bottom: 5px;
-            font-weight: 600;
-        }
-
-        .settings-panel button {
-            width: 100%;
-            padding: 10px;
-            margin-top: 15px;
-            background: linear-gradient(135deg, #0099ff, #00d4ff);
-            border: none;
-            border-radius: 8px;
-            color: #000;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .settings-panel button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.4);
-        }
-
         /* Responsive */
         @media (max-width: 600px) {
             .profile {
@@ -260,10 +162,6 @@
 
             .profile h1 {
                 font-size: 1.8em;
-            }
-
-            .settings-panel {
-                min-width: 250px;
             }
 
             .social-link {
@@ -280,133 +178,23 @@
     <div class="container">
         <div class="profile">
             <h1>Your Name</h1>
+            
             <p>Welcome to my profile</p>
 
-            <div class="social-links" id="socialLinks"></div>
+            <div class="social-links" id="socialLinks">
+                <a href="YOUR_LINK_1" class="social-link" title="Twitter" target="_blank">𝕏</a>
+                <a href="YOUR_LINK_2" class="social-link" title="Instagram" target="_blank">📸</a>
+                <a href="YOUR_LINK_3" class="social-link" title="YouTube" target="_blank">📺</a>
+            </div>
 
             <div class="music-player">
                 <label for="bgMusic">🎵 Background Music</label>
                 <audio id="bgMusic" controls loop>
-                    <source src="" type="audio/mpeg">
+                    <source src="YOUR_MUSIC_URL_HERE" type="audio/mpeg">
                     Your browser does not support the audio element.
                 </audio>
             </div>
         </div>
     </div>
-
-    <!-- Settings Panel -->
-    <div class="settings">
-        <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
-        <div class="settings-panel" id="settingsPanel">
-            <label for="profileName">Profile Name</label>
-            <input type="text" id="profileName" placeholder="Your Name" value="Your Name">
-
-            <label for="profileBio">Bio</label>
-            <input type="text" id="profileBio" placeholder="Your bio here" value="Welcome to my profile">
-
-            <label for="bgImage">Background Image URL</label>
-            <input type="text" id="bgImage" placeholder="https://example.com/image.jpg">
-
-            <label for="musicUrl">Background Music URL</label>
-            <input type="text" id="musicUrl" placeholder="https://example.com/music.mp3">
-
-            <label for="socialLinksJson">Social Media Links (JSON)</label>
-            <textarea id="socialLinksJson" placeholder='[{"name": "Twitter", "url": "https://twitter.com/username", "icon": "𝕏"}]' style="width: 100%; padding: 10px; margin: 10px 0; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.3); border-radius: 8px; color: #e0e0e0; font-size: 0.8em; font-family: monospace; min-height: 100px; resize: vertical;">
-            </textarea>
-
-            <button onclick="saveSettings()">Save Settings</button>
-        </div>
-    </div>
-
-    <script>
-        // Toggle settings panel
-        function toggleSettings() {
-            const panel = document.getElementById('settingsPanel');
-            panel.classList.toggle('active');
-        }
-
-        // Load settings from localStorage
-        function loadSettings() {
-            const settings = JSON.parse(localStorage.getItem('profileSettings')) || {
-                name: 'Your Name',
-                bio: 'Welcome to my profile',
-                bgImage: '',
-                musicUrl: '',
-                socialLinks: []
-            };
-
-            document.getElementById('profileName').value = settings.name;
-            document.getElementById('profileBio').value = settings.bio;
-            document.getElementById('bgImage').value = settings.bgImage;
-            document.getElementById('musicUrl').value = settings.musicUrl;
-            document.getElementById('socialLinksJson').value = JSON.stringify(settings.socialLinks, null, 2);
-
-            applySettings(settings);
-        }
-
-        // Apply settings to the page
-        function applySettings(settings) {
-            // Update profile
-            document.querySelector('.profile h1').textContent = settings.name;
-            document.querySelector('.profile p').textContent = settings.bio;
-
-            // Update background
-            if (settings.bgImage) {
-                document.getElementById('bgContainer').style.backgroundImage = `url('${settings.bgImage}')`;
-            }
-
-            // Update music
-            if (settings.musicUrl) {
-                document.getElementById('bgMusic').src = settings.musicUrl;
-            }
-
-            // Update social links
-            const socialContainer = document.getElementById('socialLinks');
-            socialContainer.innerHTML = '';
-            if (settings.socialLinks && Array.isArray(settings.socialLinks)) {
-                settings.socialLinks.forEach(link => {
-                    const a = document.createElement('a');
-                    a.href = link.url;
-                    a.className = 'social-link';
-                    a.title = link.name;
-                    a.target = '_blank';
-                    a.textContent = link.icon;
-                    socialContainer.appendChild(a);
-                });
-            }
-        }
-
-        // Save settings to localStorage
-        function saveSettings() {
-            try {
-                const settings = {
-                    name: document.getElementById('profileName').value,
-                    bio: document.getElementById('profileBio').value,
-                    bgImage: document.getElementById('bgImage').value,
-                    musicUrl: document.getElementById('musicUrl').value,
-                    socialLinks: JSON.parse(document.getElementById('socialLinksJson').value)
-                };
-
-                localStorage.setItem('profileSettings', JSON.stringify(settings));
-                applySettings(settings);
-                alert('Settings saved successfully!');
-                toggleSettings();
-            } catch (error) {
-                alert('Error saving settings: ' + error.message);
-            }
-        }
-
-        // Close settings panel when clicking outside
-        document.addEventListener('click', function(event) {
-            const settingsPanel = document.getElementById('settingsPanel');
-            const settingsBtn = document.querySelector('.settings-btn');
-            if (!settingsPanel.contains(event.target) && !settingsBtn.contains(event.target)) {
-                settingsPanel.classList.remove('active');
-            }
-        });
-
-        // Initialize on page load
-        window.addEventListener('load', loadSettings);
-    </script>
 </body>
 </html>
