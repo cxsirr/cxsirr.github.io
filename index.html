@@ -32,9 +32,6 @@
             background-repeat: no-repeat;
             opacity: 0.3;
             z-index: -2;
-            
-            /* ADD YOUR BACKGROUND IMAGE URL BELOW */
-            background-image: url('YOUR_IMAGE_URL_HERE');
         }
 
         body::before {
@@ -64,6 +61,7 @@
         /* Profile Section */
         .profile {
             text-align: center;
+            width: 100%;
             max-width: 600px;
             backdrop-filter: blur(10px);
             background: rgba(20, 20, 20, 0.8);
@@ -101,13 +99,14 @@
             line-height: 1.6;
         }
 
-        /* Social Links */
+        /* Social Links Grid */
         .social-links {
             display: flex;
             justify-content: center;
             gap: 20px;
-            flex-wrap: wrap;
+            flex-wrap: wrap; /* Allows endless buttons to warp onto new lines */
             margin: 30px 0;
+            max-width: 100%;
         }
 
         .social-link {
@@ -119,11 +118,17 @@
             background: rgba(0, 212, 255, 0.1);
             border: 2px solid rgba(0, 212, 255, 0.3);
             border-radius: 50%;
-            color: #00d4ff;
-            text-decoration: none;
-            font-size: 1.5em;
             transition: all 0.3s ease;
             cursor: pointer;
+            overflow: hidden; 
+            padding: 11px; 
+        }
+
+        .social-link img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0px 0px 2px rgba(0, 212, 255, 0.5)); 
         }
 
         .social-link:hover {
@@ -167,34 +172,96 @@
             .social-link {
                 width: 45px;
                 height: 45px;
-                font-size: 1.2em;
+                padding: 10px;
             }
         }
     </style>
 </head>
 <body>
+
     <div class="bg-container" id="bgContainer"></div>
 
     <div class="container">
         <div class="profile">
-            <h1>Your Name</h1>
-            
-            <p>Welcome to my profile</p>
+            <h1 id="profileName"></h1>
+            <p id="profileBio"></p>
 
-            <div class="social-links" id="socialLinks">
-                <a href="YOUR_LINK_1" class="social-link" title="Twitter" target="_blank">𝕏</a>
-                <a href="YOUR_LINK_2" class="social-link" title="Instagram" target="_blank">📸</a>
-                <a href="YOUR_LINK_3" class="social-link" title="YouTube" target="_blank">📺</a>
-            </div>
+            <div class="social-links" id="socialLinks"></div>
 
             <div class="music-player">
                 <label for="bgMusic">🎵 Background Music</label>
                 <audio id="bgMusic" controls loop>
-                    <source src="YOUR_MUSIC_URL_HERE" type="audio/mpeg">
+                    <source id="musicSource" src="" type="audio/mpeg">
                     Your browser does not support the audio element.
                 </audio>
             </div>
         </div>
     </div>
+
+    <script>
+        const CONFIG = {
+            name: "cxsir",
+            bio: "Welcome to my profile",
+            bgImage: "https://via.placeholder.com/1920x1080", 
+            musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", 
+            
+            // To create MORE buttons, just copy one of these blocks, 
+            // add a comma to the previous one, and paste it below.
+            links: [
+                {
+                    name: "Discord",
+                    url: "https://discord.com",
+                    iconImage: "https://cdn-icons-png.flaticon.com/512/3670/3670157.png"
+                },
+                {
+                    name: "Steam",
+                    url: "https://steamcommunity.com",
+                    iconImage: "https://cdn-icons-png.flaticon.com/512/220/220223.png"
+                },
+                {
+                    name: "PlayStation",
+                    url: "https://www.playstation.com",
+                    iconImage: "https://cdn-icons-png.flaticon.com/512/5968/5968816.png"
+                },
+                {
+                    name: "YouTube",
+                    url: "https://youtube.com",
+                    iconImage: "https://cdn-icons-png.flaticon.com/512/174/174883.png"
+                }
+            ]
+        };
+
+        // --- AUTOMATIC LOAD LOGIC (Safe to ignore) ---
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('profileName').textContent = CONFIG.name;
+            document.getElementById('profileBio').textContent = CONFIG.bio;
+            
+            if (CONFIG.bgImage) {
+                document.getElementById('bgContainer').style.backgroundImage = `url('${CONFIG.bgImage}')`;
+            }
+            
+            if (CONFIG.musicUrl) {
+                const audio = document.getElementById('bgMusic');
+                document.getElementById('musicSource').src = CONFIG.musicUrl;
+                audio.load();
+            }
+
+            const linksContainer = document.getElementById('socialLinks');
+            CONFIG.links.forEach(link => {
+                const a = document.createElement('a');
+                a.href = link.url;
+                a.className = 'social-link';
+                a.title = link.name;
+                a.target = '_blank';
+
+                const img = document.createElement('img');
+                img.src = link.iconImage;
+                img.alt = link.name;
+
+                a.appendChild(img);
+                linksContainer.appendChild(a);
+            });
+        });
+    </script>
 </body>
 </html>
