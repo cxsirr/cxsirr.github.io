@@ -21,7 +21,7 @@
             position: relative;
         }
 
-        /* Background Image */
+        /* Background Image Container */
         .bg-container {
             position: fixed;
             top: 0;
@@ -47,7 +47,7 @@
             pointer-events: none;
         }
 
-        /* Content Container */
+        /* Main Center Layout Container */
         .container {
             display: flex;
             flex-direction: column;
@@ -59,7 +59,7 @@
             position: relative;
         }
 
-        /* Profile Section */
+        /* Card Card Profile Wrapper */
         .profile {
             text-align: center;
             width: 100%;
@@ -74,14 +74,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .profile h1 {
@@ -100,7 +94,7 @@
             line-height: 1.6;
         }
 
-        /* Fixed grid limits layout to exactly 2 rows of 6 elements */
+        /* Fixed grid layout (locks down exactly 6 items per row) */
         .social-links {
             display: flex;
             justify-content: center;
@@ -120,19 +114,19 @@
             border: 2px solid rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             transition: all 0.3s ease;
-            cursor: pointer;
             text-decoration: none;
         }
 
-        /* Universal Vector Properties for both classes & inline SVGs */
-        .social-link i, .social-link svg {
-            width: 20px;
-            height: 20px;
+        /* Icon properties ensuring strict centering across all devices */
+        .social-link i {
             font-size: 20px;
             color: #ffffff;
-            fill: #ffffff;
             transition: all 0.3s ease;
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
         }
 
         .social-link:hover {
@@ -142,13 +136,12 @@
             box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
         }
 
-        .social-link:hover i, .social-link:hover svg {
+        .social-link:hover i {
             color: #00d4ff;
-            fill: #00d4ff;
             filter: drop-shadow(0px 0px 4px rgba(0, 212, 255, 0.8));
         }
 
-        /* Dedicated Showcase Container for Exophase Card */
+        /* Center-aligned Showcase Container for Exophase Card */
         .card-showcase {
             display: flex;
             justify-content: center;
@@ -181,7 +174,7 @@
             box-shadow: 0 6px 25px rgba(0, 212, 255, 0.25);
         }
 
-        /* Music Player */
+        /* Music Player Styling */
         .music-player {
             padding-top: 30px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -201,7 +194,7 @@
             accent-color: #00d4ff;
         }
 
-        /* Mobile Layout Configuration Rules */
+        /* Strict Mobile Scaling Configurations */
         @media (max-width: 600px) {
             .profile {
                 padding: 25px 15px;
@@ -221,9 +214,7 @@
                 height: 40px;
             }
 
-            .social-link i, .social-link svg {
-                width: 18px;
-                height: 18px;
+            .social-link i {
                 font-size: 18px;
             }
 
@@ -267,76 +258,61 @@
                 {
                     name: "Snapchat",
                     url: "https://snapchat.com/add/gangangcuh",
-                    type: "svg",
-                    // Filled solid square backplate with knocked-out ghost details
-                    svgPath: "M0 0v24h24V0H0zm15.412 15.25s-1.16-.279-1.928-.518c-.854-.265-1.745-.632-1.745-.632l-.084-.04c-.398-.184-.816-.328-1.248-.43a15.7 15.7 0 0 0-1.22-.218c-.378-.041-.758-.063-1.139-.066-.34 0-1.127.05-1.428.1-.564.093-1.077.292-1.52.585-.355.234-.783.568-1.18.577-.323.007-.643-.16-.838-.415-.224-.294-.18-.744-.132-1.083.076-.533.243-1.05.495-1.528.29-.55.673-1.04 1.133-1.45.24-.213.342-.501.272-.813-.082-.366-.464-.564-.812-.416-.605.258-1.264.385-1.928.373-.55-.01-1.137-.11-1.472-.573-.326-.452-.162-1.203.228-1.57.432-.407.965-.697 1.545-.84.288-.07.472-.34.444-.636a4.57 4.57 0 0 0-.256-1.123c-.347-1.011-.47-2.079-.364-3.143C5.617 3.826 9.406.012 14.512 0c5.312-.012 9.544 4.097 9.544 9.387a12.83 12.83 0 0 1-.39 3.125c-.085.344.135.679.48.747.6.118 1.157.408 1.614.84.455.43.535 1.173.172 1.638-.344.442-.924.526-1.464.532-.66.007-1.314-.12-1.916-.375-.34-.144-.717.051-.796.413-.067.31-.027.6.188.81.46.414.847.905 1.144 1.455.253.475.421.99.498 1.52.051.346.096.797-.13 1.09-.196.252-.514.416-.836.406-.39-.011-.814-.34-1.166-.57-.442-.29-.95-.487-1.51-.58-.3-.049-1.091-.1-1.43-.1-.383.003-.765.025-1.143.066-.411.045-.819.118-1.22.218-.43.102-.85.246-1.247.43l-.084.04s-.89.367-1.745.632c-.768.239-1.928.518-1.928.518z"
+                    iconClass: "fa-brands fa-square-snapchat"
                 },
                 {
                     name: "Instagram",
                     url: "https://instagram.com/cxsirr",
-                    type: "svg",
-                    // Solid filled app square with inverted lens line and isolated clear dot in top right
-                    svgPath: "M0 0v24h24V0H0zm12 5.838a6.162 6.162 0 1 1 0 12.324 6.162 6.162 0 0 1 0-12.324zM18.406 5a1.44 1.44 0 1 1 0 2.88 1.44 1.44 0 0 1 0-2.88zM12 16a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"
+                    iconClass: "fa-brands fa-square-instagram"
                 },
                 {
                     name: "YouTube",
                     url: "https://youtube.com/@cxsirr",
-                    type: "class",
                     iconClass: "fa-brands fa-youtube"
                 },
                 {
                     name: "Spotify",
                     url: "https://open.spotify.com/user/dandandaman1234",
-                    type: "class",
                     iconClass: "fa-brands fa-spotify"
                 },
                 {
                     name: "Last.fm",
                     url: "https://last.fm/user/cxsir",
-                    type: "class",
                     iconClass: "fa-brands fa-lastfm"
                 },
                 {
                     name: "PlayStation",
                     url: "https://profile.playstation.com/IGOTTMT",
-                    type: "class",
                     iconClass: "fa-brands fa-playstation"
                 },
                 {
                     name: "Xbox",
                     url: "https://xbox.com/play/user/cxsirr",
-                    type: "class",
                     iconClass: "fa-brands fa-xbox"
                 },
                 {
                     name: "Steam",
                     url: "https://steamcommunity.com/id/cxsir",
-                    type: "class",
                     iconClass: "fa-brands fa-steam"
                 },
                 {
                     name: "Discord",
                     url: "https://discord.com/users/803306255062007818",
-                    type: "class",
                     iconClass: "fa-brands fa-discord"
                 },
                 {
                     name: "Roblox",
                     url: "https://roblox.com/users/2242266391/profile",
-                    type: "svg",
-                    // Clean custom vector path for the official tilted Roblox emblem block
-                    svgPath: "M4.613 0L0 17.514l17.514 4.613L22.127 4.613 4.613 0zm10.59 13.56l-5.892-1.552 1.552-5.892 5.892 1.552-1.552 5.892z"
+                    iconClass: "fa-brands fa-roblox"
                 },
                 {
                     name: "GitHub",
                     url: "https://github.com/cxsirr",
-                    type: "class",
                     iconClass: "fa-brands fa-github"
                 },
                 {
                     name: "Email",
                     url: "mailto:cxsir@proton.me",
-                    type: "class",
                     iconClass: "fa-solid fa-envelope"
                 }
             ],
@@ -344,7 +320,7 @@
             exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
         };
 
-        // --- AUTOMATIC LOAD LOGIC ---
+        // --- DEPLOYMENT HANDLER ---
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('profileName').textContent = CONFIG.name;
             document.getElementById('profileBio').textContent = CONFIG.bio;
@@ -359,6 +335,7 @@
                 audio.load();
             }
 
+            // Simple, native Font Awesome link loop
             const linksContainer = document.getElementById('socialLinks');
             CONFIG.links.forEach(link => {
                 const a = document.createElement('a');
@@ -367,27 +344,14 @@
                 a.title = link.name;
                 a.target = '_blank';
 
-                if (link.type === "class") {
-                    // Inject standard class icons directly
-                    const icon = document.createElement('i');
-                    icon.className = link.iconClass;
-                    a.appendChild(icon);
-                } else if (link.type === "svg") {
-                    // Inject flawless inline vectors directly to bypass library holes
-                    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-                    svg.setAttribute("viewBox", "0 0 24 24");
-                    
-                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                    path.setAttribute("d", link.svgPath);
-                    
-                    svg.appendChild(path);
-                    a.appendChild(svg);
-                }
+                const icon = document.createElement('i');
+                icon.className = link.iconClass;
 
+                a.appendChild(icon);
                 linksContainer.appendChild(a);
             });
 
-            // Center-aligned Exophase widget card 
+            // Center-aligned Exophase widget card builder
             if (CONFIG.exophaseCardUrl) {
                 const showcaseContainer = document.getElementById('cardShowcase');
                 const aCard = document.createElement('a');
