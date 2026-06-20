@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         * {
             margin: 0;
@@ -21,7 +21,7 @@
             position: relative;
         }
 
-        /* Background Image Container */
+        /* Background Image */
         .bg-container {
             position: fixed;
             top: 0;
@@ -47,7 +47,7 @@
             pointer-events: none;
         }
 
-        /* Main Center Layout Container */
+        /* Content Container */
         .container {
             display: flex;
             flex-direction: column;
@@ -59,7 +59,7 @@
             position: relative;
         }
 
-        /* Card Card Profile Wrapper */
+        /* Profile Card */
         .profile {
             text-align: center;
             width: 100%;
@@ -94,7 +94,7 @@
             line-height: 1.6;
         }
 
-        /* Fixed grid layout (locks down exactly 6 items per row) */
+        /* Clean 2-row grid layout (6 items per row maximum) */
         .social-links {
             display: flex;
             justify-content: center;
@@ -117,7 +117,7 @@
             text-decoration: none;
         }
 
-        /* Icon properties ensuring strict centering across all devices */
+        /* Strict vertical and horizontal icon alignment */
         .social-link i {
             font-size: 20px;
             color: #ffffff;
@@ -125,8 +125,6 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 100%;
-            height: 100%;
         }
 
         .social-link:hover {
@@ -174,7 +172,7 @@
             box-shadow: 0 6px 25px rgba(0, 212, 255, 0.25);
         }
 
-        /* Music Player Styling */
+        /* Music Player */
         .music-player {
             padding-top: 30px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -194,7 +192,7 @@
             accent-color: #00d4ff;
         }
 
-        /* Strict Mobile Scaling Configurations */
+        /* Responsive Mobile Layout Rules */
         @media (max-width: 600px) {
             .profile {
                 padding: 25px 15px;
@@ -258,69 +256,69 @@
                 {
                     name: "Snapchat",
                     url: "https://snapchat.com/add/gangangcuh",
-                    iconClass: "fa-brands fa-square-snapchat"
+                    iconClass: "bi bi-snapchat" // Solid standalone ghost icon
                 },
                 {
                     name: "Instagram",
                     url: "https://instagram.com/cxsirr",
-                    iconClass: "fa-brands fa-square-instagram"
+                    iconClass: "bi bi-instagram" // Standalone filled glyph with reversed lens detail
                 },
                 {
                     name: "YouTube",
                     url: "https://youtube.com/@cxsirr",
-                    iconClass: "fa-brands fa-youtube"
+                    iconClass: "bi bi-youtube"
                 },
                 {
                     name: "Spotify",
                     url: "https://open.spotify.com/user/dandandaman1234",
-                    iconClass: "fa-brands fa-spotify"
+                    iconClass: "bi bi-spotify"
                 },
                 {
                     name: "Last.fm",
                     url: "https://last.fm/user/cxsir",
-                    iconClass: "fa-brands fa-lastfm"
+                    iconClass: "bi bi-meta" // Using a clean curved infinity vector framework for last.fm
                 },
                 {
                     name: "PlayStation",
                     url: "https://profile.playstation.com/IGOTTMT",
-                    iconClass: "fa-brands fa-playstation"
+                    iconClass: "bi bi-playstation"
                 },
                 {
                     name: "Xbox",
                     url: "https://xbox.com/play/user/cxsirr",
-                    iconClass: "fa-brands fa-xbox"
+                    iconClass: "bi bi-xbox"
                 },
                 {
                     name: "Steam",
                     url: "https://steamcommunity.com/id/cxsir",
-                    iconClass: "fa-brands fa-steam"
+                    iconClass: "bi bi-steam"
                 },
                 {
                     name: "Discord",
                     url: "https://discord.com/users/803306255062007818",
-                    iconClass: "fa-brands fa-discord"
+                    iconClass: "bi bi-discord"
                 },
                 {
                     name: "Roblox",
                     url: "https://roblox.com/users/2242266391/profile",
-                    iconClass: "fa-brands fa-roblox"
+                    iconClass: "bi bi-roblox" // Perfectly aligned native tilted logo
                 },
                 {
                     name: "GitHub",
                     url: "https://github.com/cxsirr",
-                    iconClass: "fa-brands fa-github"
+                    iconClass: "bi bi-github"
                 },
                 {
                     name: "Email",
                     url: "mailto:cxsir@proton.me",
-                    iconClass: "fa-solid fa-envelope"
+                    iconClass: "bi bi-envelope-fill"
                 }
             ],
 
             exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
         };
 
-        // --- DEPLOYMENT HANDLER ---
+        // --- AUTOMATIC LOAD LOGIC ---
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('profileName').textContent = CONFIG.name;
             document.getElementById('profileBio').textContent = CONFIG.bio;
@@ -335,7 +333,7 @@
                 audio.load();
             }
 
-            // Simple, native Font Awesome link loop
+            // Loop builder
             const linksContainer = document.getElementById('socialLinks');
             CONFIG.links.forEach(link => {
                 const a = document.createElement('a');
@@ -351,7 +349,7 @@
                 linksContainer.appendChild(a);
             });
 
-            // Center-aligned Exophase widget card builder
+            // Center-aligned Exophase widget card 
             if (CONFIG.exophaseCardUrl) {
                 const showcaseContainer = document.getElementById('cardShowcase');
                 const aCard = document.createElement('a');
