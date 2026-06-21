@@ -116,10 +116,10 @@
             transition: all 0.25s ease;
             text-decoration: none;
             overflow: hidden;
-            color: #ffffff; /* icon color uses currentColor */
+            color: #ffffff;
         }
 
-        /* Strict vertical and horizontal icon alignment */
+        /* Icon styling - clean and simple */
         .social-link i {
             font-size: 20px;
             color: inherit;
@@ -129,22 +129,25 @@
             justify-content: center;
         }
 
-        /* SVGs inherit color via currentColor */
         .social-link svg {
-            width: 66%;
-            height: 66%;
+            width: 24px;
+            height: 24px;
             display: block;
-            fill: currentColor;
-            stroke: currentColor;
+            fill: #ffffff;
+            stroke: none;
         }
 
-        /* Hover color changed to #676767 as requested */
+        /* Hover effect */
         .social-link:hover {
             background: rgba(103, 103, 103, 0.12);
             border-color: rgba(103, 103, 103, 0.6);
             transform: translateY(-4px);
             box-shadow: 0 5px 15px rgba(103, 103, 103, 0.25);
-            color: #676767; /* hover color */
+            color: #676767;
+        }
+
+        .social-link:hover svg {
+            fill: #676767;
         }
 
         .social-link:active {
@@ -228,6 +231,11 @@
                 font-size: 18px;
             }
 
+            .social-link svg {
+                width: 20px;
+                height: 20px;
+            }
+
             .showcase-card {
                 max-width: 100%;
             }
@@ -264,7 +272,6 @@
             bgImage: "https://via.placeholder.com/1920x1080",
             musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
 
-            // Links: iconFilename will be derived from name (lowercased, non-alphanum removed)
             links: [
                 { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", iconClass: "bi bi-snapchat" },
                 { name: "Instagram", url: "https://instagram.com/cxsirr", iconClass: "bi bi-instagram" },
@@ -283,20 +290,6 @@
             exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
         };
 
-        // --- UTIL: compute filename for a link name ---
-        function iconFilenameFor(name) {
-            return 'assets/logos/' + name.toLowerCase().replace(/[^a-z0-9]/g, '') + '.svg';
-        }
-
-        // Simple Icons CDN helper
-        function simpleIconsUrl(name) {
-            // Simple Icons slugs usually match the normalized name, but some differences exist.
-            // We'll use the normalized name as slug and rely on CDN; if it 404s we'll fall back.
-            const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '');
-            return `https://cdn.simpleicons.org/${slug}`;
-        }
-
-        // --- AUTOMATIC LOAD LOGIC ---
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('profileName').textContent = CONFIG.name;
             document.getElementById('profileBio').textContent = CONFIG.bio;
@@ -311,73 +304,21 @@
                 audio.load();
             }
 
-            // Loop builder — try local SVG, then Simple Icons CDN, then fallback to bootstrap icon
             const linksContainer = document.getElementById('socialLinks');
-            CONFIG.links.forEach(async (link) => {
+            CONFIG.links.forEach((link) => {
                 const a = document.createElement('a');
                 a.href = link.url;
                 a.className = 'social-link';
                 a.title = link.name;
                 a.target = '_blank';
 
-                const local = iconFilenameFor(link.name);
-                const cdn = simpleIconsUrl(link.name);
-
-                let appended = false;
-                // try local
-                try {
-                    const r = await fetch(local);
-                    if (r.ok) {
-                        const svgText = await r.text();
-                        const parser = new DOMParser();
-                        const doc = parser.parseFromString(svgText, 'image/svg+xml');
-                        let svg = doc.documentElement;
-                        if (svg && svg.tagName.toLowerCase() === 'svg') {
-                            svg.querySelectorAll('[fill]').forEach(el => el.setAttribute('fill','currentColor'));
-                            svg.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke','currentColor'));
-                            svg.removeAttribute('width'); svg.removeAttribute('height');
-                            svg.setAttribute('aria-hidden','true');
-                            a.appendChild(svg);
-                            appended = true;
-                        }
-                    }
-                } catch (e) {
-                    // continue to CDN
-                }
-
-                if (!appended) {
-                    // try CDN (Simple Icons)
-                    try {
-                        const r2 = await fetch(cdn);
-                        if (r2.ok) {
-                            const svgText = await r2.text();
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(svgText, 'image/svg+xml');
-                            let svg = doc.documentElement;
-                            if (svg && svg.tagName.toLowerCase() === 'svg') {
-                                svg.querySelectorAll('[fill]').forEach(el => el.setAttribute('fill','currentColor'));
-                                svg.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke','currentColor'));
-                                svg.removeAttribute('width'); svg.removeAttribute('height');
-                                svg.setAttribute('aria-hidden','true');
-                                a.appendChild(svg);
-                                appended = true;
-                            }
-                        }
-                    } catch (e) {
-                        // ignore
-                    }
-                }
-
-                if (!appended) {
-                    const i = document.createElement('i');
-                    i.className = link.iconClass || 'bi bi-link-45deg';
-                    a.appendChild(i);
-                }
+                const i = document.createElement('i');
+                i.className = link.iconClass || 'bi bi-link-45deg';
+                a.appendChild(i);
 
                 linksContainer.appendChild(a);
             });
 
-            // Center-aligned Exophase widget card 
             if (CONFIG.exophaseCardUrl) {
                 const showcaseContainer = document.getElementById('cardShowcase');
                 const aCard = document.createElement('a');
