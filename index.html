@@ -129,12 +129,11 @@
             justify-content: center;
         }
 
-        .social-link svg {
+        .social-link img {
             width: 24px;
             height: 24px;
             display: block;
-            fill: #ffffff;
-            stroke: none;
+            object-fit: contain;
         }
 
         /* Hover effect */
@@ -144,10 +143,7 @@
             transform: translateY(-4px);
             box-shadow: 0 5px 15px rgba(103, 103, 103, 0.25);
             color: #676767;
-        }
-
-        .social-link:hover svg {
-            fill: #676767;
+            filter: brightness(1.2);
         }
 
         .social-link:active {
@@ -231,7 +227,7 @@
                 font-size: 18px;
             }
 
-            .social-link svg {
+            .social-link img {
                 width: 20px;
                 height: 20px;
             }
@@ -273,18 +269,18 @@
             musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
 
             links: [
-                { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", iconClass: "bi bi-snapchat" },
-                { name: "Instagram", url: "https://instagram.com/cxsirr", iconClass: "bi bi-instagram" },
-                { name: "YouTube", url: "https://youtube.com/@cxsirr", iconClass: "bi bi-youtube" },
-                { name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", iconClass: "bi bi-spotify" },
-                { name: "Last.fm", url: "https://last.fm/user/cxsir", iconClass: "bi bi-radio" },
-                { name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", iconClass: "bi bi-playstation" },
-                { name: "Xbox", url: "https://xbox.com/play/user/cxsirr", iconClass: "bi bi-xbox" },
-                { name: "Steam", url: "https://steamcommunity.com/id/cxsir", iconClass: "bi bi-steam" },
-                { name: "Discord", url: "https://discord.com/users/803306255062007818", iconClass: "bi bi-discord" },
-                { name: "Roblox", url: "https://roblox.com/users/2242266391/profile", iconClass: "bi bi-robot" },
-                { name: "GitHub", url: "https://github.com/cxsirr", iconClass: "bi bi-github" },
-                { name: "Email", url: "mailto:cxsir@proton.me", iconClass: "bi bi-envelope-fill" }
+                { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", icon: "snapchat" },
+                { name: "Instagram", url: "https://instagram.com/cxsirr", icon: "instagram" },
+                { name: "YouTube", url: "https://youtube.com/@cxsirr", icon: "youtube" },
+                { name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", icon: "spotify" },
+                { name: "Last.fm", url: "https://last.fm/user/cxsir", icon: "lastfm" },
+                { name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", icon: "playstation" },
+                { name: "Xbox", url: "https://xbox.com/play/user/cxsirr", icon: "xbox" },
+                { name: "Steam", url: "https://steamcommunity.com/id/cxsir", icon: "steam" },
+                { name: "Discord", url: "https://discord.com/users/803306255062007818", icon: "discord" },
+                { name: "Roblox", url: "https://roblox.com/users/2242266391/profile", icon: "roblox" },
+                { name: "GitHub", url: "https://github.com/cxsirr", icon: "github" },
+                { name: "Email", url: "mailto:cxsir@proton.me", icon: "email" }
             ],
 
             exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
@@ -312,9 +308,12 @@
                 a.title = link.name;
                 a.target = '_blank';
 
-                const i = document.createElement('i');
-                i.className = link.iconClass || 'bi bi-link-45deg';
-                a.appendChild(i);
+                if (link.icon) {
+                    const img = document.createElement('img');
+                    img.src = `assets/logos/${link.icon}.svg`;
+                    img.alt = link.name;
+                    a.appendChild(img);
+                }
 
                 linksContainer.appendChild(a);
             });
