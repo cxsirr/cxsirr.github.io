@@ -288,6 +288,14 @@
             return 'assets/logos/' + name.toLowerCase().replace(/[^a-z0-9]/g, '') + '.svg';
         }
 
+        // Simple Icons CDN helper
+        function simpleIconsUrl(name) {
+            // Simple Icons slugs usually match the normalized name, but some differences exist.
+            // We'll use the normalized name as slug and rely on CDN; if it 404s we'll fall back.
+            const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '');
+            return `https://cdn.simpleicons.org/${slug}`;
+        }
+
         // --- AUTOMATIC LOAD LOGIC ---
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('profileName').textContent = CONFIG.name;
@@ -303,7 +311,7 @@
                 audio.load();
             }
 
-            // Loop builder — fetch svg files from assets/logos and inline them so they inherit currentColor
+            // Loop builder — try local SVG, then Simple Icons CDN, then fallback to bootstrap icon
             const linksContainer = document.getElementById('socialLinks');
             CONFIG.links.forEach(async (link) => {
                 const a = document.createElement('a');
@@ -312,29 +320,55 @@
                 a.title = link.name;
                 a.target = '_blank';
 
-                const filename = iconFilenameFor(link.name);
-                try {
-                    const r = await fetch(filename);
-                    if (!r.ok) throw new Error('Not found');
-                    const svgText = await r.text();
-                    // parse and ensure svg uses currentColor
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(svgText, 'image/svg+xml');
-                    let svg = doc.documentElement;
-                    if (svg && svg.tagName.toLowerCase() === 'svg') {
-                        // force fill/stroke to currentColor on elements that have explicit fills/strokes
-                        svg.querySelectorAll('[fill]').forEach(el => el.setAttribute('fill', 'currentColor'));
-                        svg.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke', 'currentColor'));
+                const local = iconFilenameFor(link.name);
+                const cdn = simpleIconsUrl(link.name);
 
-                        svg.setAttribute('width', '');
-                        svg.setAttribute('height', '');
-                        svg.setAttribute('aria-hidden', 'true');
-                        a.appendChild(svg);
-                    } else {
-                        throw new Error('Invalid SVG');
+                let appended = false;
+                // try local
+                try {
+                    const r = await fetch(local);
+                    if (r.ok) {
+                        const svgText = await r.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(svgText, 'image/svg+xml');
+                        let svg = doc.documentElement;
+                        if (svg && svg.tagName.toLowerCase() === 'svg') {
+                            svg.querySelectorAll('[fill]').forEach(el => el.setAttribute('fill','currentColor'));
+                            svg.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke','currentColor'));
+                            svg.removeAttribute('width'); svg.removeAttribute('height');
+                            svg.setAttribute('aria-hidden','true');
+                            a.appendChild(svg);
+                            appended = true;
+                        }
                     }
-                } catch (err) {
-                    // fallback to bootstrap icon
+                } catch (e) {
+                    // continue to CDN
+                }
+
+                if (!appended) {
+                    // try CDN (Simple Icons)
+                    try {
+                        const r2 = await fetch(cdn);
+                        if (r2.ok) {
+                            const svgText = await r2.text();
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(svgText, 'image/svg+xml');
+                            let svg = doc.documentElement;
+                            if (svg && svg.tagName.toLowerCase() === 'svg') {
+                                svg.querySelectorAll('[fill]').forEach(el => el.setAttribute('fill','currentColor'));
+                                svg.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke','currentColor'));
+                                svg.removeAttribute('width'); svg.removeAttribute('height');
+                                svg.setAttribute('aria-hidden','true');
+                                a.appendChild(svg);
+                                appended = true;
+                            }
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+
+                if (!appended) {
                     const i = document.createElement('i');
                     i.className = link.iconClass || 'bi bi-link-45deg';
                     a.appendChild(i);
