@@ -115,6 +115,7 @@
             border-radius: 50%;
             transition: all 0.3s ease;
             text-decoration: none;
+            overflow: hidden;
         }
 
         /* Strict vertical and horizontal icon alignment */
@@ -129,10 +130,11 @@
 
         /* Brand images inside the circular containers (consistent sizing) */
         .social-link img {
-            width: 60%;
-            height: 60%;
+            width: 66%;
+            height: 66%;
             object-fit: contain;
             display: block;
+            filter: brightness(0) invert(1); /* ensure white icons */
         }
 
         .social-link:hover {
@@ -257,73 +259,23 @@
         const CONFIG = {
             name: "cxsir",
             bio: "Welcome to my profile",
-            bgImage: "https://via.placeholder.com/1920x1080", 
-            musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", 
-            
+            bgImage: "https://via.placeholder.com/1920x1080",
+            musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+
+            // All links now use local svgs stored in assets/logos/
             links: [
-                {
-                    name: "Snapchat",
-                    url: "https://snapchat.com/add/gangangcuh",
-                    // Use a brand image so it visually matches other logo styles
-                    iconUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Snapchat_logo.svg/1024px-Snapchat_logo.svg.png"
-                },
-                {
-                    name: "Instagram",
-                    url: "https://instagram.com/cxsirr",
-                    // Use official Instagram glyph image for consistent sizing
-                    iconUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/2048px-Instagram_logo_2016.svg.png"
-                },
-                {
-                    name: "YouTube",
-                    url: "https://youtube.com/@cxsirr",
-                    iconClass: "bi bi-youtube"
-                },
-                {
-                    name: "Spotify",
-                    url: "https://open.spotify.com/user/dandandaman1234",
-                    iconClass: "bi bi-spotify"
-                },
-                {
-                    name: "Last.fm",
-                    url: "https://last.fm/user/cxsir",
-                    iconClass: "bi bi-meta" // Using a clean curved infinity vector framework for last.fm
-                },
-                {
-                    name: "PlayStation",
-                    url: "https://profile.playstation.com/IGOTTMT",
-                    iconClass: "bi bi-playstation"
-                },
-                {
-                    name: "Xbox",
-                    url: "https://xbox.com/play/user/cxsirr",
-                    iconClass: "bi bi-xbox"
-                },
-                {
-                    name: "Steam",
-                    url: "https://steamcommunity.com/id/cxsir",
-                    iconClass: "bi bi-steam"
-                },
-                {
-                    name: "Discord",
-                    url: "https://discord.com/users/803306255062007818",
-                    iconClass: "bi bi-discord"
-                },
-                {
-                    name: "Roblox",
-                    url: "https://roblox.com/users/2242266391/profile",
-                    // Roblox isn't available in bootstrap-icons; use a brand image for a matching look
-                    iconUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Roblox_2017_logo.svg/1024px-Roblox_2017_logo.svg.png"
-                },
-                {
-                    name: "GitHub",
-                    url: "https://github.com/cxsirr",
-                    iconClass: "bi bi-github"
-                },
-                {
-                    name: "Email",
-                    url: "mailto:cxsir@proton.me",
-                    iconClass: "bi bi-envelope-fill"
-                }
+                { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", iconUrl: "assets/logos/snapchat.svg", iconClass: "bi bi-snapchat" },
+                { name: "Instagram", url: "https://instagram.com/cxsirr", iconUrl: "assets/logos/instagram.svg", iconClass: "bi bi-instagram" },
+                { name: "YouTube", url: "https://youtube.com/@cxsirr", iconUrl: "assets/logos/youtube.svg", iconClass: "bi bi-youtube" },
+                { name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", iconUrl: "assets/logos/spotify.svg", iconClass: "bi bi-spotify" },
+                { name: "Last.fm", url: "https://last.fm/user/cxsir", iconUrl: "assets/logos/lastfm.svg", iconClass: "bi bi-radio" },
+                { name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", iconUrl: "assets/logos/playstation.svg", iconClass: "bi bi-playstation" },
+                { name: "Xbox", url: "https://xbox.com/play/user/cxsirr", iconUrl: "assets/logos/xbox.svg", iconClass: "bi bi-xbox" },
+                { name: "Steam", url: "https://steamcommunity.com/id/cxsir", iconUrl: "assets/logos/steam.svg", iconClass: "bi bi-steam" },
+                { name: "Discord", url: "https://discord.com/users/803306255062007818", iconUrl: "assets/logos/discord.svg", iconClass: "bi bi-discord" },
+                { name: "Roblox", url: "https://roblox.com/users/2242266391/profile", iconUrl: "assets/logos/roblox.svg", iconClass: "bi bi-robot" },
+                { name: "GitHub", url: "https://github.com/cxsirr", iconUrl: "assets/logos/github.svg", iconClass: "bi bi-github" },
+                { name: "Email", url: "mailto:cxsir@proton.me", iconUrl: "assets/logos/email.svg", iconClass: "bi bi-envelope-fill" }
             ],
 
             exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
@@ -333,11 +285,11 @@
         window.addEventListener('DOMContentLoaded', () => {
             document.getElementById('profileName').textContent = CONFIG.name;
             document.getElementById('profileBio').textContent = CONFIG.bio;
-            
+
             if (CONFIG.bgImage) {
                 document.getElementById('bgContainer').style.backgroundImage = `url('${CONFIG.bgImage}')`;
             }
-            
+
             if (CONFIG.musicUrl) {
                 const audio = document.getElementById('bgMusic');
                 document.getElementById('musicSource').src = CONFIG.musicUrl;
@@ -358,6 +310,14 @@
                     iconElement = document.createElement('img');
                     iconElement.src = link.iconUrl;
                     iconElement.alt = link.name + ' logo';
+
+                    // If image fails to load (CORS/hotlink blocked), show fallback icon
+                    iconElement.onerror = () => {
+                        iconElement.remove();
+                        const fallback = document.createElement('i');
+                        fallback.className = link.iconClass || 'bi bi-link-45deg';
+                        a.appendChild(fallback);
+                    };
                 } else if (link.iconClass) {
                     iconElement = document.createElement('i');
                     iconElement.className = link.iconClass;
