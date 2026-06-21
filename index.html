@@ -116,37 +116,38 @@
             transition: all 0.3s ease;
             text-decoration: none;
             overflow: hidden;
+            color: #ffffff; /* icon color uses currentColor */
         }
 
         /* Strict vertical and horizontal icon alignment */
         .social-link i {
             font-size: 20px;
-            color: #ffffff;
+            color: inherit;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* Brand images inside the circular containers (consistent sizing) */
-        .social-link img {
+        /* SVGs inherit color via currentColor */
+        .social-link svg {
             width: 66%;
             height: 66%;
-            object-fit: contain;
             display: block;
-            filter: brightness(0) invert(1); /* ensure white icons */
+            fill: currentColor;
+            stroke: currentColor;
         }
 
         .social-link:hover {
-            background: rgba(0, 212, 255, 0.15);
+            background: rgba(0, 212, 255, 0.12);
             border-color: rgba(0, 212, 255, 0.6);
             transform: translateY(-4px);
-            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 212, 255, 0.25);
+            color: #00d4ff; /* hover color */
         }
 
-        .social-link:hover i {
-            color: #00d4ff;
-            filter: drop-shadow(0px 0px 4px rgba(0, 212, 255, 0.8));
+        .social-link:active {
+            transform: translateY(-2px) scale(0.99);
         }
 
         /* Center-aligned Showcase Container for Exophase Card */
@@ -262,24 +263,29 @@
             bgImage: "https://via.placeholder.com/1920x1080",
             musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
 
-            // All links now use local svgs stored in assets/logos/
+            // Links: iconFilename will be derived from name (lowercased, non-alphanum removed)
             links: [
-                { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", iconUrl: "assets/logos/snapchat.svg", iconClass: "bi bi-snapchat" },
-                { name: "Instagram", url: "https://instagram.com/cxsirr", iconUrl: "assets/logos/instagram.svg", iconClass: "bi bi-instagram" },
-                { name: "YouTube", url: "https://youtube.com/@cxsirr", iconUrl: "assets/logos/youtube.svg", iconClass: "bi bi-youtube" },
-                { name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", iconUrl: "assets/logos/spotify.svg", iconClass: "bi bi-spotify" },
-                { name: "Last.fm", url: "https://last.fm/user/cxsir", iconUrl: "assets/logos/lastfm.svg", iconClass: "bi bi-radio" },
-                { name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", iconUrl: "assets/logos/playstation.svg", iconClass: "bi bi-playstation" },
-                { name: "Xbox", url: "https://xbox.com/play/user/cxsirr", iconUrl: "assets/logos/xbox.svg", iconClass: "bi bi-xbox" },
-                { name: "Steam", url: "https://steamcommunity.com/id/cxsir", iconUrl: "assets/logos/steam.svg", iconClass: "bi bi-steam" },
-                { name: "Discord", url: "https://discord.com/users/803306255062007818", iconUrl: "assets/logos/discord.svg", iconClass: "bi bi-discord" },
-                { name: "Roblox", url: "https://roblox.com/users/2242266391/profile", iconUrl: "assets/logos/roblox.svg", iconClass: "bi bi-robot" },
-                { name: "GitHub", url: "https://github.com/cxsirr", iconUrl: "assets/logos/github.svg", iconClass: "bi bi-github" },
-                { name: "Email", url: "mailto:cxsir@proton.me", iconUrl: "assets/logos/email.svg", iconClass: "bi bi-envelope-fill" }
+                { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", iconClass: "bi bi-snapchat" },
+                { name: "Instagram", url: "https://instagram.com/cxsirr", iconClass: "bi bi-instagram" },
+                { name: "YouTube", url: "https://youtube.com/@cxsirr", iconClass: "bi bi-youtube" },
+                { name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", iconClass: "bi bi-spotify" },
+                { name: "Last.fm", url: "https://last.fm/user/cxsir", iconClass: "bi bi-radio" },
+                { name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", iconClass: "bi bi-playstation" },
+                { name: "Xbox", url: "https://xbox.com/play/user/cxsirr", iconClass: "bi bi-xbox" },
+                { name: "Steam", url: "https://steamcommunity.com/id/cxsir", iconClass: "bi bi-steam" },
+                { name: "Discord", url: "https://discord.com/users/803306255062007818", iconClass: "bi bi-discord" },
+                { name: "Roblox", url: "https://roblox.com/users/2242266391/profile", iconClass: "bi bi-robot" },
+                { name: "GitHub", url: "https://github.com/cxsirr", iconClass: "bi bi-github" },
+                { name: "Email", url: "mailto:cxsir@proton.me", iconClass: "bi bi-envelope-fill" }
             ],
 
             exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
         };
+
+        // --- UTIL: compute filename for a link name ---
+        function iconFilenameFor(name) {
+            return 'assets/logos/' + name.toLowerCase().replace(/[^a-z0-9]/g, '') + '.svg';
+        }
 
         // --- AUTOMATIC LOAD LOGIC ---
         window.addEventListener('DOMContentLoaded', () => {
@@ -296,36 +302,43 @@
                 audio.load();
             }
 
-            // Loop builder
+            // Loop builder — fetch svg files from assets/logos and inline them so they inherit currentColor
             const linksContainer = document.getElementById('socialLinks');
-            CONFIG.links.forEach(link => {
+            CONFIG.links.forEach(async (link) => {
                 const a = document.createElement('a');
                 a.href = link.url;
                 a.className = 'social-link';
                 a.title = link.name;
                 a.target = '_blank';
 
-                let iconElement;
-                if (link.iconUrl) {
-                    iconElement = document.createElement('img');
-                    iconElement.src = link.iconUrl;
-                    iconElement.alt = link.name + ' logo';
+                const filename = iconFilenameFor(link.name);
+                try {
+                    const r = await fetch(filename);
+                    if (!r.ok) throw new Error('Not found');
+                    const svgText = await r.text();
+                    // parse and ensure svg uses currentColor
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(svgText, 'image/svg+xml');
+                    let svg = doc.documentElement;
+                    if (svg && svg.tagName.toLowerCase() === 'svg') {
+                        // force fill/stroke to currentColor on elements that have explicit fills/strokes
+                        svg.querySelectorAll('[fill]').forEach(el => el.setAttribute('fill', 'currentColor'));
+                        svg.querySelectorAll('[stroke]').forEach(el => el.setAttribute('stroke', 'currentColor'));
 
-                    // If image fails to load (CORS/hotlink blocked), show fallback icon
-                    iconElement.onerror = () => {
-                        iconElement.remove();
-                        const fallback = document.createElement('i');
-                        fallback.className = link.iconClass || 'bi bi-link-45deg';
-                        a.appendChild(fallback);
-                    };
-                } else if (link.iconClass) {
-                    iconElement = document.createElement('i');
-                    iconElement.className = link.iconClass;
-                } else {
-                    iconElement = document.createElement('i');
+                        svg.setAttribute('width', '');
+                        svg.setAttribute('height', '');
+                        svg.setAttribute('aria-hidden', 'true');
+                        a.appendChild(svg);
+                    } else {
+                        throw new Error('Invalid SVG');
+                    }
+                } catch (err) {
+                    // fallback to bootstrap icon
+                    const i = document.createElement('i');
+                    i.className = link.iconClass || 'bi bi-link-45deg';
+                    a.appendChild(i);
                 }
 
-                a.appendChild(iconElement);
                 linksContainer.appendChild(a);
             });
 
