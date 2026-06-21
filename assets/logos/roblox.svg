@@ -1,3 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <polygon points="32,12 48,24 40,52 24,52 16,24" transform="rotate(25 32 32)" fill="currentColor"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5l6-2 11 3-2 13-11 3L3 16V5zm9 2L6.5 7v7l5.5 1V7z"/></svg>
