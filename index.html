@@ -127,6 +127,14 @@
             justify-content: center;
         }
 
+        /* Brand images inside the circular containers (consistent sizing) */
+        .social-link img {
+            width: 60%;
+            height: 60%;
+            object-fit: contain;
+            display: block;
+        }
+
         .social-link:hover {
             background: rgba(0, 212, 255, 0.15);
             border-color: rgba(0, 212, 255, 0.6);
@@ -256,12 +264,14 @@
                 {
                     name: "Snapchat",
                     url: "https://snapchat.com/add/gangangcuh",
-                    iconClass: "bi bi-snapchat" // Solid standalone ghost icon
+                    // Use a brand image so it visually matches other logo styles
+                    iconUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Snapchat_logo.svg/1024px-Snapchat_logo.svg.png"
                 },
                 {
                     name: "Instagram",
                     url: "https://instagram.com/cxsirr",
-                    iconClass: "bi bi-instagram" // Standalone filled glyph with reversed lens detail
+                    // Use official Instagram glyph image for consistent sizing
+                    iconUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Instagram_logo_2016.svg/2048px-Instagram_logo_2016.svg.png"
                 },
                 {
                     name: "YouTube",
@@ -301,7 +311,8 @@
                 {
                     name: "Roblox",
                     url: "https://roblox.com/users/2242266391/profile",
-                    iconClass: "bi bi-roblox" // Perfectly aligned native tilted logo
+                    // Roblox isn't available in bootstrap-icons; use a brand image for a matching look
+                    iconUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Roblox_2017_logo.svg/1024px-Roblox_2017_logo.svg.png"
                 },
                 {
                     name: "GitHub",
@@ -342,10 +353,19 @@
                 a.title = link.name;
                 a.target = '_blank';
 
-                const icon = document.createElement('i');
-                icon.className = link.iconClass;
+                let iconElement;
+                if (link.iconUrl) {
+                    iconElement = document.createElement('img');
+                    iconElement.src = link.iconUrl;
+                    iconElement.alt = link.name + ' logo';
+                } else if (link.iconClass) {
+                    iconElement = document.createElement('i');
+                    iconElement.className = link.iconClass;
+                } else {
+                    iconElement = document.createElement('i');
+                }
 
-                a.appendChild(icon);
+                a.appendChild(iconElement);
                 linksContainer.appendChild(a);
             });
 
