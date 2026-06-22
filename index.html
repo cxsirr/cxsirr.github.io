@@ -286,6 +286,12 @@ const res = await fetch(`assets/logos/${link.icon}.svg`);
 if (!res.ok) throw new Error(`HTTP ${res.status}`);
 const svgText = await res.text();
 a.insertAdjacentHTML('beforeend', svgText);
+
+// Remove the SVG's own <title> so it doesn't create a duplicate
+// native tooltip on top of the one already set on the <a> tag.
+const svgEl = a.querySelector('svg');
+const titleEl = svgEl && svgEl.querySelector('title');
+if (titleEl) titleEl.remove();
 } catch (err) {
 console.error(`Failed to load icon "${link.icon}":`, err);
 }
