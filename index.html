@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>cxsir</title>
 <style>
+/* ============================================================
+   CONFIG — edit everything here. Colors/sizes are applied via
+   JS at load time (see CONFIG object in the <script> below),
+   so most visual tweaks only need changes in ONE place: the
+   CONFIG object near the top of the script.
+   ============================================================ */
 * {
 margin: 0;
 padding: 0;
@@ -53,7 +59,7 @@ padding: 20px;
 z-index: 1;
 position: relative;
 }
-/* Profile Card */
+/* Profile Card — border-color/width/radius set inline from CONFIG.card* via JS */
 .profile {
 text-align: center;
 width: 100%;
@@ -95,7 +101,7 @@ color: #cfcfcf;
 margin-bottom: 22px;
 line-height: 1.5;
 }
-/* Clean grid layout for social icons */
+/* Clean grid layout for social icons — border-color/width set inline from CONFIG.icon* via JS */
 .social-links {
 display: flex;
 justify-content: center;
@@ -136,7 +142,8 @@ box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 .social-link:active {
 transform: translateY(-2px) scale(0.97);
 }
-/* Center-aligned Showcase Container for Exophase Card */
+/* Center-aligned Showcase Container for Exophase Card — border-color/width/radius
+   set inline from CONFIG.showcase* via JS */
 .card-showcase {
 display: flex;
 justify-content: center;
@@ -165,7 +172,7 @@ transform: scale(1.03);
 border-color: rgba(255, 255, 255, 0.3);
 box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
 }
-/* Custom Music Player */
+/* Custom Music Player — border-color/width/radius set inline from CONFIG.player* via JS */
 .music-player {
 margin-top: 22px;
 padding: 10px;
@@ -332,7 +339,7 @@ height: 19px;
 <body>
 <div class="bg-container" id="bgContainer"></div>
 <div class="container">
-<div class="profile">
+<div class="profile" id="profileCard">
 <div class="pfp-wrap">
 <img class="pfp" id="profilePfp" src="" alt="Profile picture">
 </div>
@@ -343,7 +350,7 @@ height: 19px;
 
 <div class="card-showcase" id="cardShowcase"></div>
 
-<div class="music-player">
+<div class="music-player" id="musicPlayer">
 <div class="spotify-badge" id="spotifyBadge">LIVE</div>
 <img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous">
 <div class="music-info">
@@ -375,29 +382,66 @@ height: 19px;
 </div>
 
 <script>
+/* ============================================================
+   CONFIG — everything you'd want to tweak lives here, at the
+   top of the file, on purpose. Profile info, background, every
+   card's border (color/width/radius), music tracks, and links.
+   ============================================================ */
 const CONFIG = {
+// ---- Profile ----
 name: "cxsir",
 bio: "a lost cause",
-// Local image path, relative to this file (root/index.html).
-pfpUrl: "assets/pfp/cxsir.jpg",
-bgImage: "assets/bg/cxsir.jpg",
-bgBlur: 0, // px of blur applied to the background image. Adjust to taste.
-exophaseCardUrl: "https://card.exophase.com/2/0/327032.png",
+pfpUrl: "assets/pfp/cxsir.jpg", // relative to this file (root/index.html)
 
+// ---- Background ----
+bgImage: "assets/bg/cxsir.jpg",
+bgBlur: 0, // px of blur applied to the background image
+
+// ---- Main profile card styling ----
+cardBorderColor: "rgba(255, 255, 255, 0.12)",
+cardBorderWidth: 1, // px
+cardBorderRadius: 24, // px
+cardBackground: "rgba(40, 40, 40, 0.25)",
+
+// ---- Social icon circle styling ----
+iconBorderColor: "rgba(255, 255, 255, 0.15)",
+iconBorderWidth: 2, // px
+iconBackground: "rgba(255, 255, 255, 0.08)",
+
+// ---- Exophase showcase card styling ----
+exophaseCardUrl: "https://card.exophase.com/2/0/327032.png",
+showcaseBorderColor: "rgba(255, 255, 255, 0.12)",
+showcaseBorderWidth: 1, // px
+showcaseBorderRadius: 12, // px
+
+// ---- Music player styling ----
+playerBorderColor: "rgba(255, 255, 255, 0.1)",
+playerBorderWidth: 1, // px
+playerBorderRadius: 14, // px
+playerBackground: "rgba(50, 50, 50, 0.55)",
+// When true, album art color sampling overrides playerBackground/
+// playerBorderColor dynamically per track (see tintPlayerFromArt below).
+// Set to false to always keep the static colors above.
+playerColorFromArt: true,
+
+// ---- Spotify "now playing" integration ----
 // Your deployed Cloudflare Worker URL. When set, the player auto-updates to
 // whatever Spotify reports as currently/recently playing, polling every
-// spotifyPollSeconds. Leave as "" to disable and fall back to the manual
-// tracks list below.
+// spotifyPollSeconds, with a real progress bar synced to actual playback
+// position (ticks locally between polls, corrected on each poll).
+// Leave as "" to disable and fall back to the manual tracks list below.
 spotifyWorkerUrl: "https://cxsir-github-io-widget.tymchyshyndaniel4-171.workers.dev/",
-spotifyPollSeconds: 10,
+spotifyPollSeconds: 15,
 
-// Fallback / manual playlist. Used only if spotifyWorkerUrl is empty, or if
-// a fetch to it fails. prev/next cycle through this list normally; the
-// scrubber/duration update from the loaded audio file itself.
+// ---- Fallback / manual playlist ----
+// Used only if spotifyWorkerUrl is empty, or if a fetch to it fails.
+// prev/next cycle through this list; scrubber/duration update from the
+// loaded audio file itself.
 tracks: [
 { title: "God of Basketball", artist: "", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", art: "" },
 ],
 
+// ---- Social links ----
 links: [
 { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", icon: "snapchat" },
 { name: "Instagram", url: "https://instagram.com/cxsirr", icon: "instagram" },
@@ -431,6 +475,31 @@ const bg = document.getElementById('bgContainer');
 bg.style.backgroundImage = `url('${CONFIG.bgImage}')`;
 bg.style.filter = `blur(${CONFIG.bgBlur}px)`;
 }
+
+// ---- Apply CONFIG-driven border/background styling ----
+const profileCard = document.getElementById('profileCard');
+profileCard.style.borderColor = CONFIG.cardBorderColor;
+profileCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
+profileCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
+profileCard.style.background = CONFIG.cardBackground;
+
+const musicPlayerStatic = document.getElementById('musicPlayer');
+musicPlayerStatic.style.borderColor = CONFIG.playerBorderColor;
+musicPlayerStatic.style.borderWidth = `${CONFIG.playerBorderWidth}px`;
+musicPlayerStatic.style.borderRadius = `${CONFIG.playerBorderRadius}px`;
+musicPlayerStatic.style.background = CONFIG.playerBackground;
+
+// Inject icon border/background as a small stylesheet, since these apply
+// to every .social-link rather than one element by id.
+const iconStyleTag = document.createElement('style');
+iconStyleTag.textContent = `
+.social-link {
+border-color: ${CONFIG.iconBorderColor} !important;
+border-width: ${CONFIG.iconBorderWidth}px !important;
+background: ${CONFIG.iconBackground} !important;
+}
+`;
+document.head.appendChild(iconStyleTag);
 
 // ---- Social icons: fetch + inline each SVG so currentColor (white) applies ----
 const linksContainer = document.getElementById('socialLinks');
@@ -466,6 +535,9 @@ aCard.href = "https://www.exophase.com/user/cxsir/";
 aCard.className = 'showcase-card';
 aCard.target = '_blank';
 aCard.title = "Exophase Card";
+aCard.style.borderColor = CONFIG.showcaseBorderColor;
+aCard.style.borderWidth = `${CONFIG.showcaseBorderWidth}px`;
+aCard.style.borderRadius = `${CONFIG.showcaseBorderRadius}px`;
 
 const imgCard = document.createElement('img');
 imgCard.src = CONFIG.exophaseCardUrl;
@@ -495,10 +567,11 @@ const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
 
 // Samples the loaded album art image down to a tiny canvas and averages the
 // pixels to get a rough dominant color, then tints the player's background
-// and border with it. Falls back silently (no tint change) on any error,
-// e.g. if the image is cross-origin without CORS headers.
+// and border with it. Falls back to CONFIG's static player colors on any
+// error (e.g. cross-origin image without proper CORS headers) or if
+// CONFIG.playerColorFromArt is disabled.
 function tintPlayerFromArt(imgEl) {
-if (!imgEl || !imgEl.src) {
+if (!CONFIG.playerColorFromArt || !imgEl || !imgEl.src) {
 resetPlayerTint();
 return;
 }
@@ -537,14 +610,17 @@ imgEl.onerror = resetPlayerTint;
 }
 
 function resetPlayerTint() {
-musicPlayerEl.style.background = 'rgba(20, 20, 20, 0.55)';
-musicPlayerEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+musicPlayerEl.style.background = CONFIG.playerBackground;
+musicPlayerEl.style.borderColor = CONFIG.playerBorderColor;
 }
 
 let trackIndex = 0;
 let isScrubbing = false;
 let spotifyMode = false; // true once a successful Spotify fetch has happened
-let lastSpotifyUrl = null; // used to avoid re-rendering identical data every poll
+let lastSpotifyUrl = null; // used to skip the expensive re-render when track hasn't changed
+let spotifyProgressMs = 0; // last known progress from Spotify, advanced locally between polls
+let spotifyDurationMs = 0;
+let spotifyTickHandle = null; // setInterval handle for local progress ticking
 
 function loadTrack(index, autoplay) {
 if (!CONFIG.tracks.length) return;
@@ -580,6 +656,34 @@ scrubber.disabled = active;
 if (!active) spotifyBadge.style.display = 'none';
 }
 
+// Advances the displayed progress bar by 1 second locally, between polls,
+// so the bar moves smoothly instead of jumping only every spotifyPollSeconds.
+// Gets corrected back to the real value on the next successful poll.
+function startSpotifyTicking() {
+stopSpotifyTicking();
+spotifyTickHandle = setInterval(() => {
+if (!spotifyMode) return;
+spotifyProgressMs = Math.min(spotifyProgressMs + 1000, spotifyDurationMs || spotifyProgressMs + 1000);
+updateSpotifyProgressUI();
+}, 1000);
+}
+
+function stopSpotifyTicking() {
+if (spotifyTickHandle) {
+clearInterval(spotifyTickHandle);
+spotifyTickHandle = null;
+}
+}
+
+function updateSpotifyProgressUI() {
+const progressSec = spotifyProgressMs / 1000;
+const durationSec = spotifyDurationMs / 1000;
+scrubber.max = durationSec || 0;
+scrubber.value = progressSec;
+currentTimeEl.textContent = formatTime(progressSec);
+durationEl.textContent = formatTime(durationSec);
+}
+
 // ---- Spotify "now playing" polling ----
 async function fetchNowPlaying() {
 if (!CONFIG.spotifyWorkerUrl) return;
@@ -593,17 +697,24 @@ if (!data || !data.title) {
 // Nothing playing and no recent history either — fall back to manual list.
 if (spotifyMode) {
 setSpotifyMode(false);
+stopSpotifyTicking();
 loadTrack(0, false);
 }
 return;
 }
 
-// Avoid redundant re-renders if the same track is still showing.
-if (data.url === lastSpotifyUrl) return;
+const isNewTrack = data.url !== lastSpotifyUrl;
 lastSpotifyUrl = data.url;
+
+// Always refresh progress/duration, even if the track itself hasn't changed,
+// so the bar stays accurate to the real playback position on every poll.
+spotifyProgressMs = typeof data.progressMs === "number" ? data.progressMs : 0;
+spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;
 
 setSpotifyMode(true);
 spotifyBadge.style.display = data.isPlaying ? 'block' : 'none';
+
+if (isNewTrack) {
 renderTrack({
 title: data.title,
 artist: data.artist || "",
@@ -615,15 +726,25 @@ url: "" // no playable audio file from Spotify's API, this is status-only
 // track streaming via this API), so just clear/pause the local <audio>.
 audio.pause();
 audio.removeAttribute('src');
-scrubber.value = 0;
-currentTimeEl.textContent = "0:00";
-durationEl.textContent = "0:00";
-setPlayingIcon(false);
+setPlayingIcon(data.isPlaying);
 
 titleEl.title = data.url ? "Open in Spotify" : "";
 if (data.url) {
 titleEl.style.cursor = 'pointer';
 titleEl.onclick = () => window.open(data.url, '_blank');
+}
+} else {
+setPlayingIcon(data.isPlaying);
+}
+
+updateSpotifyProgressUI();
+
+// Only tick locally while actually playing — paused tracks shouldn't
+// advance the bar on their own between polls.
+if (data.isPlaying) {
+startSpotifyTicking();
+} else {
+stopSpotifyTicking();
 }
 } catch (err) {
 console.error('Spotify fetch failed:', err);
