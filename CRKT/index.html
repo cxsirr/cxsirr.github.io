@@ -243,7 +243,7 @@ links: [
 { name: "PlayStation", url: "https://profile.playstation.com/Glass-Cannon247", icon: "playstation" },
 { name: "Roblox", url: "https://www.roblox.com/users/5393131604/profile", icon: "roblox" }
 ],
-exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
+exophaseCardUrl: ""
 };
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -274,7 +274,7 @@ a.target = '_blank';
 
 if (link.icon) {
 try {
-const res = await fetch(`assets/logos/${link.icon}.svg`);
+const res = await fetch(`../assets/logos/${link.icon}.svg`);
 if (!res.ok) throw new Error(`HTTP ${res.status}`);
 const svgText = await res.text();
 a.insertAdjacentHTML('beforeend', svgText);
