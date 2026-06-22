@@ -1,8 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<html lang="en"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>cxsir</title>
 <style>
 /* ============================================================
@@ -231,19 +229,85 @@ min-width: 28px;
 }
 .music-time.current { text-align: right; }
 .music-time.duration { text-align: left; }
-/* New: last played message style */
-.music-last-played {
- font-size: 0.75em;
- color: #a0a0a0;
- margin-top: 4px;
- display: none;
+.music-scrubber {
+flex: 1;
+-webkit-appearance: none;
+appearance: none;
+height: 4px;
+border-radius: 2px;
+background: rgba(255, 255, 255, 0.2);
+cursor: pointer;
+outline: none;
 }
-/* The progress bar and current time visibility toggling */
-#musicCurrentTime,
-#musicScrubber,
-#musicDuration {
- display: block;
+.music-scrubber::-webkit-slider-thumb {
+-webkit-appearance: none;
+width: 10px;
+height: 10px;
+border-radius: 50%;
+background: #ffffff;
+cursor: pointer;
 }
+.music-scrubber::-moz-range-thumb {
+width: 10px;
+height: 10px;
+border: none;
+border-radius: 50%;
+background: #ffffff;
+cursor: pointer;
+}
+.music-controls {
+display: flex;
+align-items: center;
+gap: 2px;
+flex-shrink: 0;
+}
+.music-btn {
+width: 30px;
+height: 30px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: none;
+border: none;
+color: #e0e0e0;
+cursor: pointer;
+border-radius: 50%;
+transition: background 0.2s ease;
+}
+.music-btn:hover {
+background: rgba(255, 255, 255, 0.12);
+}
+.music-btn svg {
+width: 16px;
+height: 16px;
+fill: currentColor;
+}
+.music-btn.play-pause svg {
+width: 18px;
+height: 18px;
+}
+.music-btn:disabled {
+opacity: 0.3;
+cursor: default;
+}
+.music-btn:disabled:hover {
+background: none;
+}
+/* Small "Live from Spotify" badge shown when CONFIG.spotifyWorkerUrl is active */
+.spotify-badge {
+position: absolute;
+top: -8px;
+right: 10px;
+background: #1ed760;
+color: #0f0f0f;
+font-size: 0.6em;
+font-weight: 700;
+padding: 2px 7px;
+border-radius: 8px;
+letter-spacing: 0.3px;
+display: none;
+}
+/* Responsive Mobile Layout Rules */
 @media (max-width: 600px) {
 .profile {
 padding: 28px 18px 22px;
@@ -275,7 +339,7 @@ height: 19px;
 <div class="container">
 <div class="profile" id="profileCard">
 <div class="pfp-wrap">
-<img class="pfp" id="profilePfp" src="" alt="Profile picture" />
+<img class="pfp" id="profilePfp" src="" alt="Profile picture">
 </div>
 <h1 id="profileName"></h1>
 <p class="tagline" id="profileBio"></p>
@@ -284,14 +348,13 @@ height: 19px;
 
 <div class="music-player" id="musicPlayer">
 <div class="spotify-badge" id="spotifyBadge">LIVE</div>
-<img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous" />
+<img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous">
 <div class="music-info">
 <div class="music-title" id="musicTitle">No track loaded</div>
-<div class="music-last-played" id="musicLastPlayed">Last played: --</div>
 <div class="music-artist" id="musicArtist"></div>
 <div class="music-scrub-row">
 <span class="music-time current" id="musicCurrentTime">0:00</span>
-<input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1" />
+<input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1">
 <span class="music-time duration" id="musicDuration">0:00</span>
 </div>
 </div>
@@ -312,6 +375,8 @@ height: 19px;
 </div>
 
 <div class="card-showcase" id="cardShowcase"></div>
+
+
 </div>
 </div>
 
@@ -392,7 +457,6 @@ links: [
 ]
 };
 
-/* Helper: Format seconds to mm:ss */
 function formatTime(seconds) {
 if (!isFinite(seconds)) return "0:00";
 const m = Math.floor(seconds / 60);
@@ -400,331 +464,347 @@ const s = Math.floor(seconds % 60).toString().padStart(2, '0');
 return `${m}:${s}`;
 }
 
-/* DOMContentLoaded: initialize everything */
 window.addEventListener('DOMContentLoaded', () => {
+document.getElementById('profileName').textContent = CONFIG.name;
+document.getElementById('profileBio').textContent = CONFIG.bio;
+document.getElementById('profilePfp').src = CONFIG.pfpUrl;
 
-  // Set profile info
-  document.getElementById('profileName').textContent = CONFIG.name;
-  document.getElementById('profileBio').textContent = CONFIG.bio;
-  document.getElementById('profilePfp').src = CONFIG.pfpUrl;
+if (CONFIG.bgImage) {
+const bg = document.getElementById('bgContainer');
+bg.style.backgroundImage = `url('${CONFIG.bgImage}')`;
+bg.style.filter = `blur(${CONFIG.bgBlur}px)`;
+}
 
-  // Set background
-  if (CONFIG.bgImage) {
-    const bg = document.getElementById('bgContainer');
-    bg.style.backgroundImage = `url('${CONFIG.bgImage}')`;
-    bg.style.filter = `blur(${CONFIG.bgBlur}px)`;
-  }
+// ---- Apply CONFIG-driven border/background styling ----
+const profileCard = document.getElementById('profileCard');
+profileCard.style.borderColor = CONFIG.cardBorderColor;
+profileCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
+profileCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
+profileCard.style.background = CONFIG.cardBackground;
 
-  // Apply profile card style
-  const profileCard = document.getElementById('profileCard');
-  profileCard.style.borderColor = CONFIG.cardBorderColor;
-  profileCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
-  profileCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
-  profileCard.style.background = CONFIG.cardBackground;
+const musicPlayerStatic = document.getElementById('musicPlayer');
+musicPlayerStatic.style.borderColor = CONFIG.playerBorderColor;
+musicPlayerStatic.style.borderWidth = `${CONFIG.playerBorderWidth}px`;
+musicPlayerStatic.style.borderRadius = `${CONFIG.playerBorderRadius}px`;
+musicPlayerStatic.style.background = CONFIG.playerBackground;
 
-  // Style music player static
-  const musicPlayerStatic = document.getElementById('musicPlayer');
-  musicPlayerStatic.style.borderColor = CONFIG.playerBorderColor;
-  musicPlayerStatic.style.borderWidth = `${CONFIG.playerBorderWidth}px`;
-  musicPlayerStatic.style.borderRadius = `${CONFIG.playerBorderRadius}px`;
-  musicPlayerStatic.style.background = CONFIG.playerBackground;
+// Inject icon border/background as a small stylesheet, since these apply
+// to every .social-link rather than one element by id.
+const iconStyleTag = document.createElement('style');
+iconStyleTag.textContent = `
+.social-link {
+border-color: ${CONFIG.iconBorderColor} !important;
+border-width: ${CONFIG.iconBorderWidth}px !important;
+background: ${CONFIG.iconBackground} !important;
+}
+`;
+document.head.appendChild(iconStyleTag);
 
-  // Inject icon styles
-  const iconStyleTag = document.createElement('style');
-  iconStyleTag.textContent = `
-  .social-link {
-    border-color: ${CONFIG.iconBorderColor} !important;
-    border-width: ${CONFIG.iconBorderWidth}px !important;
-    background: ${CONFIG.iconBackground} !important;
-  }
-  `;
-  document.head.appendChild(iconStyleTag);
+// ---- Social icons: fetch + inline each SVG so currentColor (white) applies ----
+const linksContainer = document.getElementById('socialLinks');
+CONFIG.links.forEach(async (link) => {
+const a = document.createElement('a');
+a.href = link.url;
+a.className = 'social-link';
+a.title = link.name;
+a.target = '_blank';
 
-  // Load social icons
-  const linksContainer = document.getElementById('socialLinks');
-  CONFIG.links.forEach(async (link) => {
-    const a = document.createElement('a');
-    a.href = link.url;
-    a.className = 'social-link';
-    a.title = link.name;
-    a.target = '_blank';
+if (link.icon) {
+try {
+const res = await fetch(`assets/logos/${link.icon}.svg`);
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
+const svgText = await res.text();
+a.insertAdjacentHTML('beforeend', svgText);
 
-    if (link.icon) {
-      try {
-        const res = await fetch(`assets/logos/${link.icon}.svg`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const svgText = await res.text();
-        a.insertAdjacentHTML('beforeend', svgText);
-        const svgEl = a.querySelector('svg');
-        const titleEl = svgEl && svgEl.querySelector('title');
-        if (titleEl) titleEl.remove();
-      } catch (err) {
-        console.error(`Failed to load icon "${link.icon}":`, err);
-      }
-    }
+const svgEl = a.querySelector('svg');
+const titleEl = svgEl && svgEl.querySelector('title');
+if (titleEl) titleEl.remove();
+} catch (err) {
+console.error(`Failed to load icon "${link.icon}":`, err);
+}
+}
 
-    linksContainer.appendChild(a);
-  });
+linksContainer.appendChild(a);
+});
 
-  // Add Exophase showcase card
-  if (CONFIG.exophaseCardUrl) {
-    const showcaseContainer = document.getElementById('cardShowcase');
-    const aCard = document.createElement('a');
-    aCard.href = "https://www.exophase.com/user/cxsir/";
-    aCard.className = 'showcase-card';
-    aCard.target = '_blank';
-    aCard.title = "Exophase Card";
-    aCard.style.borderColor = CONFIG.showcaseBorderColor;
-    aCard.style.borderWidth = `${CONFIG.showcaseBorderWidth}px`;
-    aCard.style.borderRadius = `${CONFIG.showcaseBorderRadius}px`;
+if (CONFIG.exophaseCardUrl) {
+const showcaseContainer = document.getElementById('cardShowcase');
+const aCard = document.createElement('a');
+aCard.href = "https://www.exophase.com/user/cxsir/";
+aCard.className = 'showcase-card';
+aCard.target = '_blank';
+aCard.title = "Exophase Card";
+aCard.style.borderColor = CONFIG.showcaseBorderColor;
+aCard.style.borderWidth = `${CONFIG.showcaseBorderWidth}px`;
+aCard.style.borderRadius = `${CONFIG.showcaseBorderRadius}px`;
 
-    const imgCard = document.createElement('img');
-    imgCard.src = CONFIG.exophaseCardUrl;
-    imgCard.alt = "Exophase Achievement Card";
+const imgCard = document.createElement('img');
+imgCard.src = CONFIG.exophaseCardUrl;
+imgCard.alt = "Exophase Achievement Card";
+aCard.appendChild(imgCard);
 
-    aCard.appendChild(imgCard);
-    showcaseContainer.appendChild(aCard);
-  }
+showcaseContainer.appendChild(aCard);
+}
 
-  // Music player setup
-  const audio = document.getElementById('audioEl');
-  const playPauseBtn = document.getElementById('musicPlayPause');
-  const playIcon = document.getElementById('playIcon');
-  const pauseIcon = document.getElementById('pauseIcon');
-  const prevBtn = document.getElementById('musicPrev');
-  const nextBtn = document.getElementById('musicNext');
-  const scrubber = document.getElementById('musicScrubber');
-  const currentTimeEl = document.getElementById('musicCurrentTime');
-  const durationEl = document.getElementById('musicDuration');
-  const titleEl = document.getElementById('musicTitle');
-  const artistEl = document.getElementById('musicArtist');
-  const artEl = document.getElementById('musicArt');
-  const spotifyBadge = document.getElementById('spotifyBadge');
-  const musicPlayerEl = document.querySelector('.music-player');
-  const sampleCanvas = document.getElementById('artSampleCanvas');
-  const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
-  const lastPlayedEl = document.getElementById('musicLastPlayed');
+// ---- Custom music player ----
+const audio = document.getElementById('audioEl');
+const playPauseBtn = document.getElementById('musicPlayPause');
+const playIcon = document.getElementById('playIcon');
+const pauseIcon = document.getElementById('pauseIcon');
+const prevBtn = document.getElementById('musicPrev');
+const nextBtn = document.getElementById('musicNext');
+const scrubber = document.getElementById('musicScrubber');
+const currentTimeEl = document.getElementById('musicCurrentTime');
+const durationEl = document.getElementById('musicDuration');
+const titleEl = document.getElementById('musicTitle');
+const artistEl = document.getElementById('musicArtist');
+const artEl = document.getElementById('musicArt');
+const spotifyBadge = document.getElementById('spotifyBadge');
+const musicPlayerEl = document.querySelector('.music-player');
+const sampleCanvas = document.getElementById('artSampleCanvas');
+const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
 
-  let trackIndex = 0;
-  let isScrubbing = false;
-  let spotifyMode = false;
-  let lastSpotifyUrl = null;
-  let spotifyProgressMs = 0;
-  let spotifyDurationMs = 0;
-  let spotifyTickHandle = null;
+// Samples the loaded album art image down to a tiny canvas and averages the
+// pixels to get a rough dominant color, then tints the player's background
+// and border with it. Falls back to CONFIG's static player colors on any
+// error (e.g. cross-origin image without proper CORS headers) or if
+// CONFIG.playerColorFromArt is disabled.
+function tintPlayerFromArt(imgEl) {
+if (!CONFIG.playerColorFromArt || !imgEl || !imgEl.src) {
+resetPlayerTint();
+return;
+}
 
-  function resetProgressDisplay() {
-    // Show last played message, hide progress
-    lastPlayedEl.style.display = 'block';
-    currentTimeEl.style.display = 'none';
-    scrubber.style.display = 'none';
-    durationEl.style.display = 'none';
-  }
+const apply = () => {
+try {
+sampleCtx.drawImage(imgEl, 0, 0, 10, 10);
+const { data } = sampleCtx.getImageData(0, 0, 10, 10);
+let r = 0, g = 0, b = 0, count = 0;
+for (let i = 0; i < data.length; i += 4) {
+r += data[i];
+g += data[i + 1];
+b += data[i + 2];
+count++;
+}
+r = Math.round(r / count);
+g = Math.round(g / count);
+b = Math.round(b / count);
 
-  function showProgressDisplay() {
-    // Show progress bar, hide last played
-    lastPlayedEl.style.display = 'none';
-    currentTimeEl.style.display = 'block';
-    scrubber.style.display = 'block';
-    durationEl.style.display = 'block';
-  }
+musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.35), rgba(20, 20, 20, 0.55))`;
+musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
+} catch (err) {
+// Likely a CORS-tainted canvas (cross-origin image without proper headers).
+// Logged so this is easy to spot in devtools rather than failing silently.
+console.warn('Album art color sampling failed:', err);
+resetPlayerTint();
+}
+};
 
-  // When a track is loaded
-  function loadTrack(index, autoplay) {
-    if (!CONFIG.tracks.length) return;
-    trackIndex = (index + CONFIG.tracks.length) % CONFIG.tracks.length;
-    renderTrack(CONFIG.tracks[trackIndex], autoplay);
-  }
+if (imgEl.complete && imgEl.naturalWidth > 0) {
+apply();
+} else {
+imgEl.onload = apply;
+imgEl.onerror = resetPlayerTint;
+}
+}
 
-  function renderTrack(track, autoplay) {
-    // Show progress bar
-    showProgressDisplay();
+function resetPlayerTint() {
+musicPlayerEl.style.background = CONFIG.playerBackground;
+musicPlayerEl.style.borderColor = CONFIG.playerBorderColor;
+}
 
-    audio.src = track.url;
-    titleEl.textContent = track.title || "Untitled";
-    artistEl.textContent = track.artist || "";
-    artistEl.style.display = track.artist ? 'block' : 'none';
-    artEl.src = track.art || "";
-    artEl.style.visibility = track.art ? 'visible' : 'hidden';
-    tintPlayerFromArt(track.art ? artEl : null);
-    if (autoplay) audio.play().catch(() => {});
-  }
+let trackIndex = 0;
+let isScrubbing = false;
+let spotifyMode = false; // true once a successful Spotify fetch has happened
+let lastSpotifyUrl = null; // used to skip the expensive re-render when track hasn't changed
+let spotifyProgressMs = 0; // last known progress from Spotify, advanced locally between polls
+let spotifyDurationMs = 0;
+let spotifyTickHandle = null; // setInterval handle for local progress ticking
 
-  function setPlayingIcon(playing) {
-    playIcon.style.display = playing ? 'none' : 'block';
-    pauseIcon.style.display = playing ? 'block' : 'none';
-  }
+function loadTrack(index, autoplay) {
+if (!CONFIG.tracks.length) return;
+trackIndex = (index + CONFIG.tracks.length) % CONFIG.tracks.length;
+const track = CONFIG.tracks[trackIndex];
+renderTrack(track, autoplay);
+}
 
-  function setSpotifyMode(active) {
-    spotifyMode = active;
-    // Disable controls if in spotify mode
-    prevBtn.disabled = active;
-    nextBtn.disabled = active;
-    playPauseBtn.disabled = active;
-    scrubber.disabled = active;
-    if (!active) {
-      lastPlayedEl.style.display = 'none';
-    }
-  }
+function renderTrack(track, autoplay) {
+audio.src = track.url;
+titleEl.textContent = track.title || "Untitled";
+artistEl.textContent = track.artist || "";
+artistEl.style.display = track.artist ? 'block' : 'none';
+artEl.src = track.art || "";
+artEl.style.visibility = track.art ? 'visible' : 'hidden';
+tintPlayerFromArt(track.art ? artEl : null);
+if (autoplay) audio.play().catch(() => {});
+}
 
-  function startSpotifyTicking() {
-    stopSpotifyTicking();
-    spotifyTickHandle = setInterval(() => {
-      if (!spotifyMode) return;
-      spotifyProgressMs = Math.min(spotifyProgressMs + 1000, spotifyDurationMs || spotifyProgressMs + 1000);
-      updateSpotifyProgressUI();
-    }, 1000);
-  }
+function setPlayingIcon(playing) {
+playIcon.style.display = playing ? 'none' : 'block';
+pauseIcon.style.display = playing ? 'block' : 'none';
+}
 
-  function stopSpotifyTicking() {
-    if (spotifyTickHandle) {
-      clearInterval(spotifyTickHandle);
-      spotifyTickHandle = null;
-    }
-  }
+function setSpotifyMode(active) {
+spotifyMode = active;
+// While in Spotify mode, prev/next/scrubber don't make sense (it's just a
+// status display, not a playable local file), so disable them.
+prevBtn.disabled = active;
+nextBtn.disabled = active;
+playPauseBtn.disabled = active;
+scrubber.disabled = active;
+if (!active) spotifyBadge.style.display = 'none';
+}
 
-  function updateSpotifyProgressUI() {
-    const progressSec = spotifyProgressMs / 1000;
-    const durationSec = spotifyDurationMs / 1000;
-    scrubber.max = durationSec || 0;
-    scrubber.value = progressSec;
-    currentTimeEl.textContent = formatTime(progressSec);
-    durationEl.textContent = formatTime(durationSec);
-  }
+// Advances the displayed progress bar by 1 second locally, between polls,
+// so the bar moves smoothly instead of jumping only every spotifyPollSeconds.
+// Gets corrected back to the real value on the next successful poll.
+function startSpotifyTicking() {
+stopSpotifyTicking();
+spotifyTickHandle = setInterval(() => {
+if (!spotifyMode) return;
+spotifyProgressMs = Math.min(spotifyProgressMs + 1000, spotifyDurationMs || spotifyProgressMs + 1000);
+updateSpotifyProgressUI();
+}, 1000);
+}
 
-  // Fetch Spotify now playing
-  async function fetchNowPlaying() {
-    if (!CONFIG.spotifyWorkerUrl) return;
+function stopSpotifyTicking() {
+if (spotifyTickHandle) {
+clearInterval(spotifyTickHandle);
+spotifyTickHandle = null;
+}
+}
 
-    try {
-      const res = await fetch(CONFIG.spotifyWorkerUrl, { cache: 'no-store' });
-      if (!res.ok) throw new Error(`Worker returned ${res.status}`);
-      const data = await res.json();
+function updateSpotifyProgressUI() {
+const progressSec = spotifyProgressMs / 1000;
+const durationSec = spotifyDurationMs / 1000;
+scrubber.max = durationSec || 0;
+scrubber.value = progressSec;
+currentTimeEl.textContent = formatTime(progressSec);
+durationEl.textContent = formatTime(durationSec);
+}
 
-      if (!data || !data.title) {
-        if (spotifyMode) {
-          setSpotifyMode(false);
-          stopSpotifyTicking();
-          // Show last played for previous track
-          if (audio.currentTime) {
-            updateLastPlayed(audio.currentTime);
-          } else {
-            resetProgressDisplay();
-          }
-        }
-        return;
-      }
+// ---- Spotify "now playing" polling ----
+async function fetchNowPlaying() {
+if (!CONFIG.spotifyWorkerUrl) return;
 
-      const isNewTrack = data.url !== lastSpotifyUrl;
-      lastSpotifyUrl = data.url;
+try {
+const res = await fetch(CONFIG.spotifyWorkerUrl, { cache: 'no-store' });
+if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+const data = await res.json();
 
-      // Always update progress/duration
-      spotifyProgressMs = typeof data.progressMs === "number" ? data.progressMs : 0;
-      spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;
+if (!data || !data.title) {
+// Nothing playing and no recent history either — fall back to manual list.
+if (spotifyMode) {
+setSpotifyMode(false);
+stopSpotifyTicking();
+loadTrack(0, false);
+}
+return;
+}
 
-      setSpotifyMode(true);
-      spotifyBadge.style.display = data.isPlaying ? 'block' : 'none';
+const isNewTrack = data.url !== lastSpotifyUrl;
+lastSpotifyUrl = data.url;
 
-      if (isNewTrack) {
-        renderTrack({
-          title: data.title,
-          artist: data.artist || "",
-          art: data.art || "",
-          url: "" // no playable audio from Spotify API
-        }, false);
-        // Clear local <audio>
-        audio.pause();
-        audio.removeAttribute('src');
-        setPlayingIcon(data.isPlaying);
-        titleEl.title = data.url ? "Open in Spotify" : "";
-        if (data.url) {
-          titleEl.style.cursor = 'pointer';
-          titleEl.onclick = () => window.open(data.url, '_blank');
-        }
-      } else {
-        setPlayingIcon(data.isPlaying);
-      }
+// Always refresh progress/duration, even if the track itself hasn't changed,
+// so the bar stays accurate to the real playback position on every poll.
+spotifyProgressMs = typeof data.progressMs === "number" ? data.progressMs : 0;
+spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;
 
-      updateSpotifyProgressUI();
+setSpotifyMode(true);
+spotifyBadge.style.display = data.isPlaying ? 'block' : 'none';
 
-      if (data.isPlaying) {
-        startSpotifyTicking();
-      } else {
-        stopSpotifyTicking();
-      }
-    } catch (err) {
-      console.error('Spotify fetch failed:', err);
-    }
-  }
+if (isNewTrack) {
+renderTrack({
+title: data.title,
+artist: data.artist || "",
+art: data.art || "",
+url: "" // no playable audio file from Spotify's API, this is status-only
+}, false);
 
-  // Initialize Spotify polling
-  if (CONFIG.spotifyWorkerUrl) {
-    fetchNowPlaying();
-    setInterval(fetchNowPlaying, Math.max(5, CONFIG.spotifyPollSeconds) * 1000);
-  } else if (CONFIG.tracks.length) {
-    loadTrack(0, false);
-  }
+// There's no audio source to actually play (Spotify doesn't expose full
+// track streaming via this API), so just clear/pause the local <audio>.
+audio.pause();
+audio.removeAttribute('src');
+setPlayingIcon(data.isPlaying);
 
-  // Event listeners
-  document.getElementById('musicPlayPause').addEventListener('click', () => {
-    if (spotifyMode) return;
-    if (audio.paused) {
-      audio.play().catch(() => {});
-    } else {
-      audio.pause();
-    }
-  });
+titleEl.title = data.url ? "Open in Spotify" : "";
+if (data.url) {
+titleEl.style.cursor = 'pointer';
+titleEl.onclick = () => window.open(data.url, '_blank');
+}
+} else {
+setPlayingIcon(data.isPlaying);
+}
 
-  document.getElementById('musicPrev').addEventListener('click', () => {
-    if (spotifyMode) return;
-    loadTrack(trackIndex - 1, true);
-  });
-  document.getElementById('musicNext').addEventListener('click', () => {
-    if (spotifyMode) return;
-    loadTrack(trackIndex + 1, true);
-  });
+updateSpotifyProgressUI();
 
-  audio.addEventListener('play', () => setPlayingIcon(true));
-  audio.addEventListener('pause', () => {
-    setPlayingIcon(false);
-    // Show last played time
-    if (!spotifyMode) {
-      updateLastPlayed(audio.currentTime);
-    }
-  });
-  audio.addEventListener('ended', () => {
-    if (!spotifyMode) {
-      updateLastPlayed(audio.currentTime);
-      // Optionally load next track here
-    }
-  });
+// Only tick locally while actually playing — paused tracks shouldn't
+// advance the bar on their own between polls.
+if (data.isPlaying) {
+startSpotifyTicking();
+} else {
+stopSpotifyTicking();
+}
+} catch (err) {
+console.error('Spotify fetch failed:', err);
+// Leave whatever was last shown (manual track or last good Spotify data)
+// rather than clearing the player on a transient network error.
+}
+}
 
-  audio.addEventListener('loadedmetadata', () => {
-    scrubber.max = audio.duration || 0;
-    durationEl.textContent = formatTime(audio.duration);
-  });
+if (CONFIG.spotifyWorkerUrl) {
+fetchNowPlaying();
+setInterval(fetchNowPlaying, Math.max(5, CONFIG.spotifyPollSeconds) * 1000);
+} else if (CONFIG.tracks.length) {
+loadTrack(0, false);
+}
 
-  audio.addEventListener('timeupdate', () => {
-    if (isScrubbing || spotifyMode) return;
-    scrubber.value = audio.currentTime;
-    currentTimeEl.textContent = formatTime(audio.currentTime);
-  });
+playPauseBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+if (audio.paused) {
+audio.play().catch(() => {});
+} else {
+audio.pause();
+}
+});
 
-  // Scrubber events
-  document.getElementById('musicScrubber').addEventListener('input', () => {
-    if (spotifyMode) return;
-    isScrubbing = true;
-    currentTimeEl.textContent = formatTime(parseFloat(scrubber.value));
-  });
-  document.getElementById('musicScrubber').addEventListener('change', () => {
-    if (spotifyMode) return;
-    audio.currentTime = parseFloat(scrubber.value);
-    isScrubbing = false;
-  });
+prevBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex - 1, true);
+});
+nextBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex + 1, true);
+});
 
-  // Initialize last played display as hidden
-  resetProgressDisplay();
+audio.addEventListener('play', () => setPlayingIcon(true));
+audio.addEventListener('pause', () => setPlayingIcon(false));
+audio.addEventListener('ended', () => {
+if (!spotifyMode) loadTrack(trackIndex + 1, true);
+});
 
+audio.addEventListener('loadedmetadata', () => {
+scrubber.max = audio.duration || 0;
+durationEl.textContent = formatTime(audio.duration);
+});
+
+audio.addEventListener('timeupdate', () => {
+if (isScrubbing) return;
+scrubber.value = audio.currentTime;
+currentTimeEl.textContent = formatTime(audio.currentTime);
+});
+
+scrubber.addEventListener('input', () => {
+if (spotifyMode) return;
+isScrubbing = true;
+currentTimeEl.textContent = formatTime(parseFloat(scrubber.value));
+});
+
+scrubber.addEventListener('change', () => {
+if (spotifyMode) return;
+audio.currentTime = parseFloat(scrubber.value);
+isScrubbing = false;
+});
 });
 </script>
 </body>
