@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Profile</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 <style>
 * {
 margin: 0;
@@ -13,13 +12,13 @@ box-sizing: border-box;
 }
 body {
 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+background: #0f0f0f;
 color: #e0e0e0;
 min-height: 100vh;
 overflow-x: hidden;
 position: relative;
 }
-/* Background Image */
+/* Background Image - blur amount is set inline from CONFIG.bgBlur via JS */
 .bg-container {
 position: fixed;
 top: 0;
@@ -29,7 +28,7 @@ height: 100%;
 background-size: cover;
 background-position: center;
 background-repeat: no-repeat;
-opacity: 0.3;
+transform: scale(1.1); /* avoids blurred edges showing at the viewport border */
 z-index: -2;
 }
 body::before {
@@ -39,7 +38,7 @@ top: 0;
 left: 0;
 width: 100%;
 height: 100%;
-background: rgba(0, 0, 0, 0.5);
+background: rgba(0, 0, 0, 0.45);
 z-index: -1;
 pointer-events: none;
 }
@@ -58,41 +57,52 @@ position: relative;
 .profile {
 text-align: center;
 width: 100%;
-max-width: 600px;
-backdrop-filter: blur(10px);
-background: rgba(20, 20, 20, 0.8);
-padding: 40px;
-border-radius: 20px;
-border: 1px solid rgba(255, 255, 255, 0.1);
-box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+max-width: 420px;
+backdrop-filter: blur(16px);
+background: rgba(40, 40, 40, 0.55);
+padding: 36px 28px 28px;
+border-radius: 24px;
+border: 1px solid rgba(255, 255, 255, 0.12);
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 animation: fadeIn 0.6s ease-in;
 }
 @keyframes fadeIn {
 from { opacity: 0; transform: translateY(20px); }
 to { opacity: 1; transform: translateY(0); }
 }
+/* Profile Picture */
+.pfp-wrap {
+display: flex;
+justify-content: center;
+margin-bottom: 18px;
+}
+.pfp {
+width: 110px;
+height: 110px;
+border-radius: 50%;
+object-fit: cover;
+border: 3px solid rgba(255, 255, 255, 0.25);
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
 .profile h1 {
-font-size: 2.5em;
-margin-bottom: 10px;
-background: linear-gradient(135deg, #00d4ff, #0099ff);
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
-background-clip: text;
+font-size: 2em;
+margin-bottom: 8px;
+letter-spacing: 0.5px;
 }
-.profile p {
-font-size: 1.1em;
-color: #b0b0b0;
-margin-bottom: 30px;
-line-height: 1.6;
+.profile .tagline {
+font-size: 1.05em;
+color: #cfcfcf;
+margin-bottom: 22px;
+line-height: 1.5;
 }
-/* Clean 2-row grid layout (6 items per row maximum) */
+/* Clean grid layout for social icons */
 .social-links {
 display: flex;
 justify-content: center;
 gap: 12px;
 flex-wrap: wrap;
-margin: 25px auto 15px auto;
-max-width: 330px;
+margin: 22px auto 4px auto;
+max-width: 340px;
 }
 .social-link {
 width: 44px;
@@ -100,7 +110,7 @@ height: 44px;
 display: flex;
 align-items: center;
 justify-content: center;
-background: rgba(255, 255, 255, 0.05);
+background: rgba(255, 255, 255, 0.08);
 border: 2px solid rgba(255, 255, 255, 0.15);
 border-radius: 50%;
 transition: all 0.25s ease;
@@ -108,35 +118,23 @@ text-decoration: none;
 overflow: hidden;
 color: #ffffff;
 }
-/* Icon styling - clean and simple */
-.social-link i {
-font-size: 20px;
-color: inherit;
-transition: all 0.25s ease;
-display: flex;
-align-items: center;
-justify-content: center;
-}
-/* Inline SVG icon styling - currentColor now works since SVG markup lives in the DOM */
+/* Inline SVG icon styling - currentColor works since SVG markup lives in the DOM */
 .social-link svg {
-width: 24px;
-height: 24px;
+width: 22px;
+height: 22px;
 fill: currentColor;
 color: inherit;
 transition: all 0.25s ease;
 display: block;
 }
-/* Hover effect */
 .social-link:hover {
-background: rgba(103, 103, 103, 0.12);
-border-color: rgba(103, 103, 103, 0.6);
+background: rgba(255, 255, 255, 0.18);
+border-color: rgba(255, 255, 255, 0.5);
 transform: translateY(-4px);
-box-shadow: 0 5px 15px rgba(103, 103, 103, 0.25);
-color: #676767;
-filter: brightness(1.2);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
 .social-link:active {
-transform: translateY(-2px) scale(0.99);
+transform: translateY(-2px) scale(0.97);
 }
 /* Center-aligned Showcase Container for Exophase Card */
 .card-showcase {
@@ -144,17 +142,17 @@ display: flex;
 justify-content: center;
 align-items: center;
 width: 100%;
-margin: 20px 0 30px 0;
+margin: 18px 0 4px 0;
 }
 .showcase-card {
 display: block;
 width: 100%;
-max-width: 420px;
+max-width: 360px;
 transition: all 0.3s ease;
 border-radius: 12px;
 overflow: hidden;
-border: 1px solid rgba(255, 255, 255, 0.1);
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+border: 1px solid rgba(255, 255, 255, 0.12);
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
 }
 .showcase-card img {
 width: 100%;
@@ -164,33 +162,134 @@ object-fit: contain;
 }
 .showcase-card:hover {
 transform: scale(1.03);
-border-color: rgba(0, 212, 255, 0.5);
-box-shadow: 0 6px 25px rgba(0, 212, 255, 0.25);
+border-color: rgba(255, 255, 255, 0.3);
+box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
 }
-/* Music Player */
+/* Custom Music Player */
 .music-player {
-padding-top: 30px;
-border-top: 1px solid rgba(255, 255, 255, 0.1);
+margin-top: 22px;
+padding: 10px;
+display: flex;
+align-items: center;
+gap: 12px;
+background: rgba(20, 20, 20, 0.55);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 14px;
 }
-.music-player label {
-display: block;
-font-size: 0.9em;
-color: #00d4ff;
-margin-bottom: 10px;
+.music-art {
+width: 46px;
+height: 46px;
+border-radius: 8px;
+object-fit: cover;
+flex-shrink: 0;
+background: rgba(255, 255, 255, 0.08);
+}
+.music-info {
+flex: 1;
+min-width: 0;
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+.music-title {
+font-size: 0.85em;
 font-weight: 600;
+color: #f0f0f0;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+text-align: left;
 }
-.music-player audio {
-width: 100%;
-margin-top: 10px;
-accent-color: #00d4ff;
+.music-artist {
+font-size: 0.72em;
+color: #a8a8a8;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+text-align: left;
+margin-top: -2px;
+}
+.music-scrub-row {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.music-time {
+font-size: 0.7em;
+color: #a0a0a0;
+flex-shrink: 0;
+min-width: 28px;
+}
+.music-time.current { text-align: right; }
+.music-time.duration { text-align: left; }
+.music-scrubber {
+flex: 1;
+-webkit-appearance: none;
+appearance: none;
+height: 4px;
+border-radius: 2px;
+background: rgba(255, 255, 255, 0.2);
+cursor: pointer;
+outline: none;
+}
+.music-scrubber::-webkit-slider-thumb {
+-webkit-appearance: none;
+width: 10px;
+height: 10px;
+border-radius: 50%;
+background: #ffffff;
+cursor: pointer;
+}
+.music-scrubber::-moz-range-thumb {
+width: 10px;
+height: 10px;
+border: none;
+border-radius: 50%;
+background: #ffffff;
+cursor: pointer;
+}
+.music-controls {
+display: flex;
+align-items: center;
+gap: 2px;
+flex-shrink: 0;
+}
+.music-btn {
+width: 30px;
+height: 30px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: none;
+border: none;
+color: #e0e0e0;
+cursor: pointer;
+border-radius: 50%;
+transition: background 0.2s ease;
+}
+.music-btn:hover {
+background: rgba(255, 255, 255, 0.12);
+}
+.music-btn svg {
+width: 16px;
+height: 16px;
+fill: currentColor;
+}
+.music-btn.play-pause svg {
+width: 18px;
+height: 18px;
 }
 /* Responsive Mobile Layout Rules */
 @media (max-width: 600px) {
 .profile {
-padding: 25px 15px;
+padding: 28px 18px 22px;
+}
+.pfp {
+width: 90px;
+height: 90px;
 }
 .profile h1 {
-font-size: 2.2em;
+font-size: 1.7em;
 }
 .social-links {
 gap: 8px;
@@ -200,15 +299,9 @@ max-width: 280px;
 width: 40px;
 height: 40px;
 }
-.social-link i {
-font-size: 18px;
-}
 .social-link svg {
-width: 20px;
-height: 20px;
-}
-.showcase-card {
-max-width: 100%;
+width: 19px;
+height: 19px;
 }
 }
 </style>
@@ -217,26 +310,61 @@ max-width: 100%;
 <div class="bg-container" id="bgContainer"></div>
 <div class="container">
 <div class="profile">
-<h1 id="profileName"></h1>
-<p id="profileBio"></p>
-<div class="social-links" id="socialLinks"></div>
-<div class="card-showcase" id="cardShowcase"></div>
-<div class="music-player">
-<label for="bgMusic">🎵 Background Music</label>
-<audio id="bgMusic" controls loop>
-<source id="musicSource" src="" type="audio/mpeg">
-Your browser does not support the audio element.
-</audio>
+<div class="pfp-wrap">
+<img class="pfp" id="profilePfp" src="" alt="Profile picture">
 </div>
+<h1 id="profileName"></h1>
+<p class="tagline" id="profileBio"></p>
+
+<div class="social-links" id="socialLinks"></div>
+
+<div class="card-showcase" id="cardShowcase"></div>
+
+<div class="music-player">
+<img class="music-art" id="musicArt" src="" alt="">
+<div class="music-info">
+<div class="music-title" id="musicTitle">No track loaded</div>
+<div class="music-artist" id="musicArtist"></div>
+<div class="music-scrub-row">
+<span class="music-time current" id="musicCurrentTime">0:00</span>
+<input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1">
+<span class="music-time duration" id="musicDuration">0:00</span>
+</div>
+</div>
+<div class="music-controls">
+<button class="music-btn" id="musicPrev" title="Previous track">
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+</button>
+<button class="music-btn play-pause" id="musicPlayPause" title="Play/Pause">
+<svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+<svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+</button>
+<button class="music-btn" id="musicNext" title="Next track">
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+</button>
+</div>
+<audio id="audioEl" preload="metadata"></audio>
+</div>
+
 </div>
 </div>
 
 <script>
 const CONFIG = {
 name: "cxsir",
-bio: "Welcome to my profile",
+bio: "a lost cause",
+pfpUrl: "https://placehold.co/200x200/1a1a1a/666666?text=PFP",
 bgImage: "https://via.placeholder.com/1920x1080",
-musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+bgBlur: 12, // px of blur applied to the background image. Adjust to taste.
+exophaseCardUrl: "https://card.exophase.com/2/0/327032.png",
+
+// Each track needs a url (audio file) and title. artist and art are optional
+// (artist line is hidden if empty; art falls back to a blank box if empty).
+// prev/next buttons cycle through this list; the scrubber/duration update from the loaded audio.
+tracks: [
+{ title: "God of Basketball", artist: "", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", art: "" },
+],
+
 links: [
 { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", icon: "snapchat" },
 { name: "Instagram", url: "https://instagram.com/cxsirr", icon: "instagram" },
@@ -250,29 +378,29 @@ links: [
 { name: "Roblox", url: "https://roblox.com/users/2242266391/profile", icon: "roblox" },
 { name: "GitHub", url: "https://github.com/cxsirr", icon: "github" },
 { name: "Email", url: "mailto:cxsir@proton.me", icon: "email" }
-],
-exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
+]
 };
+
+function formatTime(seconds) {
+if (!isFinite(seconds)) return "0:00";
+const m = Math.floor(seconds / 60);
+const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+return `${m}:${s}`;
+}
 
 window.addEventListener('DOMContentLoaded', () => {
 document.getElementById('profileName').textContent = CONFIG.name;
 document.getElementById('profileBio').textContent = CONFIG.bio;
+document.getElementById('profilePfp').src = CONFIG.pfpUrl;
 
 if (CONFIG.bgImage) {
-document.getElementById('bgContainer').style.backgroundImage = `url('${CONFIG.bgImage}')`;
+const bg = document.getElementById('bgContainer');
+bg.style.backgroundImage = `url('${CONFIG.bgImage}')`;
+bg.style.filter = `blur(${CONFIG.bgBlur}px)`;
 }
 
-if (CONFIG.musicUrl) {
-const audio = document.getElementById('bgMusic');
-document.getElementById('musicSource').src = CONFIG.musicUrl;
-audio.load();
-}
-
+// ---- Social icons: fetch + inline each SVG so currentColor (white) applies ----
 const linksContainer = document.getElementById('socialLinks');
-
-// Inline each icon's SVG markup directly into the DOM instead of using <img src="...">.
-// This is what makes currentColor (and therefore the white icon color / hover color) work,
-// since an <img> has no CSS context for the SVG to inherit color from.
 CONFIG.links.forEach(async (link) => {
 const a = document.createElement('a');
 a.href = link.url;
@@ -287,8 +415,6 @@ if (!res.ok) throw new Error(`HTTP ${res.status}`);
 const svgText = await res.text();
 a.insertAdjacentHTML('beforeend', svgText);
 
-// Remove the SVG's own <title> so it doesn't create a duplicate
-// native tooltip on top of the one already set on the <a> tag.
 const svgEl = a.querySelector('svg');
 const titleEl = svgEl && svgEl.querySelector('title');
 if (titleEl) titleEl.remove();
@@ -315,6 +441,81 @@ aCard.appendChild(imgCard);
 
 showcaseContainer.appendChild(aCard);
 }
+
+// ---- Custom music player ----
+const audio = document.getElementById('audioEl');
+const playPauseBtn = document.getElementById('musicPlayPause');
+const playIcon = document.getElementById('playIcon');
+const pauseIcon = document.getElementById('pauseIcon');
+const prevBtn = document.getElementById('musicPrev');
+const nextBtn = document.getElementById('musicNext');
+const scrubber = document.getElementById('musicScrubber');
+const currentTimeEl = document.getElementById('musicCurrentTime');
+const durationEl = document.getElementById('musicDuration');
+const titleEl = document.getElementById('musicTitle');
+const artistEl = document.getElementById('musicArtist');
+const artEl = document.getElementById('musicArt');
+
+let trackIndex = 0;
+let isScrubbing = false;
+
+function loadTrack(index, autoplay) {
+if (!CONFIG.tracks.length) return;
+trackIndex = (index + CONFIG.tracks.length) % CONFIG.tracks.length;
+const track = CONFIG.tracks[trackIndex];
+audio.src = track.url;
+titleEl.textContent = track.title || "Untitled";
+artistEl.textContent = track.artist || "";
+artistEl.style.display = track.artist ? 'block' : 'none';
+artEl.src = track.art || "";
+artEl.style.visibility = track.art ? 'visible' : 'hidden';
+if (autoplay) audio.play().catch(() => {});
+}
+
+function setPlayingIcon(playing) {
+playIcon.style.display = playing ? 'none' : 'block';
+pauseIcon.style.display = playing ? 'block' : 'none';
+}
+
+if (CONFIG.tracks.length) {
+loadTrack(0, false);
+}
+
+playPauseBtn.addEventListener('click', () => {
+if (audio.paused) {
+audio.play().catch(() => {});
+} else {
+audio.pause();
+}
+});
+
+prevBtn.addEventListener('click', () => loadTrack(trackIndex - 1, true));
+nextBtn.addEventListener('click', () => loadTrack(trackIndex + 1, true));
+
+audio.addEventListener('play', () => setPlayingIcon(true));
+audio.addEventListener('pause', () => setPlayingIcon(false));
+audio.addEventListener('ended', () => loadTrack(trackIndex + 1, true));
+
+audio.addEventListener('loadedmetadata', () => {
+scrubber.max = audio.duration || 0;
+durationEl.textContent = formatTime(audio.duration);
+});
+
+audio.addEventListener('timeupdate', () => {
+if (isScrubbing) return;
+scrubber.value = audio.currentTime;
+currentTimeEl.textContent = formatTime(audio.currentTime);
+});
+
+scrubber.addEventListener('input', () => {
+isScrubbing = true;
+currentTimeEl.textContent = formatTime(parseFloat(scrubber.value));
+});
+
+scrubber.addEventListener('change', () => {
+audio.currentTime = parseFloat(scrubber.value);
+isScrubbing = false;
+});
 });
 </script>
 </body>
