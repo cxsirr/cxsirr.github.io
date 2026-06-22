@@ -570,13 +570,13 @@ pauseIcon.style.display = playing ? 'block' : 'none';
 
 function setSpotifyMode(active) {
 spotifyMode = active;
-spotifyBadge.style.display = active ? 'block' : 'none';
 // While in Spotify mode, prev/next/scrubber don't make sense (it's just a
 // status display, not a playable local file), so disable them.
 prevBtn.disabled = active;
 nextBtn.disabled = active;
 playPauseBtn.disabled = active;
 scrubber.disabled = active;
+if (!active) spotifyBadge.style.display = 'none';
 }
 
 // ---- Spotify "now playing" polling ----
@@ -602,6 +602,7 @@ if (data.url === lastSpotifyUrl) return;
 lastSpotifyUrl = data.url;
 
 setSpotifyMode(true);
+spotifyBadge.style.display = data.isPlaying ? 'block' : 'none';
 renderTrack({
 title: data.title,
 artist: data.artist || "",
