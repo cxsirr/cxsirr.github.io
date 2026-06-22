@@ -1,339 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-            color: #e0e0e0;
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Background Image */
-        .bg-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.3;
-            z-index: -2;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* Content Container */
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 20px;
-            z-index: 1;
-            position: relative;
-        }
-
-        /* Profile Card */
-        .profile {
-            text-align: center;
-            width: 100%;
-            max-width: 600px;
-            backdrop-filter: blur(10px);
-            background: rgba(20, 20, 20, 0.8);
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 0.6s ease-in;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .profile h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #00d4ff, #0099ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .profile p {
-            font-size: 1.1em;
-            color: #b0b0b0;
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-
-        /* Clean 2-row grid layout (6 items per row maximum) */
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap; 
-            margin: 25px auto 15px auto;
-            max-width: 330px; 
-        }
-
-        .social-link {
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.15);
-            border-radius: 50%;
-            transition: all 0.25s ease;
-            text-decoration: none;
-            overflow: hidden;
-            color: #ffffff;
-        }
-
-        /* Icon styling - clean and simple */
-        .social-link i {
-            font-size: 20px;
-            color: inherit;
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .social-link img {
-            width: 24px;
-            height: 24px;
-            display: block;
-            object-fit: contain;
-        }
-
-        /* Hover effect */
-        .social-link:hover {
-            background: rgba(103, 103, 103, 0.12);
-            border-color: rgba(103, 103, 103, 0.6);
-            transform: translateY(-4px);
-            box-shadow: 0 5px 15px rgba(103, 103, 103, 0.25);
-            color: #676767;
-            filter: brightness(1.2);
-        }
-
-        .social-link:active {
-            transform: translateY(-2px) scale(0.99);
-        }
-
-        /* Center-aligned Showcase Container for Exophase Card */
-        .card-showcase {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100%;
-            margin: 20px 0 30px 0;
-        }
-
-        .showcase-card {
-            display: block;
-            width: 100%;
-            max-width: 420px; 
-            transition: all 0.3s ease;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-        }
-
-        .showcase-card img {
-            width: 100%;
-            height: auto;
-            display: block;
-            object-fit: contain;
-        }
-
-        .showcase-card:hover {
-            transform: scale(1.03);
-            border-color: rgba(0, 212, 255, 0.5);
-            box-shadow: 0 6px 25px rgba(0, 212, 255, 0.25);
-        }
-
-        /* Music Player */
-        .music-player {
-            padding-top: 30px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .music-player label {
-            display: block;
-            font-size: 0.9em;
-            color: #00d4ff;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .music-player audio {
-            width: 100%;
-            margin-top: 10px;
-            accent-color: #00d4ff;
-        }
-
-        /* Responsive Mobile Layout Rules */
-        @media (max-width: 600px) {
-            .profile {
-                padding: 25px 15px;
-            }
-
-            .profile h1 {
-                font-size: 2.2em;
-            }
-
-            .social-links {
-                gap: 8px;
-                max-width: 280px; 
-            }
-
-            .social-link {
-                width: 40px;
-                height: 40px;
-            }
-
-            .social-link i {
-                font-size: 18px;
-            }
-
-            .social-link img {
-                width: 20px;
-                height: 20px;
-            }
-
-            .showcase-card {
-                max-width: 100%;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+color: #e0e0e0;
+min-height: 100vh;
+overflow-x: hidden;
+position: relative;
+}
+/* Background Image */
+.bg-container {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+opacity: 0.3;
+z-index: -2;
+}
+body::before {
+content: '';
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.5);
+z-index: -1;
+pointer-events: none;
+}
+/* Content Container */
+.container {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+min-height: 100vh;
+padding: 20px;
+z-index: 1;
+position: relative;
+}
+/* Profile Card */
+.profile {
+text-align: center;
+width: 100%;
+max-width: 600px;
+backdrop-filter: blur(10px);
+background: rgba(20, 20, 20, 0.8);
+padding: 40px;
+border-radius: 20px;
+border: 1px solid rgba(255, 255, 255, 0.1);
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+animation: fadeIn 0.6s ease-in;
+}
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.profile h1 {
+font-size: 2.5em;
+margin-bottom: 10px;
+background: linear-gradient(135deg, #00d4ff, #0099ff);
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+background-clip: text;
+}
+.profile p {
+font-size: 1.1em;
+color: #b0b0b0;
+margin-bottom: 30px;
+line-height: 1.6;
+}
+/* Clean 2-row grid layout (6 items per row maximum) */
+.social-links {
+display: flex;
+justify-content: center;
+gap: 12px;
+flex-wrap: wrap;
+margin: 25px auto 15px auto;
+max-width: 330px;
+}
+.social-link {
+width: 44px;
+height: 44px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: rgba(255, 255, 255, 0.05);
+border: 2px solid rgba(255, 255, 255, 0.15);
+border-radius: 50%;
+transition: all 0.25s ease;
+text-decoration: none;
+overflow: hidden;
+color: #ffffff;
+}
+/* Icon styling - clean and simple */
+.social-link i {
+font-size: 20px;
+color: inherit;
+transition: all 0.25s ease;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+/* Inline SVG icon styling - currentColor now works since SVG markup lives in the DOM */
+.social-link svg {
+width: 24px;
+height: 24px;
+fill: currentColor;
+color: inherit;
+transition: all 0.25s ease;
+display: block;
+}
+/* Hover effect */
+.social-link:hover {
+background: rgba(103, 103, 103, 0.12);
+border-color: rgba(103, 103, 103, 0.6);
+transform: translateY(-4px);
+box-shadow: 0 5px 15px rgba(103, 103, 103, 0.25);
+color: #676767;
+filter: brightness(1.2);
+}
+.social-link:active {
+transform: translateY(-2px) scale(0.99);
+}
+/* Center-aligned Showcase Container for Exophase Card */
+.card-showcase {
+display: flex;
+justify-content: center;
+align-items: center;
+width: 100%;
+margin: 20px 0 30px 0;
+}
+.showcase-card {
+display: block;
+width: 100%;
+max-width: 420px;
+transition: all 0.3s ease;
+border-radius: 12px;
+overflow: hidden;
+border: 1px solid rgba(255, 255, 255, 0.1);
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+.showcase-card img {
+width: 100%;
+height: auto;
+display: block;
+object-fit: contain;
+}
+.showcase-card:hover {
+transform: scale(1.03);
+border-color: rgba(0, 212, 255, 0.5);
+box-shadow: 0 6px 25px rgba(0, 212, 255, 0.25);
+}
+/* Music Player */
+.music-player {
+padding-top: 30px;
+border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.music-player label {
+display: block;
+font-size: 0.9em;
+color: #00d4ff;
+margin-bottom: 10px;
+font-weight: 600;
+}
+.music-player audio {
+width: 100%;
+margin-top: 10px;
+accent-color: #00d4ff;
+}
+/* Responsive Mobile Layout Rules */
+@media (max-width: 600px) {
+.profile {
+padding: 25px 15px;
+}
+.profile h1 {
+font-size: 2.2em;
+}
+.social-links {
+gap: 8px;
+max-width: 280px;
+}
+.social-link {
+width: 40px;
+height: 40px;
+}
+.social-link i {
+font-size: 18px;
+}
+.social-link svg {
+width: 20px;
+height: 20px;
+}
+.showcase-card {
+max-width: 100%;
+}
+}
+</style>
 </head>
 <body>
+<div class="bg-container" id="bgContainer"></div>
+<div class="container">
+<div class="profile">
+<h1 id="profileName"></h1>
+<p id="profileBio"></p>
+<div class="social-links" id="socialLinks"></div>
+<div class="card-showcase" id="cardShowcase"></div>
+<div class="music-player">
+<label for="bgMusic">🎵 Background Music</label>
+<audio id="bgMusic" controls loop>
+<source id="musicSource" src="" type="audio/mpeg">
+Your browser does not support the audio element.
+</audio>
+</div>
+</div>
+</div>
 
-    <div class="bg-container" id="bgContainer"></div>
+<script>
+const CONFIG = {
+name: "cxsir",
+bio: "Welcome to my profile",
+bgImage: "https://via.placeholder.com/1920x1080",
+musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+links: [
+{ name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", icon: "snapchat" },
+{ name: "Instagram", url: "https://instagram.com/cxsirr", icon: "instagram" },
+{ name: "YouTube", url: "https://youtube.com/@cxsirr", icon: "youtube" },
+{ name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", icon: "spotify" },
+{ name: "Last.fm", url: "https://last.fm/user/cxsir", icon: "lastfm" },
+{ name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", icon: "playstation" },
+{ name: "Xbox", url: "https://xbox.com/play/user/cxsirr", icon: "xbox" },
+{ name: "Steam", url: "https://steamcommunity.com/id/cxsir", icon: "steam" },
+{ name: "Discord", url: "https://discord.com/users/803306255062007818", icon: "discord" },
+{ name: "Roblox", url: "https://roblox.com/users/2242266391/profile", icon: "roblox" },
+{ name: "GitHub", url: "https://github.com/cxsirr", icon: "github" },
+{ name: "Email", url: "mailto:cxsir@proton.me", icon: "email" }
+],
+exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
+};
 
-    <div class="container">
-        <div class="profile">
-            <h1 id="profileName"></h1>
-            <p id="profileBio"></p>
+window.addEventListener('DOMContentLoaded', () => {
+document.getElementById('profileName').textContent = CONFIG.name;
+document.getElementById('profileBio').textContent = CONFIG.bio;
 
-            <div class="social-links" id="socialLinks"></div>
+if (CONFIG.bgImage) {
+document.getElementById('bgContainer').style.backgroundImage = `url('${CONFIG.bgImage}')`;
+}
 
-            <div class="card-showcase" id="cardShowcase"></div>
+if (CONFIG.musicUrl) {
+const audio = document.getElementById('bgMusic');
+document.getElementById('musicSource').src = CONFIG.musicUrl;
+audio.load();
+}
 
-            <div class="music-player">
-                <label for="bgMusic">🎵 Background Music</label>
-                <audio id="bgMusic" controls loop>
-                    <source id="musicSource" src="" type="audio/mpeg">
-                    Your browser does not support the audio element.
-                </audio>
-            </div>
-        </div>
-    </div>
+const linksContainer = document.getElementById('socialLinks');
 
-    <script>
-        const CONFIG = {
-            name: "cxsir",
-            bio: "Welcome to my profile",
-            bgImage: "https://via.placeholder.com/1920x1080",
-            musicUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+// Inline each icon's SVG markup directly into the DOM instead of using <img src="...">.
+// This is what makes currentColor (and therefore the white icon color / hover color) work,
+// since an <img> has no CSS context for the SVG to inherit color from.
+CONFIG.links.forEach(async (link) => {
+const a = document.createElement('a');
+a.href = link.url;
+a.className = 'social-link';
+a.title = link.name;
+a.target = '_blank';
 
-            links: [
-                { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", icon: "snapchat" },
-                { name: "Instagram", url: "https://instagram.com/cxsirr", icon: "instagram" },
-                { name: "YouTube", url: "https://youtube.com/@cxsirr", icon: "youtube" },
-                { name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", icon: "spotify" },
-                { name: "Last.fm", url: "https://last.fm/user/cxsir", icon: "lastfm" },
-                { name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", icon: "playstation" },
-                { name: "Xbox", url: "https://xbox.com/play/user/cxsirr", icon: "xbox" },
-                { name: "Steam", url: "https://steamcommunity.com/id/cxsir", icon: "steam" },
-                { name: "Discord", url: "https://discord.com/users/803306255062007818", icon: "discord" },
-                { name: "Roblox", url: "https://roblox.com/users/2242266391/profile", icon: "roblox" },
-                { name: "GitHub", url: "https://github.com/cxsirr", icon: "github" },
-                { name: "Email", url: "mailto:cxsir@proton.me", icon: "email" }
-            ],
+if (link.icon) {
+try {
+const res = await fetch(`assets/logos/${link.icon}.svg`);
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
+const svgText = await res.text();
+a.insertAdjacentHTML('beforeend', svgText);
+} catch (err) {
+console.error(`Failed to load icon "${link.icon}":`, err);
+}
+}
 
-            exophaseCardUrl: "https://card.exophase.com/2/0/327032.png"
-        };
+linksContainer.appendChild(a);
+});
 
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('profileName').textContent = CONFIG.name;
-            document.getElementById('profileBio').textContent = CONFIG.bio;
+if (CONFIG.exophaseCardUrl) {
+const showcaseContainer = document.getElementById('cardShowcase');
+const aCard = document.createElement('a');
+aCard.href = "https://www.exophase.com/user/cxsir/";
+aCard.className = 'showcase-card';
+aCard.target = '_blank';
+aCard.title = "Exophase Card";
 
-            if (CONFIG.bgImage) {
-                document.getElementById('bgContainer').style.backgroundImage = `url('${CONFIG.bgImage}')`;
-            }
+const imgCard = document.createElement('img');
+imgCard.src = CONFIG.exophaseCardUrl;
+imgCard.alt = "Exophase Achievement Card";
+aCard.appendChild(imgCard);
 
-            if (CONFIG.musicUrl) {
-                const audio = document.getElementById('bgMusic');
-                document.getElementById('musicSource').src = CONFIG.musicUrl;
-                audio.load();
-            }
-
-            const linksContainer = document.getElementById('socialLinks');
-            CONFIG.links.forEach((link) => {
-                const a = document.createElement('a');
-                a.href = link.url;
-                a.className = 'social-link';
-                a.title = link.name;
-                a.target = '_blank';
-
-                if (link.icon) {
-                    const img = document.createElement('img');
-                    img.src = `assets/logos/${link.icon}.svg`;
-                    img.alt = link.name;
-                    a.appendChild(img);
-                }
-
-                linksContainer.appendChild(a);
-            });
-
-            if (CONFIG.exophaseCardUrl) {
-                const showcaseContainer = document.getElementById('cardShowcase');
-                const aCard = document.createElement('a');
-                aCard.href = "https://www.exophase.com/user/cxsir/"; 
-                aCard.className = 'showcase-card';
-                aCard.target = '_blank';
-                aCard.title = "Exophase Card";
-
-                const imgCard = document.createElement('img');
-                imgCard.src = CONFIG.exophaseCardUrl;
-                imgCard.alt = "Exophase Achievement Card";
-
-                aCard.appendChild(imgCard);
-                showcaseContainer.appendChild(aCard);
-            }
-        });
-    </script>
+showcaseContainer.appendChild(aCard);
+}
+});
+</script>
 </body>
 </html>
