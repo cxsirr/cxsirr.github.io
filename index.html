@@ -444,16 +444,14 @@ playerColorFromArt: true,
 // spotifyPollSeconds, with a real progress bar synced to actual playback
 // position (ticks locally between polls, corrected on each poll).
 // Leave as "" to disable and fall back to the manual tracks list below.
-spotifyWorkerUrl: "https://cxsir-github-io-widget.tymchyshyndaniel4-171.workers.dev/",
-spotifyPollSeconds: 15,
+spotifyWorkerUrl: "https://github-io.cxsir.workers.dev",
+spotifyPollSeconds: 30,
 
 // ---- Fallback / manual playlist ----
 // Used only if spotifyWorkerUrl is empty, or if a fetch to it fails.
 // prev/next cycle through this list; scrubber/duration update from the
 // loaded audio file itself.
-tracks: [
-{ title: "God of Basketball", artist: "", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", art: "" },
-],
+tracks: [],
 
 // ---- Social links ----
 links: [
