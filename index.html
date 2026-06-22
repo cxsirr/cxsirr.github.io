@@ -345,7 +345,7 @@ height: 19px;
 
 <div class="music-player">
 <div class="spotify-badge" id="spotifyBadge">LIVE</div>
-<img class="music-art" id="musicArt" src="" alt="">
+<img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous">
 <div class="music-info">
 <div class="music-title" id="musicTitle">No track loaded</div>
 <div class="music-artist" id="musicArtist"></div>
@@ -522,7 +522,8 @@ musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b},
 musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
 } catch (err) {
 // Likely a CORS-tainted canvas (cross-origin image without proper headers).
-// Just leave the default styling rather than breaking anything.
+// Logged so this is easy to spot in devtools rather than failing silently.
+console.warn('Album art color sampling failed:', err);
 resetPlayerTint();
 }
 };
