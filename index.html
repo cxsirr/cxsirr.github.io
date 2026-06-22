@@ -175,6 +175,8 @@ gap: 12px;
 background: rgba(20, 20, 20, 0.55);
 border: 1px solid rgba(255, 255, 255, 0.1);
 border-radius: 14px;
+position: relative;
+transition: background 0.6s ease, border-color 0.6s ease;
 }
 .music-art {
 width: 46px;
@@ -279,6 +281,27 @@ fill: currentColor;
 width: 18px;
 height: 18px;
 }
+.music-btn:disabled {
+opacity: 0.3;
+cursor: default;
+}
+.music-btn:disabled:hover {
+background: none;
+}
+/* Small "Live from Spotify" badge shown when CONFIG.spotifyWorkerUrl is active */
+.spotify-badge {
+position: absolute;
+top: -8px;
+right: 10px;
+background: #1ed760;
+color: #0f0f0f;
+font-size: 0.6em;
+font-weight: 700;
+padding: 2px 7px;
+border-radius: 8px;
+letter-spacing: 0.3px;
+display: none;
+}
 /* Responsive Mobile Layout Rules */
 @media (max-width: 600px) {
 .profile {
@@ -321,6 +344,7 @@ height: 19px;
 <div class="card-showcase" id="cardShowcase"></div>
 
 <div class="music-player">
+<div class="spotify-badge" id="spotifyBadge">LIVE</div>
 <img class="music-art" id="musicArt" src="" alt="">
 <div class="music-info">
 <div class="music-title" id="musicTitle">No track loaded</div>
@@ -344,6 +368,7 @@ height: 19px;
 </button>
 </div>
 <audio id="audioEl" preload="metadata"></audio>
+<canvas id="artSampleCanvas" width="10" height="10" style="display:none"></canvas>
 </div>
 
 </div>
@@ -359,9 +384,16 @@ bgImage: "https://via.placeholder.com/1920x1080",
 bgBlur: 12, // px of blur applied to the background image. Adjust to taste.
 exophaseCardUrl: "https://card.exophase.com/2/0/327032.png",
 
-// Each track needs a url (audio file) and title. artist and art are optional
-// (artist line is hidden if empty; art falls back to a blank box if empty).
-// prev/next buttons cycle through this list; the scrubber/duration update from the loaded audio.
+// Your deployed Cloudflare Worker URL. When set, the player auto-updates to
+// whatever Spotify reports as currently/recently playing, polling every
+// spotifyPollSeconds. Leave as "" to disable and fall back to the manual
+// tracks list below.
+spotifyWorkerUrl: "https://cxsir-github-i-widget.tymchyshyndaniel4-171.workers.dev/",
+spotifyPollSeconds: 15,
+
+// Fallback / manual playlist. Used only if spotifyWorkerUrl is empty, or if
+// a fetch to it fails. prev/next cycle through this list normally; the
+// scrubber/duration update from the loaded audio file itself.
 tracks: [
 { title: "God of Basketball", artist: "", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", art: "" },
 ],
@@ -456,20 +488,78 @@ const durationEl = document.getElementById('musicDuration');
 const titleEl = document.getElementById('musicTitle');
 const artistEl = document.getElementById('musicArtist');
 const artEl = document.getElementById('musicArt');
+const spotifyBadge = document.getElementById('spotifyBadge');
+const musicPlayerEl = document.querySelector('.music-player');
+const sampleCanvas = document.getElementById('artSampleCanvas');
+const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
+
+// Samples the loaded album art image down to a tiny canvas and averages the
+// pixels to get a rough dominant color, then tints the player's background
+// and border with it. Falls back silently (no tint change) on any error,
+// e.g. if the image is cross-origin without CORS headers.
+function tintPlayerFromArt(imgEl) {
+if (!imgEl || !imgEl.src) {
+resetPlayerTint();
+return;
+}
+
+const apply = () => {
+try {
+sampleCtx.drawImage(imgEl, 0, 0, 10, 10);
+const { data } = sampleCtx.getImageData(0, 0, 10, 10);
+let r = 0, g = 0, b = 0, count = 0;
+for (let i = 0; i < data.length; i += 4) {
+r += data[i];
+g += data[i + 1];
+b += data[i + 2];
+count++;
+}
+r = Math.round(r / count);
+g = Math.round(g / count);
+b = Math.round(b / count);
+
+musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.35), rgba(20, 20, 20, 0.55))`;
+musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
+} catch (err) {
+// Likely a CORS-tainted canvas (cross-origin image without proper headers).
+// Just leave the default styling rather than breaking anything.
+resetPlayerTint();
+}
+};
+
+if (imgEl.complete && imgEl.naturalWidth > 0) {
+apply();
+} else {
+imgEl.onload = apply;
+imgEl.onerror = resetPlayerTint;
+}
+}
+
+function resetPlayerTint() {
+musicPlayerEl.style.background = 'rgba(20, 20, 20, 0.55)';
+musicPlayerEl.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+}
 
 let trackIndex = 0;
 let isScrubbing = false;
+let spotifyMode = false; // true once a successful Spotify fetch has happened
+let lastSpotifyUrl = null; // used to avoid re-rendering identical data every poll
 
 function loadTrack(index, autoplay) {
 if (!CONFIG.tracks.length) return;
 trackIndex = (index + CONFIG.tracks.length) % CONFIG.tracks.length;
 const track = CONFIG.tracks[trackIndex];
+renderTrack(track, autoplay);
+}
+
+function renderTrack(track, autoplay) {
 audio.src = track.url;
 titleEl.textContent = track.title || "Untitled";
 artistEl.textContent = track.artist || "";
 artistEl.style.display = track.artist ? 'block' : 'none';
 artEl.src = track.art || "";
 artEl.style.visibility = track.art ? 'visible' : 'hidden';
+tintPlayerFromArt(track.art ? artEl : null);
 if (autoplay) audio.play().catch(() => {});
 }
 
@@ -478,11 +568,77 @@ playIcon.style.display = playing ? 'none' : 'block';
 pauseIcon.style.display = playing ? 'block' : 'none';
 }
 
-if (CONFIG.tracks.length) {
+function setSpotifyMode(active) {
+spotifyMode = active;
+spotifyBadge.style.display = active ? 'block' : 'none';
+// While in Spotify mode, prev/next/scrubber don't make sense (it's just a
+// status display, not a playable local file), so disable them.
+prevBtn.disabled = active;
+nextBtn.disabled = active;
+playPauseBtn.disabled = active;
+scrubber.disabled = active;
+}
+
+// ---- Spotify "now playing" polling ----
+async function fetchNowPlaying() {
+if (!CONFIG.spotifyWorkerUrl) return;
+
+try {
+const res = await fetch(CONFIG.spotifyWorkerUrl, { cache: 'no-store' });
+if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+const data = await res.json();
+
+if (!data || !data.title) {
+// Nothing playing and no recent history either — fall back to manual list.
+if (spotifyMode) {
+setSpotifyMode(false);
+loadTrack(0, false);
+}
+return;
+}
+
+// Avoid redundant re-renders if the same track is still showing.
+if (data.url === lastSpotifyUrl) return;
+lastSpotifyUrl = data.url;
+
+setSpotifyMode(true);
+renderTrack({
+title: data.title,
+artist: data.artist || "",
+art: data.art || "",
+url: "" // no playable audio file from Spotify's API, this is status-only
+}, false);
+
+// There's no audio source to actually play (Spotify doesn't expose full
+// track streaming via this API), so just clear/pause the local <audio>.
+audio.pause();
+audio.removeAttribute('src');
+scrubber.value = 0;
+currentTimeEl.textContent = "0:00";
+durationEl.textContent = "0:00";
+setPlayingIcon(false);
+
+titleEl.title = data.url ? "Open in Spotify" : "";
+if (data.url) {
+titleEl.style.cursor = 'pointer';
+titleEl.onclick = () => window.open(data.url, '_blank');
+}
+} catch (err) {
+console.error('Spotify fetch failed:', err);
+// Leave whatever was last shown (manual track or last good Spotify data)
+// rather than clearing the player on a transient network error.
+}
+}
+
+if (CONFIG.spotifyWorkerUrl) {
+fetchNowPlaying();
+setInterval(fetchNowPlaying, Math.max(5, CONFIG.spotifyPollSeconds) * 1000);
+} else if (CONFIG.tracks.length) {
 loadTrack(0, false);
 }
 
 playPauseBtn.addEventListener('click', () => {
+if (spotifyMode) return;
 if (audio.paused) {
 audio.play().catch(() => {});
 } else {
@@ -490,12 +646,20 @@ audio.pause();
 }
 });
 
-prevBtn.addEventListener('click', () => loadTrack(trackIndex - 1, true));
-nextBtn.addEventListener('click', () => loadTrack(trackIndex + 1, true));
+prevBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex - 1, true);
+});
+nextBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex + 1, true);
+});
 
 audio.addEventListener('play', () => setPlayingIcon(true));
 audio.addEventListener('pause', () => setPlayingIcon(false));
-audio.addEventListener('ended', () => loadTrack(trackIndex + 1, true));
+audio.addEventListener('ended', () => {
+if (!spotifyMode) loadTrack(trackIndex + 1, true);
+});
 
 audio.addEventListener('loadedmetadata', () => {
 scrubber.max = audio.duration || 0;
@@ -509,11 +673,13 @@ currentTimeEl.textContent = formatTime(audio.currentTime);
 });
 
 scrubber.addEventListener('input', () => {
+if (spotifyMode) return;
 isScrubbing = true;
 currentTimeEl.textContent = formatTime(parseFloat(scrubber.value));
 });
 
 scrubber.addEventListener('change', () => {
+if (spotifyMode) return;
 audio.currentTime = parseFloat(scrubber.value);
 isScrubbing = false;
 });
