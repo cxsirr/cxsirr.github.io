@@ -65,10 +65,10 @@ text-align: center;
 width: 100%;
 max-width: 420px;
 backdrop-filter: blur(5px);
-background: rgba(40, 40, 40, 0.25);
+background: rgba(20, 40, 80, 0.25);
 padding: 36px 28px 28px;
 border-radius: 24px;
-border: 1px solid rgba(255, 255, 255, 0.12);
+border: 1px solid rgba(20, 40, 80, 0.12);
 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 animation: fadeIn 0.6s ease-in;
 }
@@ -87,7 +87,7 @@ width: 110px;
 height: 110px;
 border-radius: 50%;
 object-fit: cover;
-border: 3px solid rgba(255, 255, 255, 0.25);
+border: 3px solid rgba(20, 40, 80, 0.25);
 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 .profile h1 {
@@ -116,8 +116,8 @@ height: 44px;
 display: flex;
 align-items: center;
 justify-content: center;
-background: rgba(255, 255, 255, 0.08);
-border: 2px solid rgba(255, 255, 255, 0.15);
+background: rgba(20, 40, 80, 0.08);
+border: 2px solid rgba(20, 40, 80, 0.15);
 border-radius: 50%;
 transition: all 0.25s ease;
 text-decoration: none;
@@ -134,8 +134,8 @@ transition: all 0.25s ease;
 display: block;
 }
 .social-link:hover {
-background: rgba(255, 255, 255, 0.18);
-border-color: rgba(255, 255, 255, 0.5);
+background: rgba(20, 40, 80, 0.18);
+border-color: rgba(20, 40, 80, 0.5);
 transform: translateY(-4px);
 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
@@ -158,7 +158,7 @@ max-width: 360px;
 transition: all 0.3s ease;
 border-radius: 12px;
 overflow: hidden;
-border: 1px solid rgba(255, 255, 255, 0.12);
+border: 1px solid rgba(20, 40, 80, 0.12);
 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
 }
 .showcase-card img {
@@ -169,7 +169,7 @@ object-fit: contain;
 }
 .showcase-card:hover {
 transform: scale(1.03);
-border-color: rgba(255, 255, 255, 0.3);
+border-color: rgba(20, 40, 80, 0.3);
 box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
 }
 /* Custom Music Player — border-color/width/radius set inline from CONFIG.player* via JS */
@@ -177,13 +177,19 @@ box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
 margin-top: 22px;
 padding: 10px;
 display: flex;
-align-items: center;
-gap: 12px;
-background: rgba(50, 50, 50, 0.55);
-border: 1px solid rgba(255, 255, 255, 0.1);
+flex-direction: column;
+gap: 10px;
+background: rgba(20, 40, 80, 0.55);
+border: 1px solid rgba(20, 40, 80, 0.1);
 border-radius: 14px;
 position: relative;
 transition: background 0.6s ease, border-color 0.6s ease;
+}
+.music-top-row {
+display: flex;
+align-items: center;
+gap: 12px;
+width: 100%;
 }
 .music-art {
 width: 46px;
@@ -191,7 +197,7 @@ height: 46px;
 border-radius: 8px;
 object-fit: cover;
 flex-shrink: 0;
-background: rgba(255, 255, 255, 0.08);
+background: rgba(20, 40, 80, 0.08);
 }
 .music-info {
 flex: 1;
@@ -241,7 +247,7 @@ max-width: 100%;
 appearance: none;
 height: 4px;
 border-radius: 2px;
-background: rgba(255, 255, 255, 0.2);
+background: rgba(20, 40, 80, 0.2);
 cursor: pointer;
 outline: none;
 }
@@ -281,7 +287,7 @@ border-radius: 50%;
 transition: background 0.2s ease;
 }
 .music-btn:hover {
-background: rgba(255, 255, 255, 0.12);
+background: rgba(20, 40, 80, 0.12);
 }
 .music-btn svg {
 width: 16px;
@@ -354,15 +360,11 @@ height: 19px;
 
 <div class="music-player" id="musicPlayer">
 <div class="spotify-badge" id="spotifyBadge">LIVE</div>
+<div class="music-top-row">
 <img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous">
 <div class="music-info">
 <div class="music-title" id="musicTitle">No track loaded</div>
 <div class="music-artist" id="musicArtist"></div>
-<div class="music-scrub-row" id="musicScrubRow">
-<span class="music-time current" id="musicCurrentTime">0:00</span>
-<input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1">
-<span class="music-time duration" id="musicDuration">0:00</span>
-</div>
 </div>
 <div class="music-controls">
 <button class="music-btn" id="musicPrev" title="Previous track">
@@ -376,9 +378,16 @@ height: 19px;
 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
 </button>
 </div>
+</div>
+<div class="music-scrub-row" id="musicScrubRow">
+<span class="music-time current" id="musicCurrentTime">0:00</span>
+<input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1">
+<span class="music-time duration" id="musicDuration">0:00</span>
+</div>
 <audio id="audioEl" preload="metadata"></audio>
 <canvas id="artSampleCanvas" width="10" height="10" style="display:none"></canvas>
 </div>
+
 
 <div class="card-showcase" id="cardShowcase"></div>
 
@@ -403,27 +412,27 @@ bgImage: "assets/bg/cxsir.jpg",
 bgBlur: 0, // px of blur applied to the background image
 
 // ---- Main profile card styling ----
-cardBorderColor: "rgba(255, 255, 255, 0.12)",
+cardBorderColor: "rgba(20, 40, 80, 0.12)",
 cardBorderWidth: 1, // px
 cardBorderRadius: 24, // px
-cardBackground: "rgba(40, 40, 40, 0.25)",
+cardBackground: "rgba(20, 40, 80, 0.25)",
 
 // ---- Social icon circle styling ----
-iconBorderColor: "rgba(255, 255, 255, 0.15)",
+iconBorderColor: "rgba(20, 40, 80, 0.15)",
 iconBorderWidth: 2, // px
-iconBackground: "rgba(255, 255, 255, 0.08)",
+iconBackground: "rgba(20, 40, 80, 0.08)",
 
 // ---- Exophase showcase card styling ----
 exophaseCardUrl: "https://card.exophase.com/2/0/327032.png",
-showcaseBorderColor: "rgba(255, 255, 255, 0.12)",
+showcaseBorderColor: "rgba(20, 40, 80, 0.12)",
 showcaseBorderWidth: 1, // px
 showcaseBorderRadius: 12, // px
 
 // ---- Music player styling ----
-playerBorderColor: "rgba(255, 255, 255, 0.1)",
+playerBorderColor: "rgba(20, 40, 80, 0.1)",
 playerBorderWidth: 1, // px
 playerBorderRadius: 14, // px
-playerBackground: "rgba(50, 50, 50, 0.55)",
+playerBackground: "rgba(20, 40, 80, 0.55)",
 // When true, album art color sampling overrides playerBackground/
 // playerBorderColor dynamically per track (see tintPlayerFromArt below).
 // Set to false to always keep the static colors above.
@@ -597,7 +606,7 @@ r = Math.round(r / count);
 g = Math.round(g / count);
 b = Math.round(b / count);
 
-musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.35), rgba(20, 20, 20, 0.55))`;
+musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.35), ${CONFIG.playerBackground})`;
 musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
 } catch (err) {
 // Likely a CORS-tainted canvas (cross-origin image without proper headers).
