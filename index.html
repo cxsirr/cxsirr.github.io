@@ -1,4 +1,6 @@
-<html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>cxsir</title>
@@ -42,7 +44,7 @@ top: 0;
 left: 0;
 width: 100%;
 height: 100%;
-background: rgba(0, 0, 0, 0);
+background: rgba(0, 0, 0, 0.15);
 z-index: -1;
 pointer-events: none;
 }
@@ -85,7 +87,7 @@ width: 110px;
 height: 110px;
 border-radius: 50%;
 object-fit: cover;
-border: 2px solid rgba(20, 40, 80, 0.5);
+border: 3px solid rgba(255, 255, 255, 0.25);
 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 .profile h1 {
@@ -220,17 +222,21 @@ margin-top: -2px;
 display: flex;
 align-items: center;
 gap: 8px;
+width: 100%;
 }
 .music-time {
 font-size: 0.7em;
 color: #a0a0a0;
 flex-shrink: 0;
-min-width: 28px;
+flex-grow: 0;
+width: 32px; /* fixed width (not min-width) so "0:00" and "12:34" take identical space */
 }
 .music-time.current { text-align: right; }
 .music-time.duration { text-align: left; }
 .music-scrubber {
-flex: 1;
+flex: 1 1 auto;
+min-width: 0; /* allows the slider to shrink below its intrinsic size instead of overflowing */
+max-width: 100%;
 -webkit-appearance: none;
 appearance: none;
 height: 4px;
@@ -352,7 +358,7 @@ height: 19px;
 <div class="music-info">
 <div class="music-title" id="musicTitle">No track loaded</div>
 <div class="music-artist" id="musicArtist"></div>
-<div class="music-scrub-row">
+<div class="music-scrub-row" id="musicScrubRow">
 <span class="music-time current" id="musicCurrentTime">0:00</span>
 <input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1">
 <span class="music-time duration" id="musicDuration">0:00</span>
@@ -389,7 +395,7 @@ height: 19px;
 const CONFIG = {
 // ---- Profile ----
 name: "cxsir",
-bio: "lost",
+bio: "a lost cause",
 pfpUrl: "assets/pfp/cxsir.jpg", // relative to this file (root/index.html)
 
 // ---- Background ----
@@ -397,27 +403,27 @@ bgImage: "assets/bg/cxsir.jpg",
 bgBlur: 0, // px of blur applied to the background image
 
 // ---- Main profile card styling ----
-cardBorderColor: "rgba(20, 40, 80, 0.25)",
-cardBorderWidth: 2, // px
+cardBorderColor: "rgba(255, 255, 255, 0.12)",
+cardBorderWidth: 1, // px
 cardBorderRadius: 24, // px
-cardBackground: "rgba(20, 40, 80, 0.25)",
+cardBackground: "rgba(40, 40, 40, 0.25)",
 
 // ---- Social icon circle styling ----
-iconBorderColor: "rgba(20, 40, 80, 0.25)",
+iconBorderColor: "rgba(255, 255, 255, 0.15)",
 iconBorderWidth: 2, // px
-iconBackground: "rgba(20, 40, 80, 0.1)",
+iconBackground: "rgba(255, 255, 255, 0.08)",
 
 // ---- Exophase showcase card styling ----
 exophaseCardUrl: "https://card.exophase.com/2/0/327032.png",
-showcaseBorderColor: "rgba(20, 40, 80, 0.25)",
-showcaseBorderWidth: 2, // px
+showcaseBorderColor: "rgba(255, 255, 255, 0.12)",
+showcaseBorderWidth: 1, // px
 showcaseBorderRadius: 12, // px
 
 // ---- Music player styling ----
 playerBorderColor: "rgba(255, 255, 255, 0.1)",
-playerBorderWidth: 2, // px
+playerBorderWidth: 1, // px
 playerBorderRadius: 14, // px
-playerBackground: "rgba(50, 50, 50, 0.25)",
+playerBackground: "rgba(50, 50, 50, 0.55)",
 // When true, album art color sampling overrides playerBackground/
 // playerBorderColor dynamically per track (see tintPlayerFromArt below).
 // Set to false to always keep the static colors above.
@@ -430,7 +436,7 @@ playerColorFromArt: true,
 // position (ticks locally between polls, corrected on each poll).
 // Leave as "" to disable and fall back to the manual tracks list below.
 spotifyWorkerUrl: "https://cxsir-github-io-widget.tymchyshyndaniel4-171.workers.dev/",
-spotifyPollSeconds: 10,
+spotifyPollSeconds: 15,
 
 // ---- Fallback / manual playlist ----
 // Used only if spotifyWorkerUrl is empty, or if a fetch to it fails.
@@ -556,6 +562,7 @@ const nextBtn = document.getElementById('musicNext');
 const scrubber = document.getElementById('musicScrubber');
 const currentTimeEl = document.getElementById('musicCurrentTime');
 const durationEl = document.getElementById('musicDuration');
+const scrubRow = document.getElementById('musicScrubRow');
 const titleEl = document.getElementById('musicTitle');
 const artistEl = document.getElementById('musicArtist');
 const artEl = document.getElementById('musicArt');
@@ -636,6 +643,7 @@ artistEl.style.display = track.artist ? 'block' : 'none';
 artEl.src = track.art || "";
 artEl.style.visibility = track.art ? 'visible' : 'hidden';
 tintPlayerFromArt(track.art ? artEl : null);
+scrubRow.style.display = 'flex'; // manual/local tracks always have real position data
 if (autoplay) audio.play().catch(() => {});
 }
 
@@ -712,6 +720,7 @@ spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;
 
 setSpotifyMode(true);
 spotifyBadge.style.display = data.isPlaying ? 'block' : 'none';
+scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
 
 if (isNewTrack) {
 renderTrack({
@@ -726,6 +735,9 @@ url: "" // no playable audio file from Spotify's API, this is status-only
 audio.pause();
 audio.removeAttribute('src');
 setPlayingIcon(data.isPlaying);
+// renderTrack always re-shows the scrub row; re-apply the correct
+// isPlaying-based visibility immediately after.
+scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
 
 titleEl.title = data.url ? "Open in Spotify" : "";
 if (data.url) {
