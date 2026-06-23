@@ -16,6 +16,9 @@ margin: 0;
 padding: 0;
 box-sizing: border-box;
 }
+html {
+scroll-behavior: smooth;
+}
 body {
 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 background: #0f0f0f;
@@ -53,11 +56,12 @@ pointer-events: none;
 display: flex;
 flex-direction: column;
 align-items: center;
-justify-content: center;
-min-height: 100vh;
 padding: 20px;
 z-index: 1;
 position: relative;
+min-height: 100vh;
+justify-content: center;
+gap: 18px;
 }
 /* Profile Card — border-color/width/radius set inline from CONFIG.card* via JS */
 .profile {
@@ -319,6 +323,160 @@ border-radius: 8px;
 letter-spacing: 0.3px;
 display: none;
 }
+
+/* ---- Scroll-down indicator at the bottom of the profile card ---- */
+.scroll-hint {
+margin-top: 26px;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 4px;
+color: #9fb3d8;
+font-size: 0.72em;
+letter-spacing: 0.5px;
+text-transform: uppercase;
+cursor: pointer;
+text-decoration: none;
+user-select: none;
+}
+.scroll-hint svg {
+width: 20px;
+height: 20px;
+fill: currentColor;
+animation: bounceDown 1.6s ease-in-out infinite;
+}
+@keyframes bounceDown {
+0%, 100% { transform: translateY(0); opacity: 0.6; }
+50% { transform: translateY(6px); opacity: 1; }
+}
+
+/* ---- Rocket League stats section ---- */
+.rl-section {
+width: 100%;
+max-width: 420px;
+}
+.rl-card {
+backdrop-filter: blur(5px);
+padding: 24px 22px;
+animation: fadeIn 0.6s ease-in;
+}
+.rl-header {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 18px;
+}
+.rl-platform-icon {
+width: 28px;
+height: 28px;
+flex-shrink: 0;
+fill: #e0e0e0;
+}
+.rl-header h2 {
+font-size: 1.3em;
+font-weight: 700;
+}
+.rl-header .rl-username {
+font-size: 0.85em;
+color: #a8b8d8;
+font-weight: 400;
+}
+.rl-loading, .rl-error {
+font-size: 0.85em;
+color: #a8a8a8;
+text-align: center;
+padding: 12px 0;
+}
+.rl-best-mmr {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: rgba(20, 40, 80, 0.4);
+border-radius: 10px;
+padding: 12px 16px;
+margin-bottom: 16px;
+}
+.rl-best-mmr .label {
+font-size: 0.8em;
+color: #a8b8d8;
+}
+.rl-best-mmr .value {
+font-size: 1.3em;
+font-weight: 700;
+color: #ffd700;
+}
+.rl-playlists {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+gap: 10px;
+margin-bottom: 18px;
+}
+.rl-playlist-card {
+background: rgba(20, 40, 80, 0.35);
+border-radius: 10px;
+padding: 12px 10px;
+text-align: center;
+}
+.rl-playlist-name {
+font-size: 0.7em;
+color: #a8b8d8;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin-bottom: 6px;
+}
+.rl-playlist-rank-img {
+width: 48px;
+height: 48px;
+margin: 0 auto 6px;
+display: block;
+object-fit: contain;
+}
+.rl-playlist-rank-name {
+font-size: 0.78em;
+font-weight: 600;
+color: #f0f0f0;
+}
+.rl-playlist-rating {
+font-size: 0.68em;
+color: #8a9bc0;
+margin-top: 2px;
+}
+.rl-overview-title {
+font-size: 0.85em;
+font-weight: 600;
+color: #cfcfcf;
+margin-bottom: 10px;
+}
+.rl-overview-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+}
+.rl-stat {
+background: rgba(20, 40, 80, 0.3);
+border-radius: 8px;
+padding: 10px 6px;
+text-align: center;
+}
+.rl-stat .value {
+font-size: 1.1em;
+font-weight: 700;
+color: #ffffff;
+}
+.rl-stat .label {
+font-size: 0.62em;
+color: #8a9bc0;
+text-transform: uppercase;
+letter-spacing: 0.3px;
+margin-top: 2px;
+}
+.rl-updated {
+font-size: 0.65em;
+color: #6f80a0;
+text-align: right;
+margin-top: 14px;
+}
+
 /* Responsive Mobile Layout Rules */
 @media (max-width: 600px) {
 .profile {
@@ -342,6 +500,9 @@ height: 40px;
 .social-link svg {
 width: 19px;
 height: 19px;
+}
+.rl-overview-grid {
+grid-template-columns: repeat(2, 1fr);
 }
 }
 </style>
@@ -388,11 +549,30 @@ height: 19px;
 <canvas id="artSampleCanvas" width="10" height="10" style="display:none"></canvas>
 </div>
 
-
 <div class="card-showcase" id="cardShowcase"></div>
 
-
+<a class="scroll-hint" id="scrollHint" href="#rlSection">
+<span>Rocket League stats</span>
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 16.5l-7-7 1.41-1.41L12 13.67l5.59-5.58L19 9.5z"/></svg>
+</a>
 </div>
+
+<div class="rl-section" id="rlSection">
+<div class="profile rl-card" id="rlCard">
+<div class="rl-header">
+<svg class="rl-platform-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.2l7 3.5v8.6l-7 3.5-7-3.5V7.7l7-3.5z"/></svg>
+<div>
+<h2>Rocket League</h2>
+<div class="rl-username" id="rlUsername"></div>
+</div>
+</div>
+<div id="rlContent">
+<div class="rl-loading" id="rlLoading">Loading stats…</div>
+</div>
+<div class="rl-updated" id="rlUpdated"></div>
+</div>
+</div>
+
 </div>
 
 <script>
@@ -433,25 +613,21 @@ playerBorderColor: "rgba(20, 40, 80, 0.1)",
 playerBorderWidth: 1, // px
 playerBorderRadius: 14, // px
 playerBackground: "rgba(20, 40, 80, 0.55)",
-// When true, album art color sampling overrides playerBackground/
-// playerBorderColor dynamically per track (see tintPlayerFromArt below).
-// Set to false to always keep the static colors above.
 playerColorFromArt: true,
 
 // ---- Spotify "now playing" integration ----
-// Your deployed Cloudflare Worker URL. When set, the player auto-updates to
-// whatever Spotify reports as currently/recently playing, polling every
-// spotifyPollSeconds, with a real progress bar synced to actual playback
-// position (ticks locally between polls, corrected on each poll).
-// Leave as "" to disable and fall back to the manual tracks list below.
 spotifyWorkerUrl: "https://github-io.cxsir.workers.dev",
 spotifyPollSeconds: 30,
 
 // ---- Fallback / manual playlist ----
-// Used only if spotifyWorkerUrl is empty, or if a fetch to it fails.
-// prev/next cycle through this list; scrubber/duration update from the
-// loaded audio file itself.
 tracks: [],
+
+// ---- Rocket League stats integration ----
+// Same Worker as Spotify, different path. Reads the "cxsir" entry from
+// the multi-player /rocketleague response (see the Worker script).
+rocketLeagueWorkerUrl: "https://github-io.cxsir.workers.dev/rocketleague",
+rocketLeaguePlayerId: "cxsir", // key in the Worker's JSON response to read
+rocketLeagueUsername: "I cxsir I", // display label only
 
 // ---- Social links ----
 links: [
@@ -494,6 +670,14 @@ profileCard.style.borderColor = CONFIG.cardBorderColor;
 profileCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
 profileCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
 profileCard.style.background = CONFIG.cardBackground;
+
+// The RL card reuses the same .profile class for visual consistency, so
+// apply the same CONFIG-driven border/background to it too.
+const rlCard = document.getElementById('rlCard');
+rlCard.style.borderColor = CONFIG.cardBorderColor;
+rlCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
+rlCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
+rlCard.style.background = CONFIG.cardBackground;
 
 const musicPlayerStatic = document.getElementById('musicPlayer');
 musicPlayerStatic.style.borderColor = CONFIG.playerBorderColor;
@@ -578,11 +762,6 @@ const musicPlayerEl = document.querySelector('.music-player');
 const sampleCanvas = document.getElementById('artSampleCanvas');
 const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
 
-// Samples the loaded album art image down to a tiny canvas and averages the
-// pixels to get a rough dominant color, then tints the player's background
-// and border with it. Falls back to CONFIG's static player colors on any
-// error (e.g. cross-origin image without proper CORS headers) or if
-// CONFIG.playerColorFromArt is disabled.
 function tintPlayerFromArt(imgEl) {
 if (!CONFIG.playerColorFromArt || !imgEl || !imgEl.src) {
 resetPlayerTint();
@@ -607,8 +786,6 @@ b = Math.round(b / count);
 musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.35), ${CONFIG.playerBackground})`;
 musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
 } catch (err) {
-// Likely a CORS-tainted canvas (cross-origin image without proper headers).
-// Logged so this is easy to spot in devtools rather than failing silently.
 console.warn('Album art color sampling failed:', err);
 resetPlayerTint();
 }
@@ -629,11 +806,11 @@ musicPlayerEl.style.borderColor = CONFIG.playerBorderColor;
 
 let trackIndex = 0;
 let isScrubbing = false;
-let spotifyMode = false; // true once a successful Spotify fetch has happened
-let lastSpotifyUrl = null; // used to skip the expensive re-render when track hasn't changed
-let spotifyProgressMs = 0; // last known progress from Spotify, advanced locally between polls
+let spotifyMode = false;
+let lastSpotifyUrl = null;
+let spotifyProgressMs = 0;
 let spotifyDurationMs = 0;
-let spotifyTickHandle = null; // setInterval handle for local progress ticking
+let spotifyTickHandle = null;
 
 function loadTrack(index, autoplay) {
 if (!CONFIG.tracks.length) return;
@@ -650,7 +827,7 @@ artistEl.style.display = track.artist ? 'block' : 'none';
 artEl.src = track.art || "";
 artEl.style.visibility = track.art ? 'visible' : 'hidden';
 tintPlayerFromArt(track.art ? artEl : null);
-scrubRow.style.display = 'flex'; // manual/local tracks always have real position data
+scrubRow.style.display = 'flex';
 if (autoplay) audio.play().catch(() => {});
 }
 
@@ -661,8 +838,6 @@ pauseIcon.style.display = playing ? 'block' : 'none';
 
 function setSpotifyMode(active) {
 spotifyMode = active;
-// While in Spotify mode, prev/next/scrubber don't make sense (it's just a
-// status display, not a playable local file), so disable them.
 prevBtn.disabled = active;
 nextBtn.disabled = active;
 playPauseBtn.disabled = active;
@@ -670,9 +845,6 @@ scrubber.disabled = active;
 if (!active) spotifyBadge.style.display = 'none';
 }
 
-// Advances the displayed progress bar by 1 second locally, between polls,
-// so the bar moves smoothly instead of jumping only every spotifyPollSeconds.
-// Gets corrected back to the real value on the next successful poll.
 function startSpotifyTicking() {
 stopSpotifyTicking();
 spotifyTickHandle = setInterval(() => {
@@ -698,7 +870,6 @@ currentTimeEl.textContent = formatTime(progressSec);
 durationEl.textContent = formatTime(durationSec);
 }
 
-// ---- Spotify "now playing" polling ----
 async function fetchNowPlaying() {
 if (!CONFIG.spotifyWorkerUrl) return;
 
@@ -708,7 +879,6 @@ if (!res.ok) throw new Error(`Worker returned ${res.status}`);
 const data = await res.json();
 
 if (!data || !data.title) {
-// Nothing playing and no recent history either — fall back to manual list.
 if (spotifyMode) {
 setSpotifyMode(false);
 stopSpotifyTicking();
@@ -720,8 +890,6 @@ return;
 const isNewTrack = data.url !== lastSpotifyUrl;
 lastSpotifyUrl = data.url;
 
-// Always refresh progress/duration, even if the track itself hasn't changed,
-// so the bar stays accurate to the real playback position on every poll.
 spotifyProgressMs = typeof data.progressMs === "number" ? data.progressMs : 0;
 spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;
 
@@ -734,16 +902,12 @@ renderTrack({
 title: data.title,
 artist: data.artist || "",
 art: data.art || "",
-url: "" // no playable audio file from Spotify's API, this is status-only
+url: ""
 }, false);
 
-// There's no audio source to actually play (Spotify doesn't expose full
-// track streaming via this API), so just clear/pause the local <audio>.
 audio.pause();
 audio.removeAttribute('src');
 setPlayingIcon(data.isPlaying);
-// renderTrack always re-shows the scrub row; re-apply the correct
-// isPlaying-based visibility immediately after.
 scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
 
 titleEl.title = data.url ? "Open in Spotify" : "";
@@ -757,8 +921,6 @@ setPlayingIcon(data.isPlaying);
 
 updateSpotifyProgressUI();
 
-// Only tick locally while actually playing — paused tracks shouldn't
-// advance the bar on their own between polls.
 if (data.isPlaying) {
 startSpotifyTicking();
 } else {
@@ -766,8 +928,6 @@ stopSpotifyTicking();
 }
 } catch (err) {
 console.error('Spotify fetch failed:', err);
-// Leave whatever was last shown (manual track or last good Spotify data)
-// rather than clearing the player on a transient network error.
 }
 }
 
@@ -824,6 +984,160 @@ if (spotifyMode) return;
 audio.currentTime = parseFloat(scrubber.value);
 isScrubbing = false;
 });
+
+// ---- Rocket League stats ----
+document.getElementById('rlUsername').textContent = CONFIG.rocketLeagueUsername;
+
+function formatNumber(n) {
+if (typeof n !== 'number') return n;
+return n.toLocaleString();
+}
+
+// Pulls a numeric stat value out of Tracker Network's typical
+// segment.stats.<key>.value shape, trying a couple of likely key spellings
+// since exact field names can vary slightly by endpoint version.
+function getStatValue(statsObj, keys) {
+if (!statsObj) return null;
+for (const key of keys) {
+const stat = statsObj[key];
+if (stat && typeof stat.value === 'number') return stat.value;
+if (typeof stat === 'number') return stat;
+}
+return null;
+}
+
+function renderRocketLeagueStats(profile) {
+const content = document.getElementById('rlContent');
+content.innerHTML = '';
+
+if (!profile) {
+content.innerHTML = '<div class="rl-error">No stats available yet.</div>';
+return;
+}
+
+const segments = profile.segments || [];
+const overviewSegment = segments.find((s) => s.type === 'overview') || null;
+
+// Only show these specific playlists, in this order, per the requested scope.
+const WANTED_PLAYLISTS = [
+'Ranked Duel 1v1',
+'Ranked Doubles 2v2',
+'Rumble',
+'Tournament Matches',
+'Heatseeker',
+'Casual',
+];
+const playlistSegments = WANTED_PLAYLISTS
+.map((wantedName) => segments.find((s) => s.type === 'playlist' && s.metadata?.name === wantedName))
+.filter(Boolean);
+
+// ---- Best 2v2 MMR ----
+if (typeof profile.best_2v2_mmr === 'number') {
+const mmrRow = document.createElement('div');
+mmrRow.className = 'rl-best-mmr';
+mmrRow.innerHTML = `
+<span class="label">Best 2v2 MMR</span>
+<span class="value">${formatNumber(profile.best_2v2_mmr)}</span>
+`;
+content.appendChild(mmrRow);
+}
+
+// ---- Selected playlists ----
+if (playlistSegments.length) {
+const grid = document.createElement('div');
+grid.className = 'rl-playlists';
+
+playlistSegments.forEach((seg) => {
+const name = seg.metadata?.name || 'Playlist';
+const rankName = seg.stats?.tier?.metadata?.name || 'Unranked';
+const rankImg = seg.stats?.tier?.metadata?.iconUrl || '';
+const rating = getStatValue(seg.stats, ['rating']);
+
+const card = document.createElement('div');
+card.className = 'rl-playlist-card';
+card.innerHTML = `
+<div class="rl-playlist-name">${name}</div>
+${rankImg ? `<img class="rl-playlist-rank-img" src="${rankImg}" alt="${rankName}">` : ''}
+<div class="rl-playlist-rank-name">${rankName}</div>
+${rating !== null ? `<div class="rl-playlist-rating">${formatNumber(rating)} RR</div>` : ''}
+`;
+grid.appendChild(card);
+});
+
+content.appendChild(grid);
+}
+
+// ---- Lifetime overview stats ----
+if (overviewSegment && overviewSegment.stats) {
+const title = document.createElement('div');
+title.className = 'rl-overview-title';
+title.textContent = 'Lifetime Stats';
+content.appendChild(title);
+
+const statDefs = [
+{ keys: ['wins'], label: 'Wins' },
+{ keys: ['goals'], label: 'Goals' },
+{ keys: ['assists'], label: 'Assists' },
+{ keys: ['saves'], label: 'Saves' },
+{ keys: ['shots'], label: 'Shots' },
+{ keys: ['mVPs'], label: 'MVPs' },
+{ keys: ['goalShotRatio'], label: 'Goal %' },
+];
+
+const grid = document.createElement('div');
+grid.className = 'rl-overview-grid';
+
+statDefs.forEach((def) => {
+const val = getStatValue(overviewSegment.stats, def.keys);
+if (val === null) return;
+const cell = document.createElement('div');
+cell.className = 'rl-stat';
+cell.innerHTML = `<div class="value">${formatNumber(val)}</div><div class="label">${def.label}</div>`;
+grid.appendChild(cell);
+});
+
+if (grid.children.length) {
+content.appendChild(grid);
+} else if (!content.children.length) {
+content.innerHTML = '<div class="rl-error">No stats available yet.</div>';
+}
+}
+
+if (!content.children.length) {
+content.innerHTML = '<div class="rl-error">No stats available yet.</div>';
+}
+}
+
+async function fetchRocketLeagueStats() {
+if (!CONFIG.rocketLeagueWorkerUrl) return;
+
+try {
+const res = await fetch(CONFIG.rocketLeagueWorkerUrl, { cache: 'no-store' });
+if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+const data = await res.json();
+const entry = data[CONFIG.rocketLeaguePlayerId];
+
+const updatedEl = document.getElementById('rlUpdated');
+
+if (!entry || !entry.profile) {
+document.getElementById('rlContent').innerHTML =
+`<div class="rl-loading">${entry?.error || 'Stats not cached yet — check back soon.'}</div>`;
+updatedEl.textContent = '';
+return;
+}
+
+renderRocketLeagueStats(entry.profile);
+if (entry.lastUpdated) {
+const d = new Date(entry.lastUpdated);
+updatedEl.textContent = `Updated ${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+}
+} catch (err) {
+console.error('Rocket League fetch failed:', err);
+document.getElementById('rlContent').innerHTML = '<div class="rl-error">Couldn\'t load stats right now.</div>';
+}
+}
+
+fetchRocketLeagueStats();
 });
 </script>
 </body>
