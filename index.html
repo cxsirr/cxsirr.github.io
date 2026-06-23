@@ -436,6 +436,11 @@ font-size: 0.78em;
 font-weight: 600;
 color: #f0f0f0;
 }
+.rl-playlist-division {
+font-size: 0.85em;
+font-weight: 400;
+color: #8a9bc0;
+}
 .rl-playlist-rating {
 font-size: 0.68em;
 color: #8a9bc0;
@@ -1051,6 +1056,7 @@ playlistSegments.forEach((seg) => {
 const name = seg.metadata?.name || 'Playlist';
 const rankName = seg.stats?.tier?.metadata?.name || 'Unranked';
 const rankImg = seg.stats?.tier?.metadata?.iconUrl || '';
+const divisionName = seg.stats?.division?.metadata?.name || '';
 const rating = getStatValue(seg.stats, ['rating']);
 
 const card = document.createElement('div');
@@ -1058,7 +1064,7 @@ card.className = 'rl-playlist-card';
 card.innerHTML = `
 <div class="rl-playlist-name">${name}</div>
 ${rankImg ? `<img class="rl-playlist-rank-img" src="${rankImg}" alt="${rankName}">` : ''}
-<div class="rl-playlist-rank-name">${rankName}</div>
+<div class="rl-playlist-rank-name">${rankName}${divisionName ? ` <span class="rl-playlist-division">${divisionName}</span>` : ''}</div>
 ${rating !== null ? `<div class="rl-playlist-rating">${formatNumber(rating)} RR</div>` : ''}
 `;
 grid.appendChild(card);
@@ -1081,7 +1087,6 @@ const statDefs = [
 { keys: ['saves'], label: 'Saves' },
 { keys: ['shots'], label: 'Shots' },
 { keys: ['mVPs'], label: 'MVPs' },
-{ keys: ['goalShotRatio'], label: 'Goal %' },
 ];
 
 const grid = document.createElement('div');
