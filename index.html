@@ -1059,10 +1059,11 @@ const rating = getStatValue(seg.stats, ['rating']);
 const card = document.createElement('div');
 card.className = 'rl-playlist-card';
 card.innerHTML = `
-<div class="rl-playlist-name">${name}</div>
-${rankImg ? `<img class="rl-playlist-rank-img" src="${rankImg}" alt="${rankName}">` : ''}
-<div class="rl-playlist-rank-name">${rankName}${divisionName ? ` <span class="rl-playlist-division">${divisionName}</span>` : ''}</div>
-${rating !== null ? `<div class="rl-playlist-rating">${formatNumber(rating)} MMR</div>` : ''}
+  <div class="rl-playlist-name">${name}</div>
+  ${rankImg ? `<img class="rl-playlist-rank-img" src="${rankImg}" alt="${rankName}">` : ''}
+  <div class="rl-playlist-rank-name">${rankName}</div>
+  ${divisionName ? `<div class="rl-playlist-division">${divisionName}</div>` : ''}
+  ${rating !== null ? `<div class="rl-playlist-rating">${formatNumber(rating)} MMR</div>` : ''}
 `;
 grid.appendChild(card);
 });
