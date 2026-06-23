@@ -1,1 +1,1146 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>cxsir</title> <style> /* ============================================================    CONFIG — edit everything here. Colors/sizes are applied via    JS at load time (see CONFIG object in the <script> below),    so most visual tweaks only need changes in ONE place: the    CONFIG object near the top of the script.    ============================================================ */ * { margin: 0; padding: 0; box-sizing: border-box; } html { scroll-behavior: smooth; } body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0f0f0f; color: #e0e0e0; min-height: 100vh; overflow-x: hidden; position: relative; } /* Background Image - blur amount is set inline from CONFIG.bgBlur via JS */ .bg-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; background-repeat: no-repeat; transform: scale(1.1); /* avoids blurred edges showing at the viewport border */ z-index: -2; } body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.15); z-index: -1; pointer-events: none; } /* Content Container */ .container { display: flex; flex-direction: column; align-items: center; padding: 20px; z-index: 1; position: relative; min-height: 100vh; justify-content: center; gap: 18px; } /* Profile Card — border-color/width/radius set inline from CONFIG.card* via JS */ .profile { text-align: center; width: 100%; max-width: 420px; backdrop-filter: blur(5px); background: rgba(20, 40, 80, 0.25); padding: 36px 28px 28px; border-radius: 24px; border: 1px solid rgba(20, 40, 80, 0.12); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35); animation: fadeIn 0.6s ease-in; } @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } } /* Profile Picture */ .pfp-wrap { display: flex; justify-content: center; margin-bottom: 18px; } .pfp { width: 110px; height: 110px; border-radius: 50%; object-fit: cover; border: 3px solid rgba(20, 40, 80, 0.25); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); } .profile h1 { font-size: 2em; margin-bottom: 8px; letter-spacing: 0.5px; } .profile .tagline { font-size: 1.05em; color: #cfcfcf; margin-bottom: 22px; line-height: 1.5; } /* Clean grid layout for social icons — border-color/width set inline from CONFIG.icon* via JS */ .social-links { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; margin: 22px auto 4px auto; max-width: 340px; } .social-link { width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; background: rgba(20, 40, 80, 0.08); border: 2px solid rgba(20, 40, 80, 0.15); border-radius: 50%; transition: all 0.25s ease; text-decoration: none; overflow: hidden; color: #ffffff; } /* Inline SVG icon styling - currentColor works since SVG markup lives in the DOM */ .social-link svg { width: 22px; height: 22px; fill: currentColor; color: inherit; transition: all 0.25s ease; display: block; } .social-link:hover { background: rgba(20, 40, 80, 0.18); border-color: rgba(20, 40, 80, 0.5); transform: translateY(-4px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25); } .social-link:active { transform: translateY(-2px) scale(0.97); } /* Center-aligned Showcase Container for Exophase Card — border-color/width/radius    set inline from CONFIG.showcase* via JS */ .card-showcase { display: flex; justify-content: center; align-items: center; width: 100%; margin: 18px 0 4px 0; } .showcase-card { display: block; width: 100%; max-width: 360px; transition: all 0.3s ease; border-radius: 12px; overflow: hidden; border: 1px solid rgba(20, 40, 80, 0.12); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35); } .showcase-card img { width: 100%; height: auto; display: block; object-fit: contain; } .showcase-card:hover { transform: scale(1.03); border-color: rgba(20, 40, 80, 0.3); box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4); } /* Custom Music Player — border-color/width/radius set inline from CONFIG.player* via JS */ .music-player { margin-top: 22px; padding: 10px; display: flex; flex-direction: column; gap: 10px; background: rgba(20, 40, 80, 0.55); border: 1px solid rgba(20, 40, 80, 0.1); border-radius: 14px; position: relative; transition: background 0.6s ease, border-color 0.6s ease; } .music-top-row { display: flex; align-items: center; gap: 12px; width: 100%; } .music-art { width: 46px; height: 46px; border-radius: 8px; object-fit: cover; flex-shrink: 0; background: rgba(20, 40, 80, 0.08); } .music-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; } .music-title { font-size: 0.85em; font-weight: 600; color: #f0f0f0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; } .music-artist { font-size: 0.72em; color: #a8a8a8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; margin-top: -2px; } .music-scrub-row { display: flex; align-items: center; gap: 8px; width: 100%; } .music-time { font-size: 0.7em; color: #a0a0a0; flex-shrink: 0; flex-grow: 0; width: 32px; /* fixed width (not min-width) so "0:00" and "12:34" take identical space */ } .music-time.current { text-align: right; } .music-time.duration { text-align: left; } .music-scrubber { flex: 1 1 auto; min-width: 0; /* allows the slider to shrink below its intrinsic size instead of overflowing */ max-width: 100%; -webkit-appearance: none; appearance: none; height: 4px; border-radius: 2px; background: rgba(40, 80, 160, 0.5); cursor: pointer; outline: none; } .music-scrubber::-webkit-slider-thumb { -webkit-appearance: none; width: 10px; height: 10px; border-radius: 50%; background: #ffffff; cursor: pointer; } .music-scrubber::-moz-range-thumb { width: 10px; height: 10px; border: none; border-radius: 50%; background: #ffffff; cursor: pointer; } .music-controls { display: flex; align-items: center; gap: 2px; flex-shrink: 0; } .music-btn { width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; background: none; border: none; color: #e0e0e0; cursor: pointer; border-radius: 50%; transition: background 0.2s ease; } .music-btn:hover { background: rgba(20, 40, 80, 0.12); } .music-btn svg { width: 16px; height: 16px; fill: currentColor; } .music-btn.play-pause svg { width: 18px; height: 18px; } .music-btn:disabled { opacity: 0.3; cursor: default; } .music-btn:disabled:hover { background: none; } /* Small "Live from Spotify" badge shown when CONFIG.spotifyWorkerUrl is active */ .spotify-badge { position: absolute; top: -8px; right: 10px; background: rgba(20, 40, 80, 0.5); color: #cfe0ff; font-size: 0.6em; font-weight: 700; padding: 2px 7px; border-radius: 8px; letter-spacing: 0.3px; border: 1px solid rgba(207, 224, 255, 0.4); display: none; } /* Shown instead of the LIVE badge when Spotify mode is active but nothing    is currently playing — i.e. displaying recently-played history. */ .recently-played-badge { position: absolute; top: -8px; right: 10px; background: rgba(20, 40, 80, 0.5); color: #cfe0ff; font-size: 0.6em; font-weight: 700; padding: 2px 7px; border-radius: 8px; letter-spacing: 0.3px; border: 1px solid rgba(207, 224, 255, 0.4); display: none; }  /* ---- Rocket League stats section ---- */ .rl-section { width: 100%; max-width: 420px; } .rl-card { backdrop-filter: blur(5px); padding: 24px 22px; animation: fadeIn 0.6s ease-in; } .rl-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; } .rl-platform-icon { width: 28px; height: 28px; flex-shrink: 0; fill: #e0e0e0; } .rl-header h2 { font-size: 1.3em; font-weight: 700; } .rl-header .rl-username { font-size: 0.85em; color: #a8b8d8; font-weight: 400; text-align: left; } .rl-loading, .rl-error { font-size: 0.85em; color: #a8a8a8; text-align: center; padding: 12px 0; } .rl-best-mmr { display: flex; justify-content: space-between; align-items: center; background: rgba(20, 40, 80, 0.4); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; } .rl-best-mmr .label { font-size: 0.8em; color: #a8b8d8; } .rl-best-mmr .value { font-size: 1.3em; font-weight: 700; color: #ffffff; } .rl-playlists { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin-bottom: 18px; } .rl-playlist-card { background: rgba(20, 40, 80, 0.35); border-radius: 10px; padding: 12px 10px; text-align: center; } .rl-playlist-name { font-size: 0.7em; color: #a8b8d8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; } .rl-playlist-rank-img { width: 48px; height: 48px; margin: 0 auto 6px; display: block; object-fit: contain; } .rl-playlist-rank-name { font-size: 0.78em; font-weight: 600; color: #f0f0f0; line-height: 1.3; } .rl-playlist-division { font-size: 0.75em; font-weight: 400; color: #8a9bc0; margin-top: 3px; } .rl-playlist-rating { font-size: 0.68em; color: #8a9bc0; margin-top: 4px; } .rl-overview-title { font-size: 0.85em; font-weight: 600; color: #cfcfcf; margin-bottom: 10px; } .rl-overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; } .rl-stat { background: rgba(20, 40, 80, 0.3); border-radius: 8px; padding: 10px 6px; text-align: center; } .rl-stat .value { font-size: 1.1em; font-weight: 700; color: #ffffff; } .rl-stat .label { font-size: 0.62em; color: #8a9bc0; text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; } .rl-updated { font-size: 0.65em; color: #6f80a0; text-align: right; margin-top: 14px; }  /* Responsive Mobile Layout Rules */ @media (max-width: 600px) { .profile { padding: 28px 18px 22px; } .pfp { width: 90px; height: 90px; } .profile h1 { font-size: 1.7em; } .social-links { gap: 8px; max-width: 280px; } .social-link { width: 40px; height: 40px; } .social-link svg { width: 19px; height: 19px; } .rl-overview-grid { grid-template-columns: repeat(2, 1fr); } } </style> </head> <body> <div class="bg-container" id="bgContainer"></div> <div class="container"> <div class="profile" id="profileCard"> <div class="pfp-wrap"> <img class="pfp" id="profilePfp" src="" alt="Profile picture"> </div> <h1 id="profileName"></h1> <p class="tagline" id="profileBio"></p>  <div class="social-links" id="socialLinks"></div>  <div class="music-player" id="musicPlayer"> <div class="spotify-badge" id="spotifyBadge">Now Playing</div> <div class="recently-played-badge" id="recentlyPlayedBadge">Recently Played</div> <div class="music-top-row"> <img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous"> <div class="music-info"> <div class="music-title" id="musicTitle">No track loaded</div> <div class="music-artist" id="musicArtist"></div> </div> <div class="music-controls" id="musicControls"> <button class="music-btn" id="musicPrev" title="Previous track"> <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg> </button> <button class="music-btn play-pause" id="musicPlayPause" title="Play/Pause"> <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg> <svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> </button> <button class="music-btn" id="musicNext" title="Next track"> <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg> </button> </div> </div> <div class="music-scrub-row" id="musicScrubRow"> <span class="music-time current" id="musicCurrentTime">0:00</span> <input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1"> <span class="music-time duration" id="musicDuration">0:00</span> </div> <audio id="audioEl" preload="metadata"></audio> <canvas id="artSampleCanvas" width="10" height="10" style="display:none"></canvas> </div>  <div class="card-showcase" id="cardShowcase"></div> </div>  <div class="rl-section" id="rlSection"> <div class="profile rl-card" id="rlCard"> <div class="rl-header"> <svg class="rl-platform-icon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Rocket League</title><path fill="currentColor" d="M 1.968,0.718 C -0.036,1.361 -0.669,3.963 0.818,5.45 C 2.222,6.854 4.573,6.456 5.452,4.665 C 5.749,4.061 5.77,2.898 5.494,2.301 C 4.859,0.923 3.388,0.262 1.968,0.718 M 9.54,0.948 C 8.684,1.024 6.62,1.312 6.445,1.379 C 6.345,1.417 6.35,1.465 6.481,1.722 C 7.101,2.936 6.947,4.68 6.123,5.779 C 5.892,6.088 5.892,6.089 6.17,6.15 C 6.362,6.192 6.442,6.161 6.634,5.968 C 6.898,5.705 6.911,5.707 7.884,6.198 C 8.223,6.369 8.431,6.42 8.785,6.42 C 9.038,6.42 9.265,6.452 9.289,6.491 C 9.324,6.548 9.864,6.744 10.696,7 C 10.829,7.042 11.746,6.567 11.67,6.497 C 11.635,6.464 11.372,6.359 11.085,6.264 C 10.799,6.169 10.565,6.061 10.565,6.024 C 10.565,5.825 12.625,6.051 13.519,6.348 C 14.283,6.603 14.266,6.599 14.266,6.506 C 14.266,6.469 14.194,6.419 14.106,6.396 C 13.785,6.312 13.945,5.993 14.297,6.014 C 14.715,6.04 15.391,6.431 15.362,6.631 C 15.347,6.73 15.434,6.855 15.612,6.991 C 15.762,7.105 15.885,7.243 15.885,7.297 C 15.885,7.351 15.971,7.476 16.075,7.574 C 16.18,7.673 16.251,7.777 16.233,7.806 C 16.215,7.835 16.388,8.044 16.618,8.271 C 16.992,8.64 17.021,8.692 16.904,8.778 C 16.79,8.861 16.813,8.881 17.081,8.929 C 17.78,9.056 18.111,9.365 17.722,9.527 C 17.58,9.587 17.292,9.742 17.082,9.872 C 16.723,10.096 16.712,10.113 16.89,10.156 C 17.014,10.185 17.212,10.134 17.459,10.007 C 18.854,9.292 21.856,10.737 22.251,12.313 C 22.344,12.684 22.417,12.587 22.783,11.603 C 23.601,9.406 23.906,7.816 23.96,5.477 L 24,3.725 L 23.771,3.511 C 22.736,2.547 19.582,1.526 16.193,1.059 C 15.151,0.915 10.733,0.841 9.54,0.948 M 5.356,6.147 C 5.084,6.562 5.036,7.962 5.294,7.962 C 5.352,7.962 5.401,7.919 5.403,7.866 C 5.405,7.813 5.425,7.535 5.448,7.249 C 5.476,6.9 5.463,6.729 5.406,6.729 C 5.287,6.729 5.303,6.497 5.44,6.235 C 5.59,5.947 5.529,5.883 5.356,6.147 M 6.754,6.088 C 6.696,6.238 6.652,6.212 7.229,6.368 C 8.134,6.612 8.185,6.485 7.314,6.157 C 6.86,5.986 6.796,5.978 6.754,6.088 M 5.78,6.599 C 5.624,6.943 5.603,7.218 5.681,7.866 C 5.712,8.129 5.765,8.271 5.833,8.271 C 5.95,8.271 6.057,7.937 5.98,7.812 C 5.918,7.712 6.057,7.706 6.236,7.802 C 6.344,7.859 6.383,7.825 6.449,7.614 C 6.523,7.376 6.513,7.342 6.314,7.195 C 5.969,6.94 6.134,6.677 6.682,6.608 C 7.166,6.548 7.214,6.46 6.806,6.381 C 6.028,6.23 5.939,6.249 5.78,6.599 M 11.593,6.919 C 11.137,7.226 11.128,7.327 11.517,7.75 L 11.76,8.016 L 12.994,7.979 C 13.672,7.96 14.24,7.932 14.255,7.919 C 14.27,7.905 14.201,7.662 14.101,7.38 C 13.881,6.76 13.825,6.73 12.762,6.684 L 11.991,6.65 L 11.593,6.919 M 0.62,6.934 C 0.622,7.561 1.254,10.227 1.548,10.853 C 2.118,12.066 3.318,12.705 5.901,13.17 C 7.742,13.501 8.991,13.901 10.604,14.674 C 13.827,16.221 16.324,18.639 16.48,20.367 C 16.504,20.626 16.547,20.838 16.577,20.838 C 16.685,20.838 18.49,18.928 18.982,18.294 C 19.6,17.496 20.677,15.859 20.949,15.304 C 21.191,14.809 21.16,14.413 20.857,14.15 C 20.635,13.957 20.587,13.944 19.662,13.834 C 18.786,13.73 18.213,13.504 17.735,13.074 C 17.353,12.73 17.338,12.725 17.233,12.875 C 16.697,13.641 15.202,13.202 15.045,12.233 C 15,11.962 14.971,11.937 14.532,11.785 C 14.276,11.697 13.794,11.474 13.462,11.289 C 12.933,10.996 12.819,10.96 12.539,11.002 C 12.288,11.04 12.139,11.01 11.851,10.864 L 11.484,10.679 L 11.341,10.96 C 10.886,11.852 9.892,12.282 9.103,11.928 C 8.222,11.533 7.765,10.797 7.921,10.024 C 8.002,9.619 7.988,9.581 7.763,9.581 C 7.678,9.581 7.551,9.529 7.48,9.465 C 7.364,9.36 7.313,9.365 6.988,9.508 C 6.469,9.738 5.956,9.602 5.412,9.091 C 4.996,8.699 4.938,8.521 4.957,7.705 C 4.977,6.856 4.955,6.812 4.613,7.021 C 3.601,7.64 2.129,7.565 0.677,6.822 C 0.645,6.806 0.619,6.856 0.62,6.934 M 9.618,7.268 C 9.571,7.446 9.7,7.48 9.766,7.307 C 9.791,7.243 9.845,7.191 9.888,7.191 C 9.93,7.191 9.945,7.242 9.921,7.304 C 9.897,7.367 9.907,7.436 9.944,7.458 C 10.047,7.522 10.1,7.297 10.004,7.201 C 9.867,7.064 9.662,7.1 9.618,7.268 M 9.415,7.313 C 9.418,7.403 9.437,7.421 9.461,7.36 C 9.484,7.304 9.481,7.238 9.455,7.212 C 9.43,7.186 9.411,7.232 9.415,7.313 M 10.18,7.422 C 10.18,7.539 10.231,7.577 10.392,7.577 C 10.508,7.578 10.742,7.596 10.912,7.617 L 11.22,7.656 L 10.835,7.463 C 10.362,7.226 10.18,7.215 10.18,7.422 M 14.343,7.388 C 14.343,7.621 14.62,7.891 15.007,8.036 C 15.573,8.248 15.589,8.209 15.135,7.737 C 14.803,7.393 14.343,7.19 14.343,7.388 M 6.77,7.712 C 6.747,7.801 6.792,7.967 6.873,8.09 C 7.058,8.371 7.055,8.416 6.833,8.694 L 6.649,8.925 L 6.294,8.67 C 5.895,8.384 5.784,8.516 6.093,8.909 C 6.367,9.256 7.712,9.369 7.712,9.043 C 7.712,9 7.88,8.964 8.084,8.964 C 8.374,8.964 8.494,8.925 8.625,8.785 C 8.964,8.425 9.457,8.246 9.964,8.299 L 10.423,8.347 L 10.181,8.041 C 9.936,7.732 9.575,7.568 9.177,7.586 C 9.022,7.593 9.014,7.601 9.139,7.629 C 9.883,7.796 10.006,7.967 9.338,7.906 C 8.701,7.848 8.503,7.91 8.503,8.166 C 8.503,8.588 7.853,8.833 7.713,8.464 C 7.632,8.253 7.674,8.072 7.852,7.866 C 7.923,7.783 7.934,7.731 7.881,7.731 C 7.833,7.731 7.74,7.835 7.674,7.962 C 7.567,8.169 7.253,8.296 7.248,8.136 C 7.247,8.104 7.148,7.96 7.028,7.816 C 6.828,7.574 6.808,7.566 6.77,7.712 M 6.45,8.136 C 6.425,8.231 6.403,8.359 6.403,8.421 C 6.401,8.591 6.528,8.42 6.586,8.174 C 6.645,7.922 6.517,7.885 6.45,8.136 M 11.953,8.307 C 11.953,8.327 12.06,8.496 12.192,8.682 L 12.431,9.022 L 12.751,8.845 C 13.135,8.634 13.506,8.535 14.227,8.456 L 14.767,8.396 L 14.382,8.34 C 13.95,8.277 11.953,8.25 11.953,8.307 M 10.798,8.552 C 11.387,8.946 11.634,9.315 11.678,9.868 C 11.708,10.254 11.69,10.239 12.415,10.468 C 12.591,10.524 12.586,10.511 12.358,10.318 C 12.22,10.202 12.107,10.073 12.107,10.031 C 12.107,9.747 11.009,8.425 10.773,8.425 C 10.615,8.425 10.616,8.43 10.798,8.552 M 11.565,8.846 C 11.798,9.084 11.971,9.195 12.104,9.193 C 12.295,9.189 12.292,9.183 12.004,8.928 C 11.841,8.784 11.599,8.628 11.465,8.582 C 11.223,8.497 11.223,8.498 11.565,8.846 M 16.173,8.81 C 16.1,8.895 15.962,8.965 15.866,8.966 C 15.654,8.968 15.077,9.222 15,9.348 C 14.969,9.398 15.091,9.363 15.271,9.272 C 15.451,9.18 15.81,9.061 16.069,9.009 C 16.397,8.942 16.548,8.873 16.565,8.784 C 16.601,8.602 16.336,8.62 16.173,8.81 M 10.218,9.337 C 10.133,9.354 9.963,9.439 9.841,9.526 L 9.617,9.685 L 9.791,9.826 C 10.022,10.013 10.035,10.009 10.242,9.69 C 10.444,9.377 10.439,9.293 10.218,9.337 M 10.578,9.675 C 10.346,10.051 10.363,10.09 10.758,10.11 C 11.17,10.131 11.227,9.963 10.925,9.613 L 10.746,9.404 L 10.578,9.675 M 14.815,9.841 L 14.643,10.024 L 14.942,10.143 C 15.4,10.327 15.748,10.371 15.995,10.277 C 16.271,10.172 16.217,10.121 15.556,9.863 C 14.932,9.618 15.022,9.621 14.815,9.841 M 9.333,10.231 C 9.133,10.759 9.275,11.088 9.537,10.703 C 9.756,10.38 9.758,10.336 9.565,10.161 C 9.417,10.028 9.41,10.03 9.333,10.231 M 14.038,10.506 C 13.654,10.843 13.654,10.858 14.035,10.928 C 14.411,10.998 14.947,10.495 14.694,10.308 C 14.481,10.151 14.422,10.169 14.038,10.506 M 17.774,10.253 C 17.233,10.353 17.246,10.334 17.538,10.59 C 17.894,10.902 17.959,11.308 17.752,11.922 L 17.602,12.367 L 17.766,12.474 C 18.057,12.665 18.827,12.812 19.912,12.884 C 20.7,12.936 21.023,12.988 21.176,13.089 L 21.382,13.224 L 21.335,12.989 C 21.066,11.641 18.971,10.032 17.774,10.253 M 10.365,10.696 C 10.533,11.367 10.62,11.386 10.939,10.819 L 11.115,10.506 L 10.716,10.506 C 10.331,10.506 10.319,10.513 10.365,10.696 M 14.932,10.86 C 14.611,11.235 14.611,11.234 14.851,11.308 C 15.06,11.372 15.571,10.627 15.371,10.551 C 15.307,10.526 15.25,10.508 15.243,10.509 C 15.235,10.51 15.096,10.668 14.932,10.86 M 9.654,10.972 C 9.442,11.241 9.479,11.332 9.83,11.398 C 10.208,11.469 10.263,11.402 10.123,11.046 C 9.98,10.682 9.894,10.668 9.654,10.972 M 16.834,11.232 C 16.613,11.422 16.63,11.613 16.851,11.43 C 16.98,11.323 17.15,11.046 17.087,11.046 C 17.067,11.046 16.953,11.13 16.834,11.232 M 17.256,11.26 C 17.021,11.534 17.023,11.586 17.268,11.586 C 17.467,11.586 17.504,11.556 17.504,11.398 C 17.504,11.152 17.399,11.093 17.256,11.26 M 16.396,11.914 C 16.323,12.187 16.335,12.349 16.418,12.203 C 16.537,11.992 16.59,11.74 16.516,11.74 C 16.476,11.74 16.422,11.818 16.396,11.914 M 17.138,11.949 C 16.958,11.983 16.918,12.173 17.031,12.461 C 17.08,12.584 17.115,12.563 17.296,12.302 C 17.589,11.88 17.581,11.863 17.138,11.949 M 16.514,12.399 C 16.384,12.684 16.402,12.742 16.617,12.742 C 16.816,12.742 16.842,12.676 16.762,12.376 C 16.701,12.15 16.624,12.157 16.514,12.399 M 4.084,14.666 C 3.417,14.868 3.403,15.044 3.976,16 C 5.908,19.221 8.359,21.58 11.322,23.066 C 12.292,23.554 12.259,23.554 13.295,23.01 C 15.6,21.797 16.001,21.436 15.999,20.574 C 15.994,18.228 10.893,15.312 5.742,14.709 C 4.655,14.582 4.383,14.575 4.084,14.666"/></svg> <div> <h2>Rocket League</h2> <div class="rl-username" id="rlUsername"></div> </div> </div> <div id="rlContent"> <div class="rl-loading" id="rlLoading">Loading stats…</div> </div> <div class="rl-updated" id="rlUpdated"></div> </div> </div>  </div>  <script> /* ============================================================    CONFIG — everything you'd want to tweak lives here, at the    top of the file, on purpose. Profile info, background, every    card's border (color/width/radius), music tracks, and links.    ============================================================ */ const CONFIG = { // ---- Profile ---- name: "cxsir", bio: "a lost cause", pfpUrl: "assets/pfp/cxsir.jpg", // relative to this file (root/index.html)  // ---- Background ---- bgImage: "assets/bg/cxsir.jpg", bgBlur: 0, // px of blur applied to the background image  // ---- Main profile card styling ---- cardBorderColor: "rgba(20, 40, 80, 0.12)", cardBorderWidth: 1, // px cardBorderRadius: 24, // px cardBackground: "rgba(20, 40, 80, 0.25)",  // ---- Social icon circle styling ---- iconBorderColor: "rgba(20, 40, 80, 0.15)", iconBorderWidth: 2, // px iconBackground: "rgba(20, 40, 80, 0.08)",  // ---- Exophase showcase card styling ---- exophaseCardUrl: "https://card.exophase.com/2/0/327032.png", showcaseBorderColor: "rgba(20, 40, 80, 0.12)", showcaseBorderWidth: 1, // px showcaseBorderRadius: 12, // px  // ---- Music player styling ---- playerBorderColor: "rgba(20, 40, 80, 0.1)", playerBorderWidth: 1, // px playerBorderRadius: 14, // px playerBackground: "rgba(20, 40, 80, 0.55)", playerColorFromArt: true,  // ---- Spotify "now playing" integration ---- spotifyWorkerUrl: "https://github-io.cxsir.workers.dev", spotifyPollSeconds: 30,  // ---- Fallback / manual playlist ---- tracks: [],  // ---- Rocket League stats integration ---- // Same Worker as Spotify, different path. Reads the "cxsir" entry from // the multi-player /rocketleague response (see the Worker script). rocketLeagueWorkerUrl: "https://github-io.cxsir.workers.dev/rocketleague", rocketLeaguePlayerId: "cxsir", // key in the Worker's JSON response to read rocketLeagueUsername: "I cxsir I", // display label only  // ---- Social links ---- links: [ { name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", icon: "snapchat" }, { name: "Instagram", url: "https://instagram.com/cxsirr", icon: "instagram" }, { name: "YouTube", url: "https://youtube.com/@cxsirr", icon: "youtube" }, { name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", icon: "spotify" }, { name: "Last.fm", url: "https://last.fm/user/cxsir", icon: "lastfm" }, { name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", icon: "playstation" }, { name: "Xbox", url: "https://xbox.com/play/user/cxsirr", icon: "xbox" }, { name: "Steam", url: "https://steamcommunity.com/id/cxsir", icon: "steam" }, { name: "Discord", url: "https://discord.com/users/803306255062007818", icon: "discord" }, { name: "Roblox", url: "https://roblox.com/users/2242266391/profile", icon: "roblox" }, { name: "GitHub", url: "https://github.com/cxsirr", icon: "github" }, { name: "Email", url: "mailto:cxsir@proton.me", icon: "email" } ] };  function formatTime(seconds) { if (!isFinite(seconds)) return "0:00"; const m = Math.floor(seconds / 60); const s = Math.floor(seconds % 60).toString().padStart(2, '0'); return `${m}:${s}`; }  window.addEventListener('DOMContentLoaded', () => { document.getElementById('profileName').textContent = CONFIG.name; document.getElementById('profileBio').textContent = CONFIG.bio; document.getElementById('profilePfp').src = CONFIG.pfpUrl;  if (CONFIG.bgImage) { const bg = document.getElementById('bgContainer'); bg.style.backgroundImage = `url('${CONFIG.bgImage}')`; bg.style.filter = `blur(${CONFIG.bgBlur}px)`; }  // ---- Apply CONFIG-driven border/background styling ---- const profileCard = document.getElementById('profileCard'); profileCard.style.borderColor = CONFIG.cardBorderColor; profileCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`; profileCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`; profileCard.style.background = CONFIG.cardBackground;  // The RL card reuses the same .profile class for visual consistency, so // apply the same CONFIG-driven border/background to it too. const rlCard = document.getElementById('rlCard'); rlCard.style.borderColor = CONFIG.cardBorderColor; rlCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`; rlCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`; rlCard.style.background = CONFIG.cardBackground;  const musicPlayerStatic = document.getElementById('musicPlayer'); musicPlayerStatic.style.borderColor = CONFIG.playerBorderColor; musicPlayerStatic.style.borderWidth = `${CONFIG.playerBorderWidth}px`; musicPlayerStatic.style.borderRadius = `${CONFIG.playerBorderRadius}px`; musicPlayerStatic.style.background = CONFIG.playerBackground;  // Inject icon border/background as a small stylesheet, since these apply // to every .social-link rather than one element by id. const iconStyleTag = document.createElement('style'); iconStyleTag.textContent = ` .social-link { border-color: ${CONFIG.iconBorderColor} !important; border-width: ${CONFIG.iconBorderWidth}px !important; background: ${CONFIG.iconBackground} !important; } `; document.head.appendChild(iconStyleTag);  // ---- Social icons: fetch + inline each SVG so currentColor (white) applies ---- const linksContainer = document.getElementById('socialLinks'); CONFIG.links.forEach(async (link) => { const a = document.createElement('a'); a.href = link.url; a.className = 'social-link'; a.title = link.name; a.target = '_blank';  if (link.icon) { try { const res = await fetch(`assets/logos/${link.icon}.svg`); if (!res.ok) throw new Error(`HTTP ${res.status}`); const svgText = await res.text(); a.insertAdjacentHTML('beforeend', svgText);  const svgEl = a.querySelector('svg'); const titleEl = svgEl && svgEl.querySelector('title'); if (titleEl) titleEl.remove(); } catch (err) { console.error(`Failed to load icon "${link.icon}":`, err); } }  linksContainer.appendChild(a); });  if (CONFIG.exophaseCardUrl) { const showcaseContainer = document.getElementById('cardShowcase'); const aCard = document.createElement('a'); aCard.href = "https://www.exophase.com/user/cxsir/"; aCard.className = 'showcase-card'; aCard.target = '_blank'; aCard.title = "Exophase Card"; aCard.style.borderColor = CONFIG.showcaseBorderColor; aCard.style.borderWidth = `${CONFIG.showcaseBorderWidth}px`; aCard.style.borderRadius = `${CONFIG.showcaseBorderRadius}px`;  const imgCard = document.createElement('img'); imgCard.src = CONFIG.exophaseCardUrl; imgCard.alt = "Exophase Achievement Card"; aCard.appendChild(imgCard);  showcaseContainer.appendChild(aCard); }  // ---- Custom music player ---- const audio = document.getElementById('audioEl'); const playPauseBtn = document.getElementById('musicPlayPause'); const playIcon = document.getElementById('playIcon'); const pauseIcon = document.getElementById('pauseIcon'); const prevBtn = document.getElementById('musicPrev'); const nextBtn = document.getElementById('musicNext'); const scrubber = document.getElementById('musicScrubber'); const currentTimeEl = document.getElementById('musicCurrentTime'); const durationEl = document.getElementById('musicDuration'); const scrubRow = document.getElementById('musicScrubRow'); const titleEl = document.getElementById('musicTitle'); const artistEl = document.getElementById('musicArtist'); const artEl = document.getElementById('musicArt'); const spotifyBadge = document.getElementById('spotifyBadge'); const recentlyPlayedBadge = document.getElementById('recentlyPlayedBadge'); const musicControlsEl = document.getElementById('musicControls'); const musicPlayerEl = document.querySelector('.music-player'); const sampleCanvas = document.getElementById('artSampleCanvas'); const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });  function tintPlayerFromArt(imgEl) { if (!CONFIG.playerColorFromArt || !imgEl || !imgEl.src) { resetPlayerTint(); return; }  const apply = () => { try { sampleCtx.drawImage(imgEl, 0, 0, 10, 10); const { data } = sampleCtx.getImageData(0, 0, 10, 10); let r = 0, g = 0, b = 0, count = 0; for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i + 1]; b += data[i + 2]; count++; } r = Math.round(r / count); g = Math.round(g / count); b = Math.round(b / count);  musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.35), ${CONFIG.playerBackground})`; musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`; } catch (err) { console.warn('Album art color sampling failed:', err); resetPlayerTint(); } };  if (imgEl.complete && imgEl.naturalWidth > 0) { apply(); } else { imgEl.onload = apply; imgEl.onerror = resetPlayerTint; } }  function resetPlayerTint() { musicPlayerEl.style.background = CONFIG.playerBackground; musicPlayerEl.style.borderColor = CONFIG.playerBorderColor; }  let trackIndex = 0; let isScrubbing = false; let spotifyMode = false; let lastSpotifyUrl = null; let spotifyProgressMs = 0; let spotifyDurationMs = 0; let spotifyTickHandle = null;  function loadTrack(index, autoplay) { if (!CONFIG.tracks.length) return; trackIndex = (index + CONFIG.tracks.length) % CONFIG.tracks.length; const track = CONFIG.tracks[trackIndex]; renderTrack(track, autoplay); }  function renderTrack(track, autoplay) { audio.src = track.url; titleEl.textContent = track.title || "Untitled"; artistEl.textContent = track.artist || ""; artistEl.style.display = track.artist ? 'block' : 'none'; artEl.src = track.art || ""; artEl.style.visibility = track.art ? 'visible' : 'hidden'; tintPlayerFromArt(track.art ? artEl : null); scrubRow.style.display = 'flex'; if (autoplay) audio.play().catch(() => {}); }  function setPlayingIcon(playing) { playIcon.style.display = playing ? 'none' : 'block'; pauseIcon.style.display = playing ? 'block' : 'none'; }  function setSpotifyMode(active) { spotifyMode = active; prevBtn.disabled = active; nextBtn.disabled = active; playPauseBtn.disabled = active; scrubber.disabled = active; // Controls are only ever shown in manual/local track mode — Spotify mode // is a status display, not playable here, so prev/play/next never apply. musicControlsEl.style.display = active ? 'none' : 'flex'; if (!active) { spotifyBadge.style.display = 'none'; recentlyPlayedBadge.style.display = 'none'; } }  function startSpotifyTicking() { stopSpotifyTicking(); spotifyTickHandle = setInterval(() => { if (!spotifyMode) return; spotifyProgressMs = Math.min(spotifyProgressMs + 1000, spotifyDurationMs || spotifyProgressMs + 1000); updateSpotifyProgressUI(); }, 1000); }  function stopSpotifyTicking() { if (spotifyTickHandle) { clearInterval(spotifyTickHandle); spotifyTickHandle = null; } }  function updateSpotifyProgressUI() { const progressSec = spotifyProgressMs / 1000; const durationSec = spotifyDurationMs / 1000; scrubber.max = durationSec || 0; scrubber.value = progressSec; currentTimeEl.textContent = formatTime(progressSec); durationEl.textContent = formatTime(durationSec); }  async function fetchNowPlaying() { if (!CONFIG.spotifyWorkerUrl) return;  try { const res = await fetch(CONFIG.spotifyWorkerUrl, { cache: 'no-store' }); if (!res.ok) throw new Error(`Worker returned ${res.status}`); const data = await res.json();  if (!data || !data.title) { if (spotifyMode) { setSpotifyMode(false); stopSpotifyTicking(); loadTrack(0, false); } return; }  const isNewTrack = data.url !== lastSpotifyUrl; lastSpotifyUrl = data.url;  spotifyProgressMs = typeof data.progressMs === "number" ? data.progressMs : 0; spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;  setSpotifyMode(true); spotifyBadge.style.display = data.isPlaying ? 'block' : 'none'; recentlyPlayedBadge.style.display = data.isPlaying ? 'none' : 'block'; scrubRow.style.display = data.isPlaying ? 'flex' : 'none';  if (isNewTrack) { renderTrack({ title: data.title, artist: data.artist || "", art: data.art || "", url: "" }, false);  audio.pause(); audio.removeAttribute('src'); setPlayingIcon(data.isPlaying); scrubRow.style.display = data.isPlaying ? 'flex' : 'none';  titleEl.title = data.url ? "Open in Spotify" : ""; if (data.url) { titleEl.style.cursor = 'pointer'; titleEl.onclick = () => window.open(data.url, '_blank'); } } else { setPlayingIcon(data.isPlaying); }  updateSpotifyProgressUI();  if (data.isPlaying) { startSpotifyTicking(); } else { stopSpotifyTicking(); } } catch (err) { console.error('Spotify fetch failed:', err); } }  if (CONFIG.spotifyWorkerUrl) { fetchNowPlaying(); setInterval(fetchNowPlaying, Math.max(5, CONFIG.spotifyPollSeconds) * 1000); } else if (CONFIG.tracks.length) { loadTrack(0, false); }  playPauseBtn.addEventListener('click', () => { if (spotifyMode) return; if (audio.paused) { audio.play().catch(() => {}); } else { audio.pause(); } });  prevBtn.addEventListener('click', () => { if (spotifyMode) return; loadTrack(trackIndex - 1, true); }); nextBtn.addEventListener('click', () => { if (spotifyMode) return; loadTrack(trackIndex + 1, true); });  audio.addEventListener('play', () => setPlayingIcon(true)); audio.addEventListener('pause', () => setPlayingIcon(false)); audio.addEventListener('ended', () => { if (!spotifyMode) loadTrack(trackIndex + 1, true); });  audio.addEventListener('loadedmetadata', () => { scrubber.max = audio.duration || 0; durationEl.textContent = formatTime(audio.duration); });  audio.addEventListener('timeupdate', () => { if (isScrubbing) return; scrubber.value = audio.currentTime; currentTimeEl.textContent = formatTime(audio.currentTime); });  scrubber.addEventListener('input', () => { if (spotifyMode) return; isScrubbing = true; currentTimeEl.textContent = formatTime(parseFloat(scrubber.value)); });  scrubber.addEventListener('change', () => { if (spotifyMode) return; audio.currentTime = parseFloat(scrubber.value); isScrubbing = false; });  // ---- Rocket League stats ---- document.getElementById('rlUsername').textContent = CONFIG.rocketLeagueUsername;  function formatNumber(n) { if (typeof n !== 'number') return n; return n.toLocaleString(); }  // Pulls a numeric stat value out of Tracker Network's typical // segment.stats.<key>.value shape, trying a couple of likely key spellings // since exact field names can vary slightly by endpoint version. function getStatValue(statsObj, keys) { if (!statsObj) return null; for (const key of keys) { const stat = statsObj[key]; if (stat && typeof stat.value === 'number') return stat.value; if (typeof stat === 'number') return stat; } return null; }  // Display name overrides for specific playlists const PLAYLIST_DISPLAY_NAMES = { 'Ranked Duel 1v1':    'Ranked 1v1', 'Ranked Doubles 2v2': 'Ranked 2v2', 'Tournament Matches':  'Tournaments', };  function renderRocketLeagueStats(profile) { const content = document.getElementById('rlContent'); content.innerHTML = '';  if (!profile) { content.innerHTML = '<div class="rl-error">No stats available yet.</div>'; return; }  const segments = profile.segments || []; const overviewSegment = segments.find((s) => s.type === 'overview') || null;  // Only show these specific playlists, in this order, per the requested scope. const WANTED_PLAYLISTS = [ 'Ranked Duel 1v1', 'Ranked Doubles 2v2', 'Rumble', 'Tournament Matches', 'Heatseeker', 'Casual', ]; const playlistSegments = WANTED_PLAYLISTS .map((wantedName) => segments.find((s) => s.type === 'playlist' && s.metadata?.name === wantedName)) .filter(Boolean);  // ---- Best 2v2 MMR ---- if (typeof profile.best_2v2_mmr === 'number') { const mmrRow = document.createElement('div'); mmrRow.className = 'rl-best-mmr'; mmrRow.innerHTML = ` <span class="label">Best 2v2 MMR</span> <span class="value">${formatNumber(profile.best_2v2_mmr)}</span> `; content.appendChild(mmrRow); }  // ---- Selected playlists ---- if (playlistSegments.length) { const grid = document.createElement('div'); grid.className = 'rl-playlists';  playlistSegments.forEach((seg) => { const rawName = seg.metadata?.name || 'Playlist'; const name = PLAYLIST_DISPLAY_NAMES[rawName] || rawName; const rankName = seg.stats?.tier?.metadata?.name || 'Unranked'; const rankImg = seg.stats?.tier?.metadata?.iconUrl || ''; const divisionName = seg.stats?.division?.metadata?.name || ''; const rating = getStatValue(seg.stats, ['rating']);  const card = document.createElement('div'); card.className = 'rl-playlist-card'; card.innerHTML = ` <div class="rl-playlist-name">${name}</div> ${rankImg ? `<img class="rl-playlist-rank-img" src="${rankImg}" alt="${rankName}">` : ''} <div class="rl-playlist-rank-name">${rankName}</div> ${divisionName ? `<div class="rl-playlist-division">${divisionName}</div>` : ''} ${rating !== null ? `<div class="rl-playlist-rating">${formatNumber(rating)} MMR</div>` : ''} `; grid.appendChild(card); });  content.appendChild(grid); }  // ---- Lifetime overview stats ---- if (overviewSegment && overviewSegment.stats) { const title = document.createElement('div'); title.className = 'rl-overview-title'; title.textContent = 'Lifetime Stats'; content.appendChild(title);  const statDefs = [ { keys: ['wins'], label: 'Wins' }, { keys: ['goals'], label: 'Goals' }, { keys: ['assists'], label: 'Assists' }, { keys: ['saves'], label: 'Saves' }, { keys: ['shots'], label: 'Shots' }, { keys: ['mVPs'], label: 'MVPs' }, ];  const grid = document.createElement('div'); grid.className = 'rl-overview-grid';  statDefs.forEach((def) => { const val = getStatValue(overviewSegment.stats, def.keys); if (val === null) return; const cell = document.createElement('div'); cell.className = 'rl-stat'; cell.innerHTML = `<div class="value">${formatNumber(val)}</div><div class="label">${def.label}</div>`; grid.appendChild(cell); });  if (grid.children.length) { content.appendChild(grid); } else if (!content.children.length) { content.innerHTML = '<div class="rl-error">No stats available yet.</div>'; } }  if (!content.children.length) { content.innerHTML = '<div class="rl-error">No stats available yet.</div>'; } }  async function fetchRocketLeagueStats() { if (!CONFIG.rocketLeagueWorkerUrl) return;  try { const res = await fetch(CONFIG.rocketLeagueWorkerUrl, { cache: 'no-store' }); if (!res.ok) throw new Error(`Worker returned ${res.status}`); const data = await res.json(); const entry = data[CONFIG.rocketLeaguePlayerId];  const updatedEl = document.getElementById('rlUpdated');  if (!entry || !entry.profile) { document.getElementById('rlContent').innerHTML = `<div class="rl-loading">${entry?.error || 'Stats not cached yet — check back soon.'}</div>`; updatedEl.textContent = ''; return; }  renderRocketLeagueStats(entry.profile); if (entry.lastUpdated) { const d = new Date(entry.lastUpdated); updatedEl.textContent = `Updated ${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`; } } catch (err) { console.error('Rocket League fetch failed:', err); document.getElementById('rlContent').innerHTML = '<div class="rl-error">Couldn\'t load stats right now.</div>'; } }  fetchRocketLeagueStats(); }); </script> </body> </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>cxsir</title>
+<style>
+/* ============================================================
+   CONFIG — edit everything here. Colors/sizes are applied via
+   JS at load time (see CONFIG object in the <script> below),
+   so most visual tweaks only need changes in ONE place: the
+   CONFIG object near the top of the script.
+   ============================================================ */
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+}
+html {
+scroll-behavior: smooth;
+}
+body {
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+background: #0f0f0f;
+color: #e0e0e0;
+min-height: 100vh;
+overflow-x: hidden;
+position: relative;
+}
+/* Background Image - blur amount is set inline from CONFIG.bgBlur via JS */
+.bg-container {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-size: cover;
+background-position: center;
+background-repeat: no-repeat;
+transform: scale(1.1); /* avoids blurred edges showing at the viewport border */
+z-index: -2;
+}
+body::before {
+content: '';
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.15);
+z-index: -1;
+pointer-events: none;
+}
+/* Content Container */
+.container {
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 20px;
+z-index: 1;
+position: relative;
+min-height: 100vh;
+justify-content: center;
+gap: 18px;
+}
+/* Profile Card — border-color/width/radius set inline from CONFIG.card* via JS */
+.profile {
+text-align: center;
+width: 100%;
+max-width: 420px;
+backdrop-filter: blur(5px);
+background: rgba(20, 40, 80, 0.25);
+padding: 36px 28px 28px;
+border-radius: 24px;
+border: 1px solid rgba(20, 40, 80, 0.12);
+box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+animation: fadeIn 0.6s ease-in;
+}
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+/* Profile Picture */
+.pfp-wrap {
+display: flex;
+justify-content: center;
+margin-bottom: 18px;
+}
+.pfp {
+width: 110px;
+height: 110px;
+border-radius: 50%;
+object-fit: cover;
+border: 3px solid rgba(20, 40, 80, 0.25);
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+.profile h1 {
+font-size: 2em;
+margin-bottom: 8px;
+letter-spacing: 0.5px;
+}
+.profile .tagline {
+font-size: 1.05em;
+color: #cfcfcf;
+margin-bottom: 22px;
+line-height: 1.5;
+}
+/* Clean grid layout for social icons — border-color/width set inline from CONFIG.icon* via JS */
+.social-links {
+display: flex;
+justify-content: center;
+gap: 12px;
+flex-wrap: wrap;
+margin: 22px auto 4px auto;
+max-width: 340px;
+}
+.social-link {
+width: 44px;
+height: 44px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: rgba(20, 40, 80, 0.08);
+border: 2px solid rgba(20, 40, 80, 0.15);
+border-radius: 50%;
+transition: all 0.25s ease;
+text-decoration: none;
+overflow: hidden;
+color: #ffffff;
+}
+/* Inline SVG icon styling - currentColor works since SVG markup lives in the DOM */
+.social-link svg {
+width: 22px;
+height: 22px;
+fill: currentColor;
+color: inherit;
+transition: all 0.25s ease;
+display: block;
+}
+.social-link:hover {
+background: rgba(20, 40, 80, 0.18);
+border-color: rgba(20, 40, 80, 0.5);
+transform: translateY(-4px);
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
+}
+.social-link:active {
+transform: translateY(-2px) scale(0.97);
+}
+/* Center-aligned Showcase Container for Exophase Card — border-color/width/radius
+   set inline from CONFIG.showcase* via JS */
+.card-showcase {
+display: flex;
+justify-content: center;
+align-items: center;
+width: 100%;
+margin: 18px 0 4px 0;
+}
+.showcase-card {
+display: block;
+width: 100%;
+max-width: 360px;
+transition: all 0.3s ease;
+border-radius: 12px;
+overflow: hidden;
+border: 1px solid rgba(20, 40, 80, 0.12);
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+}
+.showcase-card img {
+width: 100%;
+height: auto;
+display: block;
+object-fit: contain;
+}
+.showcase-card:hover {
+transform: scale(1.03);
+border-color: rgba(20, 40, 80, 0.3);
+box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
+}
+/* Custom Music Player — border-color/width/radius set inline from CONFIG.player* via JS */
+.music-player {
+margin-top: 22px;
+padding: 10px;
+display: flex;
+flex-direction: column;
+gap: 10px;
+background: rgba(20, 40, 80, 0.55);
+border: 1px solid rgba(20, 40, 80, 0.1);
+border-radius: 14px;
+position: relative;
+transition: background 0.6s ease, border-color 0.6s ease;
+}
+.music-top-row {
+display: flex;
+align-items: center;
+gap: 12px;
+width: 100%;
+}
+.music-art {
+width: 46px;
+height: 46px;
+border-radius: 8px;
+object-fit: cover;
+flex-shrink: 0;
+background: rgba(20, 40, 80, 0.08);
+}
+.music-info {
+flex: 1;
+min-width: 0;
+display: flex;
+flex-direction: column;
+gap: 4px;
+}
+.music-title {
+font-size: 0.85em;
+font-weight: 600;
+color: #f0f0f0;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+text-align: left;
+}
+.music-artist {
+font-size: 0.72em;
+color: #a8a8a8;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+text-align: left;
+margin-top: -2px;
+}
+.music-scrub-row {
+display: flex;
+align-items: center;
+gap: 8px;
+width: 100%;
+}
+.music-time {
+font-size: 0.7em;
+color: #a0a0a0;
+flex-shrink: 0;
+flex-grow: 0;
+width: 32px; /* fixed width (not min-width) so "0:00" and "12:34" take identical space */
+}
+.music-time.current { text-align: right; }
+.music-time.duration { text-align: left; }
+.music-scrubber {
+flex: 1 1 auto;
+min-width: 0; /* allows the slider to shrink below its intrinsic size instead of overflowing */
+max-width: 100%;
+-webkit-appearance: none;
+appearance: none;
+height: 4px;
+border-radius: 2px;
+background: rgba(40, 80, 160, 0.5);
+cursor: pointer;
+outline: none;
+}
+.music-scrubber::-webkit-slider-thumb {
+-webkit-appearance: none;
+width: 10px;
+height: 10px;
+border-radius: 50%;
+background: #ffffff;
+cursor: pointer;
+}
+.music-scrubber::-moz-range-thumb {
+width: 10px;
+height: 10px;
+border: none;
+border-radius: 50%;
+background: #ffffff;
+cursor: pointer;
+}
+.music-controls {
+display: flex;
+align-items: center;
+gap: 2px;
+flex-shrink: 0;
+}
+.music-btn {
+width: 30px;
+height: 30px;
+display: flex;
+align-items: center;
+justify-content: center;
+background: none;
+border: none;
+color: #e0e0e0;
+cursor: pointer;
+border-radius: 50%;
+transition: background 0.2s ease;
+}
+.music-btn:hover {
+background: rgba(20, 40, 80, 0.12);
+}
+.music-btn svg {
+width: 16px;
+height: 16px;
+fill: currentColor;
+}
+.music-btn.play-pause svg {
+width: 18px;
+height: 18px;
+}
+.music-btn:disabled {
+opacity: 0.3;
+cursor: default;
+}
+.music-btn:disabled:hover {
+background: none;
+}
+/* Small "Live from Spotify" badge shown when CONFIG.spotifyWorkerUrl is active */
+.spotify-badge {
+position: absolute;
+top: -8px;
+right: 10px;
+background: rgba(20, 40, 80, 0.5);
+color: #cfe0ff;
+font-size: 0.6em;
+font-weight: 700;
+padding: 2px 7px;
+border-radius: 8px;
+letter-spacing: 0.3px;
+border: 1px solid rgba(207, 224, 255, 0.4);
+display: none;
+}
+/* Shown instead of the LIVE badge when Spotify mode is active but nothing
+   is currently playing — i.e. displaying recently-played history. */
+.recently-played-badge {
+position: absolute;
+top: -8px;
+right: 10px;
+background: rgba(20, 40, 80, 0.5);
+color: #cfe0ff;
+font-size: 0.6em;
+font-weight: 700;
+padding: 2px 7px;
+border-radius: 8px;
+letter-spacing: 0.3px;
+border: 1px solid rgba(207, 224, 255, 0.4);
+display: none;
+}
+
+/* ---- Rocket League stats section ---- */
+.rl-section {
+width: 100%;
+max-width: 420px;
+}
+.rl-card {
+backdrop-filter: blur(5px);
+padding: 24px 22px;
+animation: fadeIn 0.6s ease-in;
+}
+.rl-header {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 18px;
+}
+.rl-platform-icon {
+width: 28px;
+height: 28px;
+flex-shrink: 0;
+fill: #e0e0e0;
+}
+.rl-header h2 {
+font-size: 1.3em;
+font-weight: 700;
+}
+.rl-header .rl-username {
+font-size: 0.85em;
+color: #a8b8d8;
+font-weight: 400;
+text-align: left;
+}
+.rl-loading, .rl-error {
+font-size: 0.85em;
+color: #a8a8a8;
+text-align: center;
+padding: 12px 0;
+}
+.rl-best-mmr {
+display: flex;
+justify-content: space-between;
+align-items: center;
+background: rgba(20, 40, 80, 0.4);
+border-radius: 10px;
+padding: 12px 16px;
+margin-bottom: 16px;
+}
+.rl-best-mmr .label {
+font-size: 0.8em;
+color: #a8b8d8;
+}
+.rl-best-mmr .value {
+font-size: 1.3em;
+font-weight: 700;
+color: #ffffff;
+}
+.rl-playlists {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+gap: 10px;
+margin-bottom: 18px;
+}
+.rl-playlist-card {
+background: rgba(20, 40, 80, 0.35);
+border-radius: 10px;
+padding: 12px 10px;
+text-align: center;
+}
+.rl-playlist-name {
+font-size: 0.7em;
+color: #a8b8d8;
+text-transform: uppercase;
+letter-spacing: 0.5px;
+margin-bottom: 6px;
+}
+.rl-playlist-rank-img {
+width: 48px;
+height: 48px;
+margin: 0 auto 6px;
+display: block;
+object-fit: contain;
+}
+.rl-playlist-rank-name {
+font-size: 0.78em;
+font-weight: 600;
+color: #f0f0f0;
+}
+.rl-playlist-division {
+font-size: 0.85em;
+font-weight: 400;
+color: #8a9bc0;
+}
+.rl-playlist-rating {
+font-size: 0.68em;
+color: #8a9bc0;
+margin-top: 2px;
+}
+.rl-overview-title {
+font-size: 0.85em;
+font-weight: 600;
+color: #cfcfcf;
+margin-bottom: 10px;
+}
+.rl-overview-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 10px;
+}
+.rl-stat {
+background: rgba(20, 40, 80, 0.3);
+border-radius: 8px;
+padding: 10px 6px;
+text-align: center;
+}
+.rl-stat .value {
+font-size: 1.1em;
+font-weight: 700;
+color: #ffffff;
+}
+.rl-stat .label {
+font-size: 0.62em;
+color: #8a9bc0;
+text-transform: uppercase;
+letter-spacing: 0.3px;
+margin-top: 2px;
+}
+.rl-updated {
+font-size: 0.65em;
+color: #6f80a0;
+text-align: right;
+margin-top: 14px;
+}
+
+/* Responsive Mobile Layout Rules */
+@media (max-width: 600px) {
+.profile {
+padding: 28px 18px 22px;
+}
+.pfp {
+width: 90px;
+height: 90px;
+}
+.profile h1 {
+font-size: 1.7em;
+}
+.social-links {
+gap: 8px;
+max-width: 280px;
+}
+.social-link {
+width: 40px;
+height: 40px;
+}
+.social-link svg {
+width: 19px;
+height: 19px;
+}
+.rl-overview-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+</style>
+</head>
+<body>
+<div class="bg-container" id="bgContainer"></div>
+<div class="container">
+<div class="profile" id="profileCard">
+<div class="pfp-wrap">
+<img class="pfp" id="profilePfp" src="" alt="Profile picture">
+</div>
+<h1 id="profileName"></h1>
+<p class="tagline" id="profileBio"></p>
+
+<div class="social-links" id="socialLinks"></div>
+
+<div class="music-player" id="musicPlayer">
+<div class="spotify-badge" id="spotifyBadge">Now Playing</div>
+<div class="recently-played-badge" id="recentlyPlayedBadge">Recently Played</div>
+<div class="music-top-row">
+<img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous">
+<div class="music-info">
+<div class="music-title" id="musicTitle">No track loaded</div>
+<div class="music-artist" id="musicArtist"></div>
+</div>
+<div class="music-controls" id="musicControls">
+<button class="music-btn" id="musicPrev" title="Previous track">
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+</button>
+<button class="music-btn play-pause" id="musicPlayPause" title="Play/Pause">
+<svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+<svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+</button>
+<button class="music-btn" id="musicNext" title="Next track">
+<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+</button>
+</div>
+</div>
+<div class="music-scrub-row" id="musicScrubRow">
+<span class="music-time current" id="musicCurrentTime">0:00</span>
+<input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1">
+<span class="music-time duration" id="musicDuration">0:00</span>
+</div>
+<audio id="audioEl" preload="metadata"></audio>
+<canvas id="artSampleCanvas" width="10" height="10" style="display:none"></canvas>
+</div>
+
+<div class="card-showcase" id="cardShowcase"></div>
+</div>
+
+<div class="rl-section" id="rlSection">
+<div class="profile rl-card" id="rlCard">
+<div class="rl-header">
+<svg class="rl-platform-icon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>Rocket League</title><path fill="currentColor" d="M 1.968,0.718 C -0.036,1.361 -0.669,3.963 0.818,5.45 C 2.222,6.854 4.573,6.456 5.452,4.665 C 5.749,4.061 5.77,2.898 5.494,2.301 C 4.859,0.923 3.388,0.262 1.968,0.718 M 9.54,0.948 C 8.684,1.024 6.62,1.312 6.445,1.379 C 6.345,1.417 6.35,1.465 6.481,1.722 C 7.101,2.936 6.947,4.68 6.123,5.779 C 5.892,6.088 5.892,6.089 6.17,6.15 C 6.362,6.192 6.442,6.161 6.634,5.968 C 6.898,5.705 6.911,5.707 7.884,6.198 C 8.223,6.369 8.431,6.42 8.785,6.42 C 9.038,6.42 9.265,6.452 9.289,6.491 C 9.324,6.548 9.864,6.744 10.696,7 C 10.829,7.042 11.746,6.567 11.67,6.497 C 11.635,6.464 11.372,6.359 11.085,6.264 C 10.799,6.169 10.565,6.061 10.565,6.024 C 10.565,5.825 12.625,6.051 13.519,6.348 C 14.283,6.603 14.266,6.599 14.266,6.506 C 14.266,6.469 14.194,6.419 14.106,6.396 C 13.785,6.312 13.945,5.993 14.297,6.014 C 14.715,6.04 15.391,6.431 15.362,6.631 C 15.347,6.73 15.434,6.855 15.612,6.991 C 15.762,7.105 15.885,7.243 15.885,7.297 C 15.885,7.351 15.971,7.476 16.075,7.574 C 16.18,7.673 16.251,7.777 16.233,7.806 C 16.215,7.835 16.388,8.044 16.618,8.271 C 16.992,8.64 17.021,8.692 16.904,8.778 C 16.79,8.861 16.813,8.881 17.081,8.929 C 17.78,9.056 18.111,9.365 17.722,9.527 C 17.58,9.587 17.292,9.742 17.082,9.872 C 16.723,10.096 16.712,10.113 16.89,10.156 C 17.014,10.185 17.212,10.134 17.459,10.007 C 18.854,9.292 21.856,10.737 22.251,12.313 C 22.344,12.684 22.417,12.587 22.783,11.603 C 23.601,9.406 23.906,7.816 23.96,5.477 L 24,3.725 L 23.771,3.511 C 22.736,2.547 19.582,1.526 16.193,1.059 C 15.151,0.915 10.733,0.841 9.54,0.948 M 5.356,6.147 C 5.084,6.562 5.036,7.962 5.294,7.962 C 5.352,7.962 5.401,7.919 5.403,7.866 C 5.405,7.813 5.425,7.535 5.448,7.249 C 5.476,6.9 5.463,6.729 5.406,6.729 C 5.287,6.729 5.303,6.497 5.44,6.235 C 5.59,5.947 5.529,5.883 5.356,6.147 M 6.754,6.088 C 6.696,6.238 6.652,6.212 7.229,6.368 C 8.134,6.612 8.185,6.485 7.314,6.157 C 6.86,5.986 6.796,5.978 6.754,6.088 M 5.78,6.599 C 5.624,6.943 5.603,7.218 5.681,7.866 C 5.712,8.129 5.765,8.271 5.833,8.271 C 5.95,8.271 6.057,7.937 5.98,7.812 C 5.918,7.712 6.057,7.706 6.236,7.802 C 6.344,7.859 6.383,7.825 6.449,7.614 C 6.523,7.376 6.513,7.342 6.314,7.195 C 5.969,6.94 6.134,6.677 6.682,6.608 C 7.166,6.548 7.214,6.46 6.806,6.381 C 6.028,6.23 5.939,6.249 5.78,6.599 M 11.593,6.919 C 11.137,7.226 11.128,7.327 11.517,7.75 L 11.76,8.016 L 12.994,7.979 C 13.672,7.96 14.24,7.932 14.255,7.919 C 14.27,7.905 14.201,7.662 14.101,7.38 C 13.881,6.76 13.825,6.73 12.762,6.684 L 11.991,6.65 L 11.593,6.919 M 0.62,6.934 C 0.622,7.561 1.254,10.227 1.548,10.853 C 2.118,12.066 3.318,12.705 5.901,13.17 C 7.742,13.501 8.991,13.901 10.604,14.674 C 13.827,16.221 16.324,18.639 16.48,20.367 C 16.504,20.626 16.547,20.838 16.577,20.838 C 16.685,20.838 18.49,18.928 18.982,18.294 C 19.6,17.496 20.677,15.859 20.949,15.304 C 21.191,14.809 21.16,14.413 20.857,14.15 C 20.635,13.957 20.587,13.944 19.662,13.834 C 18.786,13.73 18.213,13.504 17.735,13.074 C 17.353,12.73 17.338,12.725 17.233,12.875 C 16.697,13.641 15.202,13.202 15.045,12.233 C 15,11.962 14.971,11.937 14.532,11.785 C 14.276,11.697 13.794,11.474 13.462,11.289 C 12.933,10.996 12.819,10.96 12.539,11.002 C 12.288,11.04 12.139,11.01 11.851,10.864 L 11.484,10.679 L 11.341,10.96 C 10.886,11.852 9.892,12.282 9.103,11.928 C 8.222,11.533 7.765,10.797 7.921,10.024 C 8.002,9.619 7.988,9.581 7.763,9.581 C 7.678,9.581 7.551,9.529 7.48,9.465 C 7.364,9.36 7.313,9.365 6.988,9.508 C 6.469,9.738 5.956,9.602 5.412,9.091 C 4.996,8.699 4.938,8.521 4.957,7.705 C 4.977,6.856 4.955,6.812 4.613,7.021 C 3.601,7.64 2.129,7.565 0.677,6.822 C 0.645,6.806 0.619,6.856 0.62,6.934 M 9.618,7.268 C 9.571,7.446 9.7,7.48 9.766,7.307 C 9.791,7.243 9.845,7.191 9.888,7.191 C 9.93,7.191 9.945,7.242 9.921,7.304 C 9.897,7.367 9.907,7.436 9.944,7.458 C 10.047,7.522 10.1,7.297 10.004,7.201 C 9.867,7.064 9.662,7.1 9.618,7.268 M 9.415,7.313 C 9.418,7.403 9.437,7.421 9.461,7.36 C 9.484,7.304 9.481,7.238 9.455,7.212 C 9.43,7.186 9.411,7.232 9.415,7.313 M 10.18,7.422 C 10.18,7.539 10.231,7.577 10.392,7.577 C 10.508,7.578 10.742,7.596 10.912,7.617 L 11.22,7.656 L 10.835,7.463 C 10.362,7.226 10.18,7.215 10.18,7.422 M 14.343,7.388 C 14.343,7.621 14.62,7.891 15.007,8.036 C 15.573,8.248 15.589,8.209 15.135,7.737 C 14.803,7.393 14.343,7.19 14.343,7.388 M 6.77,7.712 C 6.747,7.801 6.792,7.967 6.873,8.09 C 7.058,8.371 7.055,8.416 6.833,8.694 L 6.649,8.925 L 6.294,8.67 C 5.895,8.384 5.784,8.516 6.093,8.909 C 6.367,9.256 7.712,9.369 7.712,9.043 C 7.712,9 7.88,8.964 8.084,8.964 C 8.374,8.964 8.494,8.925 8.625,8.785 C 8.964,8.425 9.457,8.246 9.964,8.299 L 10.423,8.347 L 10.181,8.041 C 9.936,7.732 9.575,7.568 9.177,7.586 C 9.022,7.593 9.014,7.601 9.139,7.629 C 9.883,7.796 10.006,7.967 9.338,7.906 C 8.701,7.848 8.503,7.91 8.503,8.166 C 8.503,8.588 7.853,8.833 7.713,8.464 C 7.632,8.253 7.674,8.072 7.852,7.866 C 7.923,7.783 7.934,7.731 7.881,7.731 C 7.833,7.731 7.74,7.835 7.674,7.962 C 7.567,8.169 7.253,8.296 7.248,8.136 C 7.247,8.104 7.148,7.96 7.028,7.816 C 6.828,7.574 6.808,7.566 6.77,7.712 M 6.45,8.136 C 6.425,8.231 6.403,8.359 6.403,8.421 C 6.401,8.591 6.528,8.42 6.586,8.174 C 6.645,7.922 6.517,7.885 6.45,8.136 M 11.953,8.307 C 11.953,8.327 12.06,8.496 12.192,8.682 L 12.431,9.022 L 12.751,8.845 C 13.135,8.634 13.506,8.535 14.227,8.456 L 14.767,8.396 L 14.382,8.34 C 13.95,8.277 11.953,8.25 11.953,8.307 M 10.798,8.552 C 11.387,8.946 11.634,9.315 11.678,9.868 C 11.708,10.254 11.69,10.239 12.415,10.468 C 12.591,10.524 12.586,10.511 12.358,10.318 C 12.22,10.202 12.107,10.073 12.107,10.031 C 12.107,9.747 11.009,8.425 10.773,8.425 C 10.615,8.425 10.616,8.43 10.798,8.552 M 11.565,8.846 C 11.798,9.084 11.971,9.195 12.104,9.193 C 12.295,9.189 12.292,9.183 12.004,8.928 C 11.841,8.784 11.599,8.628 11.465,8.582 C 11.223,8.497 11.223,8.498 11.565,8.846 M 16.173,8.81 C 16.1,8.895 15.962,8.965 15.866,8.966 C 15.654,8.968 15.077,9.222 15,9.348 C 14.969,9.398 15.091,9.363 15.271,9.272 C 15.451,9.18 15.81,9.061 16.069,9.009 C 16.397,8.942 16.548,8.873 16.565,8.784 C 16.601,8.602 16.336,8.62 16.173,8.81 M 10.218,9.337 C 10.133,9.354 9.963,9.439 9.841,9.526 L 9.617,9.685 L 9.791,9.826 C 10.022,10.013 10.035,10.009 10.242,9.69 C 10.444,9.377 10.439,9.293 10.218,9.337 M 10.578,9.675 C 10.346,10.051 10.363,10.09 10.758,10.11 C 11.17,10.131 11.227,9.963 10.925,9.613 L 10.746,9.404 L 10.578,9.675 M 14.815,9.841 L 14.643,10.024 L 14.942,10.143 C 15.4,10.327 15.748,10.371 15.995,10.277 C 16.271,10.172 16.217,10.121 15.556,9.863 C 14.932,9.618 15.022,9.621 14.815,9.841 M 9.333,10.231 C 9.133,10.759 9.275,11.088 9.537,10.703 C 9.756,10.38 9.758,10.336 9.565,10.161 C 9.417,10.028 9.41,10.03 9.333,10.231 M 14.038,10.506 C 13.654,10.843 13.654,10.858 14.035,10.928 C 14.411,10.998 14.947,10.495 14.694,10.308 C 14.481,10.151 14.422,10.169 14.038,10.506 M 17.774,10.253 C 17.233,10.353 17.246,10.334 17.538,10.59 C 17.894,10.902 17.959,11.308 17.752,11.922 L 17.602,12.367 L 17.766,12.474 C 18.057,12.665 18.827,12.812 19.912,12.884 C 20.7,12.936 21.023,12.988 21.176,13.089 L 21.382,13.224 L 21.335,12.989 C 21.066,11.641 18.971,10.032 17.774,10.253 M 10.365,10.696 C 10.533,11.367 10.62,11.386 10.939,10.819 L 11.115,10.506 L 10.716,10.506 C 10.331,10.506 10.319,10.513 10.365,10.696 M 14.932,10.86 C 14.611,11.235 14.611,11.234 14.851,11.308 C 15.06,11.372 15.571,10.627 15.371,10.551 C 15.307,10.526 15.25,10.508 15.243,10.509 C 15.235,10.51 15.096,10.668 14.932,10.86 M 9.654,10.972 C 9.442,11.241 9.479,11.332 9.83,11.398 C 10.208,11.469 10.263,11.402 10.123,11.046 C 9.98,10.682 9.894,10.668 9.654,10.972 M 16.834,11.232 C 16.613,11.422 16.63,11.613 16.851,11.43 C 16.98,11.323 17.15,11.046 17.087,11.046 C 17.067,11.046 16.953,11.13 16.834,11.232 M 17.256,11.26 C 17.021,11.534 17.023,11.586 17.268,11.586 C 17.467,11.586 17.504,11.556 17.504,11.398 C 17.504,11.152 17.399,11.093 17.256,11.26 M 16.396,11.914 C 16.323,12.187 16.335,12.349 16.418,12.203 C 16.537,11.992 16.59,11.74 16.516,11.74 C 16.476,11.74 16.422,11.818 16.396,11.914 M 17.138,11.949 C 16.958,11.983 16.918,12.173 17.031,12.461 C 17.08,12.584 17.115,12.563 17.296,12.302 C 17.589,11.88 17.581,11.863 17.138,11.949 M 16.514,12.399 C 16.384,12.684 16.402,12.742 16.617,12.742 C 16.816,12.742 16.842,12.676 16.762,12.376 C 16.701,12.15 16.624,12.157 16.514,12.399 M 4.084,14.666 C 3.417,14.868 3.403,15.044 3.976,16 C 5.908,19.221 8.359,21.58 11.322,23.066 C 12.292,23.554 12.259,23.554 13.295,23.01 C 15.6,21.797 16.001,21.436 15.999,20.574 C 15.994,18.228 10.893,15.312 5.742,14.709 C 4.655,14.582 4.383,14.575 4.084,14.666"/></svg>
+<div>
+<h2>Rocket League</h2>
+<div class="rl-username" id="rlUsername"></div>
+</div>
+</div>
+<div id="rlContent">
+<div class="rl-loading" id="rlLoading">Loading stats…</div>
+</div>
+<div class="rl-updated" id="rlUpdated"></div>
+</div>
+</div>
+
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — everything you'd want to tweak lives here, at the
+   top of the file, on purpose. Profile info, background, every
+   card's border (color/width/radius), music tracks, and links.
+   ============================================================ */
+const CONFIG = {
+// ---- Profile ----
+name: "cxsir",
+bio: "a lost cause",
+pfpUrl: "assets/pfp/cxsir.jpg", // relative to this file (root/index.html)
+
+// ---- Background ----
+bgImage: "assets/bg/cxsir.jpg",
+bgBlur: 0, // px of blur applied to the background image
+
+// ---- Main profile card styling ----
+cardBorderColor: "rgba(20, 40, 80, 0.12)",
+cardBorderWidth: 1, // px
+cardBorderRadius: 24, // px
+cardBackground: "rgba(20, 40, 80, 0.25)",
+
+// ---- Social icon circle styling ----
+iconBorderColor: "rgba(20, 40, 80, 0.15)",
+iconBorderWidth: 2, // px
+iconBackground: "rgba(20, 40, 80, 0.08)",
+
+// ---- Exophase showcase card styling ----
+exophaseCardUrl: "https://card.exophase.com/2/0/327032.png",
+showcaseBorderColor: "rgba(20, 40, 80, 0.12)",
+showcaseBorderWidth: 1, // px
+showcaseBorderRadius: 12, // px
+
+// ---- Music player styling ----
+playerBorderColor: "rgba(20, 40, 80, 0.1)",
+playerBorderWidth: 1, // px
+playerBorderRadius: 14, // px
+playerBackground: "rgba(20, 40, 80, 0.55)",
+playerColorFromArt: true,
+
+// ---- Spotify "now playing" integration ----
+spotifyWorkerUrl: "https://github-io.cxsir.workers.dev",
+spotifyPollSeconds: 30,
+
+// ---- Fallback / manual playlist ----
+tracks: [],
+
+// ---- Rocket League stats integration ----
+// Same Worker as Spotify, different path. Reads the "cxsir" entry from
+// the multi-player /rocketleague response (see the Worker script).
+rocketLeagueWorkerUrl: "https://github-io.cxsir.workers.dev/rocketleague",
+rocketLeaguePlayerId: "cxsir", // key in the Worker's JSON response to read
+rocketLeagueUsername: "I cxsir I", // display label only
+
+// ---- Social links ----
+links: [
+{ name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", icon: "snapchat" },
+{ name: "Instagram", url: "https://instagram.com/cxsirr", icon: "instagram" },
+{ name: "YouTube", url: "https://youtube.com/@cxsirr", icon: "youtube" },
+{ name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", icon: "spotify" },
+{ name: "Last.fm", url: "https://last.fm/user/cxsir", icon: "lastfm" },
+{ name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", icon: "playstation" },
+{ name: "Xbox", url: "https://xbox.com/play/user/cxsirr", icon: "xbox" },
+{ name: "Steam", url: "https://steamcommunity.com/id/cxsir", icon: "steam" },
+{ name: "Discord", url: "https://discord.com/users/803306255062007818", icon: "discord" },
+{ name: "Roblox", url: "https://roblox.com/users/2242266391/profile", icon: "roblox" },
+{ name: "GitHub", url: "https://github.com/cxsirr", icon: "github" },
+{ name: "Email", url: "mailto:cxsir@proton.me", icon: "email" }
+]
+};
+
+function formatTime(seconds) {
+if (!isFinite(seconds)) return "0:00";
+const m = Math.floor(seconds / 60);
+const s = Math.floor(seconds % 60).toString().padStart(2, '0');
+return `${m}:${s}`;
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+document.getElementById('profileName').textContent = CONFIG.name;
+document.getElementById('profileBio').textContent = CONFIG.bio;
+document.getElementById('profilePfp').src = CONFIG.pfpUrl;
+
+if (CONFIG.bgImage) {
+const bg = document.getElementById('bgContainer');
+bg.style.backgroundImage = `url('${CONFIG.bgImage}')`;
+bg.style.filter = `blur(${CONFIG.bgBlur}px)`;
+}
+
+// ---- Apply CONFIG-driven border/background styling ----
+const profileCard = document.getElementById('profileCard');
+profileCard.style.borderColor = CONFIG.cardBorderColor;
+profileCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
+profileCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
+profileCard.style.background = CONFIG.cardBackground;
+
+// The RL card reuses the same .profile class for visual consistency, so
+// apply the same CONFIG-driven border/background to it too.
+const rlCard = document.getElementById('rlCard');
+rlCard.style.borderColor = CONFIG.cardBorderColor;
+rlCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
+rlCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
+rlCard.style.background = CONFIG.cardBackground;
+
+const musicPlayerStatic = document.getElementById('musicPlayer');
+musicPlayerStatic.style.borderColor = CONFIG.playerBorderColor;
+musicPlayerStatic.style.borderWidth = `${CONFIG.playerBorderWidth}px`;
+musicPlayerStatic.style.borderRadius = `${CONFIG.playerBorderRadius}px`;
+musicPlayerStatic.style.background = CONFIG.playerBackground;
+
+// Inject icon border/background as a small stylesheet, since these apply
+// to every .social-link rather than one element by id.
+const iconStyleTag = document.createElement('style');
+iconStyleTag.textContent = `
+.social-link {
+border-color: ${CONFIG.iconBorderColor} !important;
+border-width: ${CONFIG.iconBorderWidth}px !important;
+background: ${CONFIG.iconBackground} !important;
+}
+`;
+document.head.appendChild(iconStyleTag);
+
+// ---- Social icons: fetch + inline each SVG so currentColor (white) applies ----
+const linksContainer = document.getElementById('socialLinks');
+CONFIG.links.forEach(async (link) => {
+const a = document.createElement('a');
+a.href = link.url;
+a.className = 'social-link';
+a.title = link.name;
+a.target = '_blank';
+
+if (link.icon) {
+try {
+const res = await fetch(`assets/logos/${link.icon}.svg`);
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
+const svgText = await res.text();
+a.insertAdjacentHTML('beforeend', svgText);
+
+const svgEl = a.querySelector('svg');
+const titleEl = svgEl && svgEl.querySelector('title');
+if (titleEl) titleEl.remove();
+} catch (err) {
+console.error(`Failed to load icon "${link.icon}":`, err);
+}
+}
+
+linksContainer.appendChild(a);
+});
+
+if (CONFIG.exophaseCardUrl) {
+const showcaseContainer = document.getElementById('cardShowcase');
+const aCard = document.createElement('a');
+aCard.href = "https://www.exophase.com/user/cxsir/";
+aCard.className = 'showcase-card';
+aCard.target = '_blank';
+aCard.title = "Exophase Card";
+aCard.style.borderColor = CONFIG.showcaseBorderColor;
+aCard.style.borderWidth = `${CONFIG.showcaseBorderWidth}px`;
+aCard.style.borderRadius = `${CONFIG.showcaseBorderRadius}px`;
+
+const imgCard = document.createElement('img');
+imgCard.src = CONFIG.exophaseCardUrl;
+imgCard.alt = "Exophase Achievement Card";
+aCard.appendChild(imgCard);
+
+showcaseContainer.appendChild(aCard);
+}
+
+// ---- Custom music player ----
+const audio = document.getElementById('audioEl');
+const playPauseBtn = document.getElementById('musicPlayPause');
+const playIcon = document.getElementById('playIcon');
+const pauseIcon = document.getElementById('pauseIcon');
+const prevBtn = document.getElementById('musicPrev');
+const nextBtn = document.getElementById('musicNext');
+const scrubber = document.getElementById('musicScrubber');
+const currentTimeEl = document.getElementById('musicCurrentTime');
+const durationEl = document.getElementById('musicDuration');
+const scrubRow = document.getElementById('musicScrubRow');
+const titleEl = document.getElementById('musicTitle');
+const artistEl = document.getElementById('musicArtist');
+const artEl = document.getElementById('musicArt');
+const spotifyBadge = document.getElementById('spotifyBadge');
+const recentlyPlayedBadge = document.getElementById('recentlyPlayedBadge');
+const musicControlsEl = document.getElementById('musicControls');
+const musicPlayerEl = document.querySelector('.music-player');
+const sampleCanvas = document.getElementById('artSampleCanvas');
+const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
+
+function tintPlayerFromArt(imgEl) {
+if (!CONFIG.playerColorFromArt || !imgEl || !imgEl.src) {
+resetPlayerTint();
+return;
+}
+
+const apply = () => {
+try {
+sampleCtx.drawImage(imgEl, 0, 0, 10, 10);
+const { data } = sampleCtx.getImageData(0, 0, 10, 10);
+let r = 0, g = 0, b = 0, count = 0;
+for (let i = 0; i < data.length; i += 4) {
+r += data[i];
+g += data[i + 1];
+b += data[i + 2];
+count++;
+}
+r = Math.round(r / count);
+g = Math.round(g / count);
+b = Math.round(b / count);
+
+musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.35), ${CONFIG.playerBackground})`;
+musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
+} catch (err) {
+console.warn('Album art color sampling failed:', err);
+resetPlayerTint();
+}
+};
+
+if (imgEl.complete && imgEl.naturalWidth > 0) {
+apply();
+} else {
+imgEl.onload = apply;
+imgEl.onerror = resetPlayerTint;
+}
+}
+
+function resetPlayerTint() {
+musicPlayerEl.style.background = CONFIG.playerBackground;
+musicPlayerEl.style.borderColor = CONFIG.playerBorderColor;
+}
+
+let trackIndex = 0;
+let isScrubbing = false;
+let spotifyMode = false;
+let lastSpotifyUrl = null;
+let spotifyProgressMs = 0;
+let spotifyDurationMs = 0;
+let spotifyTickHandle = null;
+
+function loadTrack(index, autoplay) {
+if (!CONFIG.tracks.length) return;
+trackIndex = (index + CONFIG.tracks.length) % CONFIG.tracks.length;
+const track = CONFIG.tracks[trackIndex];
+renderTrack(track, autoplay);
+}
+
+function renderTrack(track, autoplay) {
+audio.src = track.url;
+titleEl.textContent = track.title || "Untitled";
+artistEl.textContent = track.artist || "";
+artistEl.style.display = track.artist ? 'block' : 'none';
+artEl.src = track.art || "";
+artEl.style.visibility = track.art ? 'visible' : 'hidden';
+tintPlayerFromArt(track.art ? artEl : null);
+scrubRow.style.display = 'flex';
+if (autoplay) audio.play().catch(() => {});
+}
+
+function setPlayingIcon(playing) {
+playIcon.style.display = playing ? 'none' : 'block';
+pauseIcon.style.display = playing ? 'block' : 'none';
+}
+
+function setSpotifyMode(active) {
+spotifyMode = active;
+prevBtn.disabled = active;
+nextBtn.disabled = active;
+playPauseBtn.disabled = active;
+scrubber.disabled = active;
+// Controls are only ever shown in manual/local track mode — Spotify mode
+// is a status display, not playable here, so prev/play/next never apply.
+musicControlsEl.style.display = active ? 'none' : 'flex';
+if (!active) {
+spotifyBadge.style.display = 'none';
+recentlyPlayedBadge.style.display = 'none';
+}
+}
+
+function startSpotifyTicking() {
+stopSpotifyTicking();
+spotifyTickHandle = setInterval(() => {
+if (!spotifyMode) return;
+spotifyProgressMs = Math.min(spotifyProgressMs + 1000, spotifyDurationMs || spotifyProgressMs + 1000);
+updateSpotifyProgressUI();
+}, 1000);
+}
+
+function stopSpotifyTicking() {
+if (spotifyTickHandle) {
+clearInterval(spotifyTickHandle);
+spotifyTickHandle = null;
+}
+}
+
+function updateSpotifyProgressUI() {
+const progressSec = spotifyProgressMs / 1000;
+const durationSec = spotifyDurationMs / 1000;
+scrubber.max = durationSec || 0;
+scrubber.value = progressSec;
+currentTimeEl.textContent = formatTime(progressSec);
+durationEl.textContent = formatTime(durationSec);
+}
+
+async function fetchNowPlaying() {
+if (!CONFIG.spotifyWorkerUrl) return;
+
+try {
+const res = await fetch(CONFIG.spotifyWorkerUrl, { cache: 'no-store' });
+if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+const data = await res.json();
+
+if (!data || !data.title) {
+if (spotifyMode) {
+setSpotifyMode(false);
+stopSpotifyTicking();
+loadTrack(0, false);
+}
+return;
+}
+
+const isNewTrack = data.url !== lastSpotifyUrl;
+lastSpotifyUrl = data.url;
+
+spotifyProgressMs = typeof data.progressMs === "number" ? data.progressMs : 0;
+spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;
+
+setSpotifyMode(true);
+spotifyBadge.style.display = data.isPlaying ? 'block' : 'none';
+recentlyPlayedBadge.style.display = data.isPlaying ? 'none' : 'block';
+scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
+
+if (isNewTrack) {
+renderTrack({
+title: data.title,
+artist: data.artist || "",
+art: data.art || "",
+url: ""
+}, false);
+
+audio.pause();
+audio.removeAttribute('src');
+setPlayingIcon(data.isPlaying);
+scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
+
+titleEl.title = data.url ? "Open in Spotify" : "";
+if (data.url) {
+titleEl.style.cursor = 'pointer';
+titleEl.onclick = () => window.open(data.url, '_blank');
+}
+} else {
+setPlayingIcon(data.isPlaying);
+}
+
+updateSpotifyProgressUI();
+
+if (data.isPlaying) {
+startSpotifyTicking();
+} else {
+stopSpotifyTicking();
+}
+} catch (err) {
+console.error('Spotify fetch failed:', err);
+}
+}
+
+if (CONFIG.spotifyWorkerUrl) {
+fetchNowPlaying();
+setInterval(fetchNowPlaying, Math.max(5, CONFIG.spotifyPollSeconds) * 1000);
+} else if (CONFIG.tracks.length) {
+loadTrack(0, false);
+}
+
+playPauseBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+if (audio.paused) {
+audio.play().catch(() => {});
+} else {
+audio.pause();
+}
+});
+
+prevBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex - 1, true);
+});
+nextBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex + 1, true);
+});
+
+audio.addEventListener('play', () => setPlayingIcon(true));
+audio.addEventListener('pause', () => setPlayingIcon(false));
+audio.addEventListener('ended', () => {
+if (!spotifyMode) loadTrack(trackIndex + 1, true);
+});
+
+audio.addEventListener('loadedmetadata', () => {
+scrubber.max = audio.duration || 0;
+durationEl.textContent = formatTime(audio.duration);
+});
+
+audio.addEventListener('timeupdate', () => {
+if (isScrubbing) return;
+scrubber.value = audio.currentTime;
+currentTimeEl.textContent = formatTime(audio.currentTime);
+});
+
+scrubber.addEventListener('input', () => {
+if (spotifyMode) return;
+isScrubbing = true;
+currentTimeEl.textContent = formatTime(parseFloat(scrubber.value));
+});
+
+scrubber.addEventListener('change', () => {
+if (spotifyMode) return;
+audio.currentTime = parseFloat(scrubber.value);
+isScrubbing = false;
+});
+
+// ---- Rocket League stats ----
+document.getElementById('rlUsername').textContent = CONFIG.rocketLeagueUsername;
+
+function formatNumber(n) {
+if (typeof n !== 'number') return n;
+return n.toLocaleString();
+}
+
+// Pulls a numeric stat value out of Tracker Network's typical
+// segment.stats.<key>.value shape, trying a couple of likely key spellings
+// since exact field names can vary slightly by endpoint version.
+function getStatValue(statsObj, keys) {
+if (!statsObj) return null;
+for (const key of keys) {
+const stat = statsObj[key];
+if (stat && typeof stat.value === 'number') return stat.value;
+if (typeof stat === 'number') return stat;
+}
+return null;
+}
+
+function renderRocketLeagueStats(profile) {
+const content = document.getElementById('rlContent');
+content.innerHTML = '';
+
+if (!profile) {
+content.innerHTML = '<div class="rl-error">No stats available yet.</div>';
+return;
+}
+
+const segments = profile.segments || [];
+const overviewSegment = segments.find((s) => s.type === 'overview') || null;
+
+// Only show these specific playlists, in this order, per the requested scope.
+const WANTED_PLAYLISTS = [
+'Ranked Duel 1v1',
+'Ranked Doubles 2v2',
+'Rumble',
+'Tournament Matches',
+'Heatseeker',
+'Casual',
+];
+const playlistSegments = WANTED_PLAYLISTS
+.map((wantedName) => segments.find((s) => s.type === 'playlist' && s.metadata?.name === wantedName))
+.filter(Boolean);
+
+// ---- Best 2v2 MMR ----
+if (typeof profile.best_2v2_mmr === 'number') {
+const mmrRow = document.createElement('div');
+mmrRow.className = 'rl-best-mmr';
+mmrRow.innerHTML = `
+<span class="label">Best 2v2 MMR</span>
+<span class="value">${formatNumber(profile.best_2v2_mmr)}</span>
+`;
+content.appendChild(mmrRow);
+}
+
+// ---- Selected playlists ----
+if (playlistSegments.length) {
+const grid = document.createElement('div');
+grid.className = 'rl-playlists';
+
+playlistSegments.forEach((seg) => {
+const name = seg.metadata?.name || 'Playlist';
+const rankName = seg.stats?.tier?.metadata?.name || 'Unranked';
+const rankImg = seg.stats?.tier?.metadata?.iconUrl || '';
+const divisionName = seg.stats?.division?.metadata?.name || '';
+const rating = getStatValue(seg.stats, ['rating']);
+
+const card = document.createElement('div');
+card.className = 'rl-playlist-card';
+card.innerHTML = `
+<div class="rl-playlist-name">${name}</div>
+${rankImg ? `<img class="rl-playlist-rank-img" src="${rankImg}" alt="${rankName}">` : ''}
+<div class="rl-playlist-rank-name">${rankName}${divisionName ? ` <span class="rl-playlist-division">${divisionName}</span>` : ''}</div>
+${rating !== null ? `<div class="rl-playlist-rating">${formatNumber(rating)} MMR</div>` : ''}
+`;
+grid.appendChild(card);
+});
+
+content.appendChild(grid);
+}
+
+// ---- Lifetime overview stats ----
+if (overviewSegment && overviewSegment.stats) {
+const title = document.createElement('div');
+title.className = 'rl-overview-title';
+title.textContent = 'Lifetime Stats';
+content.appendChild(title);
+
+const statDefs = [
+{ keys: ['wins'], label: 'Wins' },
+{ keys: ['goals'], label: 'Goals' },
+{ keys: ['assists'], label: 'Assists' },
+{ keys: ['saves'], label: 'Saves' },
+{ keys: ['shots'], label: 'Shots' },
+{ keys: ['mVPs'], label: 'MVPs' },
+];
+
+const grid = document.createElement('div');
+grid.className = 'rl-overview-grid';
+
+statDefs.forEach((def) => {
+const val = getStatValue(overviewSegment.stats, def.keys);
+if (val === null) return;
+const cell = document.createElement('div');
+cell.className = 'rl-stat';
+cell.innerHTML = `<div class="value">${formatNumber(val)}</div><div class="label">${def.label}</div>`;
+grid.appendChild(cell);
+});
+
+if (grid.children.length) {
+content.appendChild(grid);
+} else if (!content.children.length) {
+content.innerHTML = '<div class="rl-error">No stats available yet.</div>';
+}
+}
+
+if (!content.children.length) {
+content.innerHTML = '<div class="rl-error">No stats available yet.</div>';
+}
+}
+
+async function fetchRocketLeagueStats() {
+if (!CONFIG.rocketLeagueWorkerUrl) return;
+
+try {
+const res = await fetch(CONFIG.rocketLeagueWorkerUrl, { cache: 'no-store' });
+if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+const data = await res.json();
+const entry = data[CONFIG.rocketLeaguePlayerId];
+
+const updatedEl = document.getElementById('rlUpdated');
+
+if (!entry || !entry.profile) {
+document.getElementById('rlContent').innerHTML =
+`<div class="rl-loading">${entry?.error || 'Stats not cached yet — check back soon.'}</div>`;
+updatedEl.textContent = '';
+return;
+}
+
+renderRocketLeagueStats(entry.profile);
+if (entry.lastUpdated) {
+const d = new Date(entry.lastUpdated);
+updatedEl.textContent = `Updated ${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+}
+} catch (err) {
+console.error('Rocket League fetch failed:', err);
+document.getElementById('rlContent').innerHTML = '<div class="rl-error">Couldn\'t load stats right now.</div>';
+}
+}
+
+fetchRocketLeagueStats();
+});
+</script>
+</body>
+</html>
