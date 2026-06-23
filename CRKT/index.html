@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRKT</title>
+<title>cxsir</title>
 <style>
 /* ============================================================
    CONFIG — edit everything here. Colors/sizes are applied via
@@ -40,8 +40,17 @@ background-repeat: no-repeat;
 transform: scale(1.1); /* avoids blurred edges showing at the viewport border */
 z-index: -2;
 }
-/* Darken overlay removed per request — background image shows through clearly. */
-
+body::before {
+content: '';
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.15);
+z-index: -1;
+pointer-events: none;
+}
 /* Content Container */
 .container {
 display: flex;
@@ -60,10 +69,10 @@ text-align: center;
 width: 100%;
 max-width: 420px;
 backdrop-filter: blur(5px);
-background: rgba(255, 255, 255, 0.12);
+background: rgba(20, 40, 80, 0.25);
 padding: 36px 28px 28px;
 border-radius: 24px;
-border: 1px solid rgba(255, 255, 255, 0.35);
+border: 1px solid rgba(20, 40, 80, 0.12);
 box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
 animation: fadeIn 0.6s ease-in;
 }
@@ -82,7 +91,7 @@ width: 110px;
 height: 110px;
 border-radius: 50%;
 object-fit: cover;
-border: 3px solid rgba(255, 255, 255, 0.5);
+border: 3px solid rgba(20, 40, 80, 0.25);
 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 .profile h1 {
@@ -111,8 +120,8 @@ height: 44px;
 display: flex;
 align-items: center;
 justify-content: center;
-background: rgba(255, 255, 255, 0.1);
-border: 2px solid rgba(255, 255, 255, 0.35);
+background: rgba(20, 40, 80, 0.08);
+border: 2px solid rgba(20, 40, 80, 0.15);
 border-radius: 50%;
 transition: all 0.25s ease;
 text-decoration: none;
@@ -129,8 +138,8 @@ transition: all 0.25s ease;
 display: block;
 }
 .social-link:hover {
-background: rgba(255, 255, 255, 0.22);
-border-color: rgba(255, 255, 255, 0.7);
+background: rgba(20, 40, 80, 0.18);
+border-color: rgba(20, 40, 80, 0.5);
 transform: translateY(-4px);
 box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 }
@@ -153,7 +162,7 @@ max-width: 360px;
 transition: all 0.3s ease;
 border-radius: 12px;
 overflow: hidden;
-border: 1px solid rgba(255, 255, 255, 0.35);
+border: 1px solid rgba(20, 40, 80, 0.12);
 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
 }
 .showcase-card img {
@@ -164,7 +173,7 @@ object-fit: contain;
 }
 .showcase-card:hover {
 transform: scale(1.03);
-border-color: rgba(255, 255, 255, 0.6);
+border-color: rgba(20, 40, 80, 0.3);
 box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
 }
 /* Custom Music Player — border-color/width/radius set inline from CONFIG.player* via JS */
@@ -174,8 +183,8 @@ padding: 10px;
 display: flex;
 flex-direction: column;
 gap: 10px;
-background: rgba(255, 255, 255, 0.14);
-border: 1px solid rgba(255, 255, 255, 0.3);
+background: rgba(20, 40, 80, 0.55);
+border: 1px solid rgba(20, 40, 80, 0.1);
 border-radius: 14px;
 position: relative;
 transition: background 0.6s ease, border-color 0.6s ease;
@@ -192,7 +201,7 @@ height: 46px;
 border-radius: 8px;
 object-fit: cover;
 flex-shrink: 0;
-background: rgba(255, 255, 255, 0.1);
+background: rgba(20, 40, 80, 0.08);
 }
 .music-info {
 flex: 1;
@@ -236,13 +245,13 @@ width: 32px; /* fixed width (not min-width) so "0:00" and "12:34" take identical
 .music-time.duration { text-align: left; }
 .music-scrubber {
 flex: 1 1 auto;
-min-width: 0;
+min-width: 0; /* allows the slider to shrink below its intrinsic size instead of overflowing */
 max-width: 100%;
 -webkit-appearance: none;
 appearance: none;
 height: 4px;
 border-radius: 2px;
-background: rgba(255, 255, 255, 0.25);
+background: rgba(20, 40, 80, 0.2);
 cursor: pointer;
 outline: none;
 }
@@ -282,7 +291,7 @@ border-radius: 50%;
 transition: background 0.2s ease;
 }
 .music-btn:hover {
-background: rgba(255, 255, 255, 0.18);
+background: rgba(20, 40, 80, 0.12);
 }
 .music-btn svg {
 width: 16px;
@@ -299,6 +308,37 @@ cursor: default;
 }
 .music-btn:disabled:hover {
 background: none;
+}
+/* Small "Live from Spotify" badge shown when CONFIG.spotifyWorkerUrl is active */
+.spotify-badge {
+position: absolute;
+top: -8px;
+right: 10px;
+background: rgba(20, 40, 80, 0.18);
+color: #cfe0ff;
+font-size: 0.6em;
+font-weight: 700;
+padding: 2px 7px;
+border-radius: 8px;
+letter-spacing: 0.3px;
+border: 1px solid rgba(207, 224, 255, 0.4);
+display: none;
+}
+/* Shown instead of the LIVE badge when Spotify mode is active but nothing
+   is currently playing — i.e. displaying recently-played history. */
+.recently-played-badge {
+position: absolute;
+top: -8px;
+right: 10px;
+background: rgba(20, 40, 80, 0.18);
+color: #cfe0ff;
+font-size: 0.6em;
+font-weight: 700;
+padding: 2px 7px;
+border-radius: 8px;
+letter-spacing: 0.3px;
+border: 1px solid rgba(207, 224, 255, 0.4);
+display: none;
 }
 
 /* ---- Rocket League stats section ---- */
@@ -329,13 +369,13 @@ font-weight: 700;
 }
 .rl-header .rl-username {
 font-size: 0.85em;
-color: #cfcfcf;
+color: #a8b8d8;
 font-weight: 400;
 text-align: left;
 }
 .rl-loading, .rl-error {
 font-size: 0.85em;
-color: #c0c0c0;
+color: #a8a8a8;
 text-align: center;
 padding: 12px 0;
 }
@@ -343,14 +383,14 @@ padding: 12px 0;
 display: flex;
 justify-content: space-between;
 align-items: center;
-background: rgba(255, 255, 255, 0.16);
+background: rgba(20, 40, 80, 0.4);
 border-radius: 10px;
 padding: 12px 16px;
 margin-bottom: 16px;
 }
 .rl-best-mmr .label {
 font-size: 0.8em;
-color: #cfcfcf;
+color: #a8b8d8;
 }
 .rl-best-mmr .value {
 font-size: 1.3em;
@@ -364,14 +404,14 @@ gap: 10px;
 margin-bottom: 18px;
 }
 .rl-playlist-card {
-background: rgba(255, 255, 255, 0.12);
+background: rgba(20, 40, 80, 0.35);
 border-radius: 10px;
 padding: 12px 10px;
 text-align: center;
 }
 .rl-playlist-name {
 font-size: 0.7em;
-color: #cfcfcf;
+color: #a8b8d8;
 text-transform: uppercase;
 letter-spacing: 0.5px;
 margin-bottom: 6px;
@@ -391,11 +431,11 @@ color: #f0f0f0;
 .rl-playlist-division {
 font-size: 0.85em;
 font-weight: 400;
-color: #cfcfcf;
+color: #8a9bc0;
 }
 .rl-playlist-rating {
 font-size: 0.68em;
-color: #b8b8b8;
+color: #8a9bc0;
 margin-top: 2px;
 }
 .rl-overview-title {
@@ -410,7 +450,7 @@ grid-template-columns: repeat(3, 1fr);
 gap: 10px;
 }
 .rl-stat {
-background: rgba(255, 255, 255, 0.1);
+background: rgba(20, 40, 80, 0.3);
 border-radius: 8px;
 padding: 10px 6px;
 text-align: center;
@@ -422,14 +462,14 @@ color: #ffffff;
 }
 .rl-stat .label {
 font-size: 0.62em;
-color: #b8b8b8;
+color: #8a9bc0;
 text-transform: uppercase;
 letter-spacing: 0.3px;
 margin-top: 2px;
 }
 .rl-updated {
 font-size: 0.65em;
-color: #9a9a9a;
+color: #6f80a0;
 text-align: right;
 margin-top: 14px;
 }
@@ -477,13 +517,15 @@ grid-template-columns: repeat(2, 1fr);
 <div class="social-links" id="socialLinks"></div>
 
 <div class="music-player" id="musicPlayer">
+<div class="spotify-badge" id="spotifyBadge">LIVE</div>
+<div class="recently-played-badge" id="recentlyPlayedBadge">RECENTLY PLAYED</div>
 <div class="music-top-row">
 <img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous">
 <div class="music-info">
 <div class="music-title" id="musicTitle">No track loaded</div>
 <div class="music-artist" id="musicArtist"></div>
 </div>
-<div class="music-controls">
+<div class="music-controls" id="musicControls">
 <button class="music-btn" id="musicPrev" title="Previous track">
 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
 </button>
@@ -534,66 +576,66 @@ grid-template-columns: repeat(2, 1fr);
    ============================================================ */
 const CONFIG = {
 // ---- Profile ----
-name: "CRKT",
-bio: "Buy My Bleach",
-// Local image path, relative to this file (root/CRKT/index.html).
-pfpUrl: "../assets/pfp/crkt.jpg",
+name: "cxsir",
+bio: "a lost cause",
+pfpUrl: "assets/pfp/cxsir.jpg", // relative to this file (root/index.html)
 
 // ---- Background ----
-bgImage: "../assets/bg/crkt.jpg",
+bgImage: "assets/bg/cxsir.jpg",
 bgBlur: 0, // px of blur applied to the background image
 
 // ---- Main profile card styling ----
-cardBorderColor: "rgba(255, 255, 255, 0.35)",
+cardBorderColor: "rgba(20, 40, 80, 0.12)",
 cardBorderWidth: 1, // px
 cardBorderRadius: 24, // px
-cardBackground: "rgba(255, 255, 255, 0.12)",
+cardBackground: "rgba(20, 40, 80, 0.25)",
 
 // ---- Social icon circle styling ----
-iconBorderColor: "rgba(255, 255, 255, 0.35)",
+iconBorderColor: "rgba(20, 40, 80, 0.15)",
 iconBorderWidth: 2, // px
-iconBackground: "rgba(255, 255, 255, 0.1)",
+iconBackground: "rgba(20, 40, 80, 0.08)",
 
 // ---- Exophase showcase card styling ----
-exophaseCardUrl: "",
-showcaseBorderColor: "rgba(255, 255, 255, 0.35)",
+exophaseCardUrl: "https://card.exophase.com/2/0/327032.png",
+showcaseBorderColor: "rgba(20, 40, 80, 0.12)",
 showcaseBorderWidth: 1, // px
 showcaseBorderRadius: 12, // px
 
 // ---- Music player styling ----
-playerBorderColor: "rgba(255, 255, 255, 0.3)",
+playerBorderColor: "rgba(20, 40, 80, 0.1)",
 playerBorderWidth: 1, // px
 playerBorderRadius: 14, // px
-playerBackground: "rgba(255, 255, 255, 0.14)",
-// When true, album art color sampling overrides playerBackground/
-// playerBorderColor dynamically per track. Set to false to always keep
-// the static colors above.
+playerBackground: "rgba(20, 40, 80, 0.55)",
 playerColorFromArt: true,
 
-// ---- Manual playlist ----
-// No Spotify integration on this page — just this local/manual track list.
-// prev/next cycle through this list; scrubber/duration update from the
-// loaded audio file itself.
-tracks: [
-{ title: "Money Long", artist: "Kevin Gates", url: "https://archive.org/download/webpage-assets/crkt1.mp3", art: "https://archive.org/download/webpage-assets/crkt1.jpg" },
-{ title: "Kamikaze", artist: "Eminem", url: "https://archive.org/download/webpage-assets/crkt2.mp3", art: "https://archive.org/download/webpage-assets/crkt2.jpg" },
-{ title: "Amnesia", artist: "Kevin Gates, Doe B", url: "https://archive.org/download/webpage-assets/crkt3.mp3", art: "https://archive.org/download/webpage-assets/crkt3.jpg" },
-],
+// ---- Spotify "now playing" integration ----
+spotifyWorkerUrl: "https://github-io.cxsir.workers.dev",
+spotifyPollSeconds: 30,
+
+// ---- Fallback / manual playlist ----
+tracks: [],
 
 // ---- Rocket League stats integration ----
-// Same Worker used on the other page, different path. Reads the
-// "glasscannon247" entry from the multi-player /rocketleague response.
+// Same Worker as Spotify, different path. Reads the "cxsir" entry from
+// the multi-player /rocketleague response (see the Worker script).
 rocketLeagueWorkerUrl: "https://github-io.cxsir.workers.dev/rocketleague",
-rocketLeaguePlayerId: "glasscannon247", // key in the Worker's JSON response to read
-rocketLeagueUsername: "GlassCannon247", // display label only
+rocketLeaguePlayerId: "cxsir", // key in the Worker's JSON response to read
+rocketLeagueUsername: "I cxsir I", // display label only
 
 // ---- Social links ----
 links: [
-{ name: "Snapchat", url: "https://snapchat.com/add/cody2477777", icon: "snapchat" },
-{ name: "Instagram", url: "https://instagram.com/codyusher247", icon: "instagram" },
-{ name: "PlayStation", url: "https://profile.playstation.com/Glass-Cannon247", icon: "playstation" },
-{ name: "Roblox", url: "https://www.roblox.com/users/5393131604/profile", icon: "roblox" },
-{ name: "Phone", url: "tel:3066306172", icon: "phone" }
+{ name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", icon: "snapchat" },
+{ name: "Instagram", url: "https://instagram.com/cxsirr", icon: "instagram" },
+{ name: "YouTube", url: "https://youtube.com/@cxsirr", icon: "youtube" },
+{ name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", icon: "spotify" },
+{ name: "Last.fm", url: "https://last.fm/user/cxsir", icon: "lastfm" },
+{ name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", icon: "playstation" },
+{ name: "Xbox", url: "https://xbox.com/play/user/cxsirr", icon: "xbox" },
+{ name: "Steam", url: "https://steamcommunity.com/id/cxsir", icon: "steam" },
+{ name: "Discord", url: "https://discord.com/users/803306255062007818", icon: "discord" },
+{ name: "Roblox", url: "https://roblox.com/users/2242266391/profile", icon: "roblox" },
+{ name: "GitHub", url: "https://github.com/cxsirr", icon: "github" },
+{ name: "Email", url: "mailto:cxsir@proton.me", icon: "email" }
 ]
 };
 
@@ -622,6 +664,8 @@ profileCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
 profileCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
 profileCard.style.background = CONFIG.cardBackground;
 
+// The RL card reuses the same .profile class for visual consistency, so
+// apply the same CONFIG-driven border/background to it too.
 const rlCard = document.getElementById('rlCard');
 rlCard.style.borderColor = CONFIG.cardBorderColor;
 rlCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
@@ -634,6 +678,8 @@ musicPlayerStatic.style.borderWidth = `${CONFIG.playerBorderWidth}px`;
 musicPlayerStatic.style.borderRadius = `${CONFIG.playerBorderRadius}px`;
 musicPlayerStatic.style.background = CONFIG.playerBackground;
 
+// Inject icon border/background as a small stylesheet, since these apply
+// to every .social-link rather than one element by id.
 const iconStyleTag = document.createElement('style');
 iconStyleTag.textContent = `
 .social-link {
@@ -655,7 +701,7 @@ a.target = '_blank';
 
 if (link.icon) {
 try {
-const res = await fetch(`../assets/logos/${link.icon}.svg`);
+const res = await fetch(`assets/logos/${link.icon}.svg`);
 if (!res.ok) throw new Error(`HTTP ${res.status}`);
 const svgText = await res.text();
 a.insertAdjacentHTML('beforeend', svgText);
@@ -674,7 +720,7 @@ linksContainer.appendChild(a);
 if (CONFIG.exophaseCardUrl) {
 const showcaseContainer = document.getElementById('cardShowcase');
 const aCard = document.createElement('a');
-aCard.href = "";
+aCard.href = "https://www.exophase.com/user/cxsir/";
 aCard.className = 'showcase-card';
 aCard.target = '_blank';
 aCard.title = "Exophase Card";
@@ -690,7 +736,7 @@ aCard.appendChild(imgCard);
 showcaseContainer.appendChild(aCard);
 }
 
-// ---- Custom music player (manual tracks only, no Spotify on this page) ----
+// ---- Custom music player ----
 const audio = document.getElementById('audioEl');
 const playPauseBtn = document.getElementById('musicPlayPause');
 const playIcon = document.getElementById('playIcon');
@@ -704,6 +750,9 @@ const scrubRow = document.getElementById('musicScrubRow');
 const titleEl = document.getElementById('musicTitle');
 const artistEl = document.getElementById('musicArtist');
 const artEl = document.getElementById('musicArt');
+const spotifyBadge = document.getElementById('spotifyBadge');
+const recentlyPlayedBadge = document.getElementById('recentlyPlayedBadge');
+const musicControlsEl = document.getElementById('musicControls');
 const musicPlayerEl = document.querySelector('.music-player');
 const sampleCanvas = document.getElementById('artSampleCanvas');
 const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
@@ -730,7 +779,7 @@ g = Math.round(g / count);
 b = Math.round(b / count);
 
 musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.35), ${CONFIG.playerBackground})`;
-musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.45)`;
+musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
 } catch (err) {
 console.warn('Album art color sampling failed:', err);
 resetPlayerTint();
@@ -752,6 +801,11 @@ musicPlayerEl.style.borderColor = CONFIG.playerBorderColor;
 
 let trackIndex = 0;
 let isScrubbing = false;
+let spotifyMode = false;
+let lastSpotifyUrl = null;
+let spotifyProgressMs = 0;
+let spotifyDurationMs = 0;
+let spotifyTickHandle = null;
 
 function loadTrack(index, autoplay) {
 if (!CONFIG.tracks.length) return;
@@ -777,11 +831,117 @@ playIcon.style.display = playing ? 'none' : 'block';
 pauseIcon.style.display = playing ? 'block' : 'none';
 }
 
-if (CONFIG.tracks.length) {
+function setSpotifyMode(active) {
+spotifyMode = active;
+prevBtn.disabled = active;
+nextBtn.disabled = active;
+playPauseBtn.disabled = active;
+scrubber.disabled = active;
+// Controls are only ever shown in manual/local track mode — Spotify mode
+// is a status display, not playable here, so prev/play/next never apply.
+musicControlsEl.style.display = active ? 'none' : 'flex';
+if (!active) {
+spotifyBadge.style.display = 'none';
+recentlyPlayedBadge.style.display = 'none';
+}
+}
+
+function startSpotifyTicking() {
+stopSpotifyTicking();
+spotifyTickHandle = setInterval(() => {
+if (!spotifyMode) return;
+spotifyProgressMs = Math.min(spotifyProgressMs + 1000, spotifyDurationMs || spotifyProgressMs + 1000);
+updateSpotifyProgressUI();
+}, 1000);
+}
+
+function stopSpotifyTicking() {
+if (spotifyTickHandle) {
+clearInterval(spotifyTickHandle);
+spotifyTickHandle = null;
+}
+}
+
+function updateSpotifyProgressUI() {
+const progressSec = spotifyProgressMs / 1000;
+const durationSec = spotifyDurationMs / 1000;
+scrubber.max = durationSec || 0;
+scrubber.value = progressSec;
+currentTimeEl.textContent = formatTime(progressSec);
+durationEl.textContent = formatTime(durationSec);
+}
+
+async function fetchNowPlaying() {
+if (!CONFIG.spotifyWorkerUrl) return;
+
+try {
+const res = await fetch(CONFIG.spotifyWorkerUrl, { cache: 'no-store' });
+if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+const data = await res.json();
+
+if (!data || !data.title) {
+if (spotifyMode) {
+setSpotifyMode(false);
+stopSpotifyTicking();
+loadTrack(0, false);
+}
+return;
+}
+
+const isNewTrack = data.url !== lastSpotifyUrl;
+lastSpotifyUrl = data.url;
+
+spotifyProgressMs = typeof data.progressMs === "number" ? data.progressMs : 0;
+spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;
+
+setSpotifyMode(true);
+spotifyBadge.style.display = data.isPlaying ? 'block' : 'none';
+recentlyPlayedBadge.style.display = data.isPlaying ? 'none' : 'block';
+scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
+
+if (isNewTrack) {
+renderTrack({
+title: data.title,
+artist: data.artist || "",
+art: data.art || "",
+url: ""
+}, false);
+
+audio.pause();
+audio.removeAttribute('src');
+setPlayingIcon(data.isPlaying);
+scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
+
+titleEl.title = data.url ? "Open in Spotify" : "";
+if (data.url) {
+titleEl.style.cursor = 'pointer';
+titleEl.onclick = () => window.open(data.url, '_blank');
+}
+} else {
+setPlayingIcon(data.isPlaying);
+}
+
+updateSpotifyProgressUI();
+
+if (data.isPlaying) {
+startSpotifyTicking();
+} else {
+stopSpotifyTicking();
+}
+} catch (err) {
+console.error('Spotify fetch failed:', err);
+}
+}
+
+if (CONFIG.spotifyWorkerUrl) {
+fetchNowPlaying();
+setInterval(fetchNowPlaying, Math.max(5, CONFIG.spotifyPollSeconds) * 1000);
+} else if (CONFIG.tracks.length) {
 loadTrack(0, false);
 }
 
 playPauseBtn.addEventListener('click', () => {
+if (spotifyMode) return;
 if (audio.paused) {
 audio.play().catch(() => {});
 } else {
@@ -789,12 +949,20 @@ audio.pause();
 }
 });
 
-prevBtn.addEventListener('click', () => loadTrack(trackIndex - 1, true));
-nextBtn.addEventListener('click', () => loadTrack(trackIndex + 1, true));
+prevBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex - 1, true);
+});
+nextBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex + 1, true);
+});
 
 audio.addEventListener('play', () => setPlayingIcon(true));
 audio.addEventListener('pause', () => setPlayingIcon(false));
-audio.addEventListener('ended', () => loadTrack(trackIndex + 1, true));
+audio.addEventListener('ended', () => {
+if (!spotifyMode) loadTrack(trackIndex + 1, true);
+});
 
 audio.addEventListener('loadedmetadata', () => {
 scrubber.max = audio.duration || 0;
@@ -808,11 +976,13 @@ currentTimeEl.textContent = formatTime(audio.currentTime);
 });
 
 scrubber.addEventListener('input', () => {
+if (spotifyMode) return;
 isScrubbing = true;
 currentTimeEl.textContent = formatTime(parseFloat(scrubber.value));
 });
 
 scrubber.addEventListener('change', () => {
+if (spotifyMode) return;
 audio.currentTime = parseFloat(scrubber.value);
 isScrubbing = false;
 });
@@ -825,6 +995,9 @@ if (typeof n !== 'number') return n;
 return n.toLocaleString();
 }
 
+// Pulls a numeric stat value out of Tracker Network's typical
+// segment.stats.<key>.value shape, trying a couple of likely key spellings
+// since exact field names can vary slightly by endpoint version.
 function getStatValue(statsObj, keys) {
 if (!statsObj) return null;
 for (const key of keys) {
@@ -847,6 +1020,7 @@ return;
 const segments = profile.segments || [];
 const overviewSegment = segments.find((s) => s.type === 'overview') || null;
 
+// Only show these specific playlists, in this order, per the requested scope.
 const WANTED_PLAYLISTS = [
 'Ranked Duel 1v1',
 'Ranked Doubles 2v2',
@@ -859,6 +1033,7 @@ const playlistSegments = WANTED_PLAYLISTS
 .map((wantedName) => segments.find((s) => s.type === 'playlist' && s.metadata?.name === wantedName))
 .filter(Boolean);
 
+// ---- Best 2v2 MMR ----
 if (typeof profile.best_2v2_mmr === 'number') {
 const mmrRow = document.createElement('div');
 mmrRow.className = 'rl-best-mmr';
@@ -869,6 +1044,7 @@ mmrRow.innerHTML = `
 content.appendChild(mmrRow);
 }
 
+// ---- Selected playlists ----
 if (playlistSegments.length) {
 const grid = document.createElement('div');
 grid.className = 'rl-playlists';
@@ -894,6 +1070,7 @@ grid.appendChild(card);
 content.appendChild(grid);
 }
 
+// ---- Lifetime overview stats ----
 if (overviewSegment && overviewSegment.stats) {
 const title = document.createElement('div');
 title.className = 'rl-overview-title';
