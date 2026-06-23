@@ -403,7 +403,7 @@ color: #a8b8d8;
 .rl-best-mmr .value {
 font-size: 1.3em;
 font-weight: 700;
-color: #ffd700;
+color: #ffffff;
 }
 .rl-playlists {
 display: grid;
@@ -1065,7 +1065,7 @@ card.innerHTML = `
 <div class="rl-playlist-name">${name}</div>
 ${rankImg ? `<img class="rl-playlist-rank-img" src="${rankImg}" alt="${rankName}">` : ''}
 <div class="rl-playlist-rank-name">${rankName}${divisionName ? ` <span class="rl-playlist-division">${divisionName}</span>` : ''}</div>
-${rating !== null ? `<div class="rl-playlist-rating">${formatNumber(rating)} RR</div>` : ''}
+${rating !== null ? `<div class="rl-playlist-rating">${formatNumber(rating)} MMR</div>` : ''}
 `;
 grid.appendChild(card);
 });
