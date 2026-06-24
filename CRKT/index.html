@@ -44,18 +44,17 @@ background-repeat: no-repeat;
 transform: scale(1.1); /* avoids blurred edges showing at the viewport border */
 z-index: -2;
 }
-/*darken BG*/
-.bg-container::after {
+body::before {
 content: '';
-position: absolute;
+position: fixed;
 top: 0;
 left: 0;
 width: 100%;
 height: 100%;
-background-color: rgba(40, 40, 40, 0.25);
+background: rgba(0, 0, 0, 0.45);
+z-index: -1;
+pointer-events: none;
 }
-
-/* Darken overlay removed per request — background image shows through clearly. */
 /* Content Container */
 /* ============================================================
    LAYOUT CONTAINER & PROFILE CARD
