@@ -44,18 +44,17 @@ background-repeat: no-repeat;
 transform: scale(1.1); /* avoids blurred edges showing at the viewport border */
 z-index: -2;
 }
-/*darken BG*/
-.bg-container::after {
+body::before {
 content: '';
-position: absolute;
+position: fixed;
 top: 0;
 left: 0;
 width: 100%;
 height: 100%;
-background-color: rgba(40, 40, 40, 0.25);
+background: rgba(0, 0, 0, 0.45);
+z-index: -1;
+pointer-events: none;
 }
-
-/* Darken overlay removed per request — background image shows through clearly. */
 /* Content Container */
 /* ============================================================
    LAYOUT CONTAINER & PROFILE CARD
@@ -359,141 +358,6 @@ border: 1px solid rgba(255, 255, 255, 0.4);
 display: none;
 }
 
-/* ============================================================
-   ROCKET LEAGUE STATS SECTION
-   ============================================================ */
-.rl-section {
-width: 100%;
-max-width: 420px;
-}
-.rl-card {
-backdrop-filter: blur(5px);
-padding: 24px 22px;
-animation: fadeIn 0.6s ease-in;
-}
-.rl-header {
-display: flex;
-align-items: center;
-gap: 12px;
-margin-bottom: 18px;
-}
-.rl-platform-icon {
-width: 28px;
-height: 28px;
-flex-shrink: 0;
-fill: #e0e0e0;
-}
-.rl-header h2 {
-font-size: 1.3em;
-font-weight: 700;
-}
-.rl-header .rl-username {
-font-size: 0.85em;
-color: #cfcfcf;
-font-weight: 400;
-text-align: left;
-}
-.rl-loading, .rl-error {
-font-size: 0.85em;
-color: #a8a8a8;
-text-align: center;
-padding: 12px 0;
-}
-.rl-best-mmr {
-display: flex;
-justify-content: space-between;
-align-items: center;
-background: rgba(255, 255, 255, 0.4);
-border-radius: 10px;
-padding: 12px 16px;
-margin-bottom: 16px;
-}
-.rl-best-mmr .label {
-font-size: 0.8em;
-color: #cfcfcf;
-}
-.rl-best-mmr .value {
-font-size: 1.3em;
-font-weight: 700;
-color: #ffffff;
-}
-.rl-playlists {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-gap: 10px;
-margin-bottom: 18px;
-}
-.rl-playlist-card {
-background: rgba(255, 255, 255, 0.35);
-border-radius: 10px;
-padding: 12px 10px;
-text-align: center;
-}
-.rl-playlist-name {
-font-size: 0.7em;
-color: #cfcfcf;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-margin-bottom: 6px;
-}
-.rl-playlist-rank-img {
-width: 48px;
-height: 48px;
-margin: 0 auto 6px;
-display: block;
-object-fit: contain;
-}
-.rl-playlist-rank-name {
-font-size: 0.78em;
-font-weight: 600;
-color: #f0f0f0;
-}
-.rl-playlist-division {
-font-size: 0.85em;
-font-weight: 400;
-color: #b8b8b8;
-}
-.rl-playlist-rating {
-font-size: 0.68em;
-color: #b8b8b8;
-margin-top: 2px;
-}
-.rl-overview-title {
-font-size: 0.85em;
-font-weight: 600;
-color: #cfcfcf;
-margin-bottom: 10px;
-}
-.rl-overview-grid {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 10px;
-}
-.rl-stat {
-background: rgba(255, 255, 255, 0.3);
-border-radius: 8px;
-padding: 10px 6px;
-text-align: center;
-}
-.rl-stat .value {
-font-size: 1.1em;
-font-weight: 700;
-color: #ffffff;
-}
-.rl-stat .label {
-font-size: 0.62em;
-color: #b8b8b8;
-text-transform: uppercase;
-letter-spacing: 0.3px;
-margin-top: 2px;
-}
-.rl-updated {
-font-size: 0.65em;
-color: #9a9a9a;
-text-align: right;
-margin-top: 14px;
-}
-
 /* Responsive Mobile Layout Rules */
 /* ============================================================
    RESPONSIVE / MOBILE OVERRIDES
@@ -520,9 +384,6 @@ height: 40px;
 .social-link svg {
 width: 19px;
 height: 19px;
-}
-.rl-overview-grid {
-grid-template-columns: repeat(2, 1fr);
 }
 }
 </style>
@@ -573,22 +434,6 @@ grid-template-columns: repeat(2, 1fr);
 <div class="card-showcase" id="cardShowcase"></div>
 </div>
 
-<div class="rl-section" id="rlSection">
-<div class="profile rl-card" id="rlCard">
-<div class="rl-header">
-<svg class="rl-platform-icon" id="rlPlatformIcon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"></svg>
-<div>
-<h2>Rocket League</h2>
-<div class="rl-username" id="rlUsername"></div>
-</div>
-</div>
-<div id="rlContent">
-<div class="rl-loading" id="rlLoading">Loading stats…</div>
-</div>
-<div class="rl-updated" id="rlUpdated"></div>
-</div>
-</div>
-
 </div>
 
 <script>
@@ -599,8 +444,9 @@ grid-template-columns: repeat(2, 1fr);
    ============================================================ */
 const CONFIG = {
 // ---- Profile ----
+// TODO: fill in Josh's real name, bio, and pfp once provided.
 name: "Josh",
-bio: "Buy My Bleach",
+bio: "Add a tagline here",
 // Local image path, relative to this file (root/Josh/index.html).
 pfpUrl: "../assets/pfp/josh.jpg",
 
@@ -609,27 +455,29 @@ bgImage: "../assets/bg/josh.jpg",
 bgBlur: 0, // px of blur applied to the background image
 
 // ---- Main profile card styling ----
-cardBorderColor: "rgba(255, 255, 255, 0.35)",
+// Orange + baby blue accent scheme, per request.
+cardBorderColor: "rgba(255, 140, 40, 0.4)",
 cardBorderWidth: 1, // px
 cardBorderRadius: 24, // px
-cardBackground: "rgba(255, 255, 255, 0.12)",
+cardBackground: "rgba(255, 140, 40, 0.12)",
 
 // ---- Social icon circle styling ----
-iconBorderColor: "rgba(255, 255, 255, 0.35)",
+iconBorderColor: "rgba(255, 140, 40, 0.4)",
 iconBorderWidth: 2, // px
-iconBackground: "rgba(255, 255, 255, 0.1)",
+iconBackground: "rgba(255, 140, 40, 0.1)",
 
 // ---- Exophase showcase card styling ----
 exophaseCardUrl: "",
-showcaseBorderColor: "rgba(255, 255, 255, 0.35)",
+showcaseBorderColor: "rgba(255, 140, 40, 0.4)",
 showcaseBorderWidth: 1, // px
 showcaseBorderRadius: 12, // px
 
 // ---- Music player styling ----
-playerBorderColor: "rgba(255, 255, 255, 0.3)",
+// Baby blue accent here, so both favorite colors show up across the page.
+playerBorderColor: "rgba(137, 207, 240, 0.5)",
 playerBorderWidth: 1, // px
 playerBorderRadius: 14, // px
-playerBackground: "rgba(255, 255, 255, 0.14)",
+playerBackground: "rgba(137, 207, 240, 0.16)",
 playerColorFromArt: true,
 
 // ---- No Spotify integration on this page ----
@@ -639,28 +487,21 @@ spotifyWorkerUrl: "",
 spotifyPollSeconds: 30,
 
 // ---- Manual playlist ----
+// TODO: add Josh's actual tracks here — each needs title, artist
+// (optional), url (audio file), and art (optional cover image).
 // prev/next cycle through this list; scrubber/duration update from the
 // loaded audio file itself.
-tracks: [
-{ title: "Money Long", artist: "Kevin Gates", url: "https://archive.org/download/webpage-assets/josh1.mp3", art: "https://archive.org/download/webpage-assets/josh1.jpg" },
-{ title: "Kamikaze", artist: "Eminem", url: "https://archive.org/download/webpage-assets/josh2.mp3", art: "https://archive.org/download/webpage-assets/josh2.jpg" },
-{ title: "Amnesia", artist: "Kevin Gates, Doe B", url: "https://archive.org/download/webpage-assets/josh3.mp3", art: "https://archive.org/download/webpage-assets/josh3.jpg" },
-],
-
-// ---- Rocket League stats integration ----
-// Same Worker used on the other page, different player key. Reads the
-// "glasscannon247" entry from the multi-player /rocketleague response.
-rocketLeagueWorkerUrl: "https://github-io.cxsir.workers.dev/rocketleague",
-rocketLeaguePlayerId: "glasscannon247",
-rocketLeagueUsername: "GlassCannon247",
+tracks: [],
 
 // ---- Social links ----
 links: [
-{ name: "Snapchat", url: "https://snapchat.com/add/joshuaispretty2", icon: "snapchat" },
-{ name: "Instagram", url: "https://instagram.com/josh_cant_fly", icon: "instagram" },
-{ name: "PlayStation", url: "https://profile.playstation.com/MrCacti247", icon: "playstation" },
-{ name: "Roblox", url: "https://www.roblox.com/users/5393131604/profile", icon: "roblox" },
-{ name: "TikTok", url:"www.tiktok.com/@josh_just_felloffa_roof", icon:"tiktok"}
+// TODO: replace these with Josh's real links. Icon files live in
+// assets/logos/ — see the other pages' CONFIG for available icon names
+// (snapchat, instagram, youtube, spotify, playstation, xbox, steam,
+// discord, roblox, github, email, phone, rocketleague, etc.)
+{ name: "Snapchat", url: "https://snapchat.com/add/USERNAME", icon: "snapchat" },
+{ name: "Instagram", url: "https://instagram.com/USERNAME", icon: "instagram" },
+{ name: "Discord", url: "https://discord.com/users/USER_ID", icon: "discord" }
 ]
 };
 
@@ -749,7 +590,7 @@ linksContainer.appendChild(a);
 if (CONFIG.exophaseCardUrl) {
 const showcaseContainer = document.getElementById('cardShowcase');
 const aCard = document.createElement('a');
-aCard.href = "https://www.exophase.com/user/glasscannon247/"; // update if Josh's actual Exophase profile differs
+aCard.href = ""; // TODO: add Josh's Exophase profile URL here if he wants the showcase card
 aCard.className = 'showcase-card';
 aCard.target = '_blank';
 aCard.title = "Exophase Card";
@@ -862,6 +703,166 @@ function setPlayingIcon(playing) {
 playIcon.style.display = playing ? 'none' : 'block';
 pauseIcon.style.display = playing ? 'block' : 'none';
 }
+
+/* ============================================================
+   SPOTIFY INTEGRATION — polls the Cloudflare Worker for live
+   "now playing" / "recently played" data and overrides the
+   manual player's display + badges accordingly
+   ============================================================ */
+function setSpotifyMode(active) {
+spotifyMode = active;
+prevBtn.disabled = active;
+nextBtn.disabled = active;
+playPauseBtn.disabled = active;
+scrubber.disabled = active;
+musicControlsEl.style.display = active ? 'none' : 'flex';
+if (!active) {
+spotifyBadge.style.display = 'none';
+recentlyPlayedBadge.style.display = 'none';
+}
+}
+
+function startSpotifyTicking() {
+stopSpotifyTicking();
+spotifyTickHandle = setInterval(() => {
+if (!spotifyMode) return;
+spotifyProgressMs = Math.min(spotifyProgressMs + 1000, spotifyDurationMs || spotifyProgressMs + 1000);
+updateSpotifyProgressUI();
+}, 1000);
+}
+
+function stopSpotifyTicking() {
+if (spotifyTickHandle) {
+clearInterval(spotifyTickHandle);
+spotifyTickHandle = null;
+}
+}
+
+function updateSpotifyProgressUI() {
+const progressSec = spotifyProgressMs / 1000;
+const durationSec = spotifyDurationMs / 1000;
+scrubber.max = durationSec || 0;
+scrubber.value = progressSec;
+currentTimeEl.textContent = formatTime(progressSec);
+durationEl.textContent = formatTime(durationSec);
+}
+
+async function fetchNowPlaying() {
+if (!CONFIG.spotifyWorkerUrl) return;
+
+try {
+const res = await fetch(CONFIG.spotifyWorkerUrl, { cache: 'no-store' });
+if (!res.ok) throw new Error(`Worker returned ${res.status}`);
+const data = await res.json();
+
+if (!data || !data.title) {
+if (spotifyMode) {
+setSpotifyMode(false);
+stopSpotifyTicking();
+loadTrack(0, false);
+}
+return;
+}
+
+const isNewTrack = data.url !== lastSpotifyUrl;
+lastSpotifyUrl = data.url;
+
+spotifyProgressMs = typeof data.progressMs === "number" ? data.progressMs : 0;
+spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;
+
+setSpotifyMode(true);
+spotifyBadge.style.display = data.isPlaying ? 'block' : 'none';
+recentlyPlayedBadge.style.display = data.isPlaying ? 'none' : 'block';
+scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
+
+if (isNewTrack) {
+renderTrack({
+title: data.title,
+artist: data.artist || "",
+art: data.art || "",
+url: ""
+}, false);
+
+audio.pause();
+audio.removeAttribute('src');
+setPlayingIcon(data.isPlaying);
+scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
+
+titleEl.title = data.url ? "Open in Spotify" : "";
+if (data.url) {
+titleEl.style.cursor = 'pointer';
+titleEl.onclick = () => window.open(data.url, '_blank');
+}
+} else {
+setPlayingIcon(data.isPlaying);
+}
+
+updateSpotifyProgressUI();
+
+if (data.isPlaying) {
+startSpotifyTicking();
+} else {
+stopSpotifyTicking();
+}
+} catch (err) {
+console.error('Spotify fetch failed:', err);
+}
+}
+
+if (CONFIG.spotifyWorkerUrl) {
+fetchNowPlaying();
+setInterval(fetchNowPlaying, Math.max(5, CONFIG.spotifyPollSeconds) * 1000);
+} else if (CONFIG.tracks.length) {
+loadTrack(0, false);
+}
+
+playPauseBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+if (audio.paused) {
+audio.play().catch(() => {});
+} else {
+audio.pause();
+}
+});
+
+prevBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex - 1, true);
+});
+nextBtn.addEventListener('click', () => {
+if (spotifyMode) return;
+loadTrack(trackIndex + 1, true);
+});
+
+audio.addEventListener('play', () => setPlayingIcon(true));
+audio.addEventListener('pause', () => setPlayingIcon(false));
+audio.addEventListener('ended', () => {
+if (!spotifyMode) loadTrack(trackIndex + 1, true);
+});
+
+audio.addEventListener('loadedmetadata', () => {
+scrubber.max = audio.duration || 0;
+durationEl.textContent = formatTime(audio.duration);
+});
+
+audio.addEventListener('timeupdate', () => {
+if (isScrubbing) return;
+scrubber.value = audio.currentTime;
+currentTimeEl.textContent = formatTime(audio.currentTime);
+});
+
+scrubber.addEventListener('input', () => {
+if (spotifyMode) return;
+isScrubbing = true;
+currentTimeEl.textContent = formatTime(parseFloat(scrubber.value));
+});
+
+scrubber.addEventListener('change', () => {
+if (spotifyMode) return;
+audio.currentTime = parseFloat(scrubber.value);
+isScrubbing = false;
+});
+});
 </script>
 </body>
 </html>
