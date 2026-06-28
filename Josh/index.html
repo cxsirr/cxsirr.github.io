@@ -55,7 +55,6 @@ background: rgba(0, 0, 0, 0.45);
 z-index: -1;
 pointer-events: none;
 }
-/* Content Container */
 /* ============================================================
    LAYOUT CONTAINER & PROFILE CARD
    ============================================================ */
@@ -115,7 +114,6 @@ line-height: 1.5;
 /* ============================================================
    SOCIAL ICON LINKS
    ============================================================ */
-/* Clean grid layout for social icons — border-color/width set inline from CONFIG.icon* via JS */
 .social-links {
 display: flex;
 justify-content: center;
@@ -159,8 +157,6 @@ transform: translateY(-2px) scale(0.97);
 /* ============================================================
    EXOPHASE SHOWCASE CARD
    ============================================================ */
-/* Center-aligned Showcase Container for Exophase Card — border-color/width/radius
-   set inline from CONFIG.showcase* via JS */
 .card-showcase {
 display: flex;
 justify-content: center;
@@ -190,17 +186,16 @@ border-color: rgba(255, 255, 255, 0.3);
 box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
 }
 /* ============================================================
-   MUSIC PLAYER (manual tracks + Spotify integration UI)
+   MUSIC PLAYER (manual/local tracks only — no Spotify on this page)
    ============================================================ */
-/* Custom Music Player — border-color/width/radius set inline from CONFIG.player* via JS */
 .music-player {
 margin-top: 22px;
 padding: 10px;
 display: flex;
 flex-direction: column;
 gap: 10px;
-background: rgba(255, 255, 255, 0.55);
-border: 1px solid rgba(255, 255, 255, 0.1);
+background: rgba(137, 207, 240, 0.28);
+border: 1px solid rgba(137, 207, 240, 0.55);
 border-radius: 14px;
 position: relative;
 transition: background 0.6s ease, border-color 0.6s ease;
@@ -318,47 +313,6 @@ fill: currentColor;
 width: 18px;
 height: 18px;
 }
-.music-btn:disabled {
-opacity: 0.3;
-cursor: default;
-}
-.music-btn:disabled:hover {
-background: none;
-}
-/* ============================================================
-   SPOTIFY STATUS BADGES (Now Playing / Recently Played)
-   ============================================================ */
-/* Badges shown above the music player depending on Spotify state */
-.spotify-badge {
-position: absolute;
-top: -8px;
-right: 10px;
-background: rgba(255, 255, 255, 0.5);
-color: #ffffff;
-font-size: 0.6em;
-font-weight: 700;
-padding: 2px 7px;
-border-radius: 8px;
-letter-spacing: 0.3px;
-border: 1px solid rgba(255, 255, 255, 0.4);
-display: none;
-}
-.recently-played-badge {
-position: absolute;
-top: -8px;
-right: 10px;
-background: rgba(255, 255, 255, 0.5);
-color: #ffffff;
-font-size: 0.6em;
-font-weight: 700;
-padding: 2px 7px;
-border-radius: 8px;
-letter-spacing: 0.3px;
-border: 1px solid rgba(255, 255, 255, 0.4);
-display: none;
-}
-
-/* Responsive Mobile Layout Rules */
 /* ============================================================
    RESPONSIVE / MOBILE OVERRIDES
    ============================================================ */
@@ -401,8 +355,6 @@ height: 19px;
 <div class="social-links" id="socialLinks"></div>
 
 <div class="music-player" id="musicPlayer">
-<div class="spotify-badge" id="spotifyBadge">Now Playing</div>
-<div class="recently-played-badge" id="recentlyPlayedBadge">Recently Played</div>
 <div class="music-top-row">
 <img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous">
 <div class="music-info">
@@ -474,17 +426,13 @@ showcaseBorderRadius: 12, // px
 
 // ---- Music player styling ----
 // Baby blue accent here, so both favorite colors show up across the page.
-playerBorderColor: "rgba(137, 207, 240, 0.5)",
+// Raised opacity from the first draft so it actually reads as blue against
+// the lighter card background instead of blending into near-white.
+playerBorderColor: "rgba(137, 207, 240, 0.55)",
 playerBorderWidth: 1, // px
 playerBorderRadius: 14, // px
-playerBackground: "rgba(137, 207, 240, 0.16)",
+playerBackground: "rgba(137, 207, 240, 0.28)",
 playerColorFromArt: true,
-
-// ---- No Spotify integration on this page ----
-// Left empty on purpose — this page only ever runs in manual/local
-// track mode using the playlist below.
-spotifyWorkerUrl: "",
-spotifyPollSeconds: 30,
 
 // ---- Manual playlist ----
 // TODO: add Josh's actual tracks here — each needs title, artist
@@ -497,12 +445,12 @@ tracks: [],
 links: [
 // TODO: replace these with Josh's real links. Icon files live in
 // assets/logos/ — see the other pages' CONFIG for available icon names
-// (snapchat, instagram, youtube, spotify, playstation, xbox, steam,
-// discord, roblox, github, email, phone, rocketleague, etc.)
+// (snapchat, instagram, tiktok, youtube, playstation, xbox, steam,
+// discord, roblox, github, email, phone, etc.)
 { name: "Snapchat", url: "https://snapchat.com/add/joshuaispretty2", icon: "snapchat" },
 { name: "Instagram", url: "https://instagram.com/josh_cant_fly", icon: "instagram" },
-{ name: "TikTok", url: "www.tiktok.com/@josh_just_felloffa_roof", icon: "tiktok" },
-{ name: "Playstation", url: "https://profile.playstation.com/MrCacti247", icon: "tiktok" }
+{ name: "TikTok", url: "https://www.tiktok.com/@josh_just_felloffa_roof", icon: "tiktok" },
+{ name: "PlayStation", url: "https://profile.playstation.com/MrCacti247", icon: "playstation" }
 ]
 };
 
@@ -537,12 +485,6 @@ profileCard.style.borderColor = CONFIG.cardBorderColor;
 profileCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
 profileCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
 profileCard.style.background = CONFIG.cardBackground;
-
-const rlCard = document.getElementById('rlCard');
-rlCard.style.borderColor = CONFIG.cardBorderColor;
-rlCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
-rlCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
-rlCard.style.background = CONFIG.cardBackground;
 
 const musicPlayerStatic = document.getElementById('musicPlayer');
 musicPlayerStatic.style.borderColor = CONFIG.playerBorderColor;
@@ -609,7 +551,8 @@ showcaseContainer.appendChild(aCard);
 
 /* ============================================================
    MUSIC PLAYER — element refs, album-art color tinting, and
-   manual/local track playback (prev/next/play/pause/scrubber)
+   manual/local track playback (prev/next/play/pause/scrubber).
+   No Spotify integration on this page — manual tracks only.
    ============================================================ */
 const audio = document.getElementById('audioEl');
 const playPauseBtn = document.getElementById('musicPlayPause');
@@ -624,9 +567,6 @@ const scrubRow = document.getElementById('musicScrubRow');
 const titleEl = document.getElementById('musicTitle');
 const artistEl = document.getElementById('musicArtist');
 const artEl = document.getElementById('musicArt');
-const spotifyBadge = document.getElementById('spotifyBadge');
-const recentlyPlayedBadge = document.getElementById('recentlyPlayedBadge');
-const musicControlsEl = document.getElementById('musicControls');
 const musicPlayerEl = document.querySelector('.music-player');
 const sampleCanvas = document.getElementById('artSampleCanvas');
 const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
@@ -675,11 +615,6 @@ musicPlayerEl.style.borderColor = CONFIG.playerBorderColor;
 
 let trackIndex = 0;
 let isScrubbing = false;
-let spotifyMode = false;
-let lastSpotifyUrl = null;
-let spotifyProgressMs = 0;
-let spotifyDurationMs = 0;
-let spotifyTickHandle = null;
 
 function loadTrack(index, autoplay) {
 if (!CONFIG.tracks.length) return;
@@ -705,120 +640,11 @@ playIcon.style.display = playing ? 'none' : 'block';
 pauseIcon.style.display = playing ? 'block' : 'none';
 }
 
-/* ============================================================
-   SPOTIFY INTEGRATION — polls the Cloudflare Worker for live
-   "now playing" / "recently played" data and overrides the
-   manual player's display + badges accordingly
-   ============================================================ */
-function setSpotifyMode(active) {
-spotifyMode = active;
-prevBtn.disabled = active;
-nextBtn.disabled = active;
-playPauseBtn.disabled = active;
-scrubber.disabled = active;
-musicControlsEl.style.display = active ? 'none' : 'flex';
-if (!active) {
-spotifyBadge.style.display = 'none';
-recentlyPlayedBadge.style.display = 'none';
-}
-}
-
-function startSpotifyTicking() {
-stopSpotifyTicking();
-spotifyTickHandle = setInterval(() => {
-if (!spotifyMode) return;
-spotifyProgressMs = Math.min(spotifyProgressMs + 1000, spotifyDurationMs || spotifyProgressMs + 1000);
-updateSpotifyProgressUI();
-}, 1000);
-}
-
-function stopSpotifyTicking() {
-if (spotifyTickHandle) {
-clearInterval(spotifyTickHandle);
-spotifyTickHandle = null;
-}
-}
-
-function updateSpotifyProgressUI() {
-const progressSec = spotifyProgressMs / 1000;
-const durationSec = spotifyDurationMs / 1000;
-scrubber.max = durationSec || 0;
-scrubber.value = progressSec;
-currentTimeEl.textContent = formatTime(progressSec);
-durationEl.textContent = formatTime(durationSec);
-}
-
-async function fetchNowPlaying() {
-if (!CONFIG.spotifyWorkerUrl) return;
-
-try {
-const res = await fetch(CONFIG.spotifyWorkerUrl, { cache: 'no-store' });
-if (!res.ok) throw new Error(`Worker returned ${res.status}`);
-const data = await res.json();
-
-if (!data || !data.title) {
-if (spotifyMode) {
-setSpotifyMode(false);
-stopSpotifyTicking();
-loadTrack(0, false);
-}
-return;
-}
-
-const isNewTrack = data.url !== lastSpotifyUrl;
-lastSpotifyUrl = data.url;
-
-spotifyProgressMs = typeof data.progressMs === "number" ? data.progressMs : 0;
-spotifyDurationMs = typeof data.durationMs === "number" ? data.durationMs : 0;
-
-setSpotifyMode(true);
-spotifyBadge.style.display = data.isPlaying ? 'block' : 'none';
-recentlyPlayedBadge.style.display = data.isPlaying ? 'none' : 'block';
-scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
-
-if (isNewTrack) {
-renderTrack({
-title: data.title,
-artist: data.artist || "",
-art: data.art || "",
-url: ""
-}, false);
-
-audio.pause();
-audio.removeAttribute('src');
-setPlayingIcon(data.isPlaying);
-scrubRow.style.display = data.isPlaying ? 'flex' : 'none';
-
-titleEl.title = data.url ? "Open in Spotify" : "";
-if (data.url) {
-titleEl.style.cursor = 'pointer';
-titleEl.onclick = () => window.open(data.url, '_blank');
-}
-} else {
-setPlayingIcon(data.isPlaying);
-}
-
-updateSpotifyProgressUI();
-
-if (data.isPlaying) {
-startSpotifyTicking();
-} else {
-stopSpotifyTicking();
-}
-} catch (err) {
-console.error('Spotify fetch failed:', err);
-}
-}
-
-if (CONFIG.spotifyWorkerUrl) {
-fetchNowPlaying();
-setInterval(fetchNowPlaying, Math.max(5, CONFIG.spotifyPollSeconds) * 1000);
-} else if (CONFIG.tracks.length) {
+if (CONFIG.tracks.length) {
 loadTrack(0, false);
 }
 
 playPauseBtn.addEventListener('click', () => {
-if (spotifyMode) return;
 if (audio.paused) {
 audio.play().catch(() => {});
 } else {
@@ -826,20 +652,12 @@ audio.pause();
 }
 });
 
-prevBtn.addEventListener('click', () => {
-if (spotifyMode) return;
-loadTrack(trackIndex - 1, true);
-});
-nextBtn.addEventListener('click', () => {
-if (spotifyMode) return;
-loadTrack(trackIndex + 1, true);
-});
+prevBtn.addEventListener('click', () => loadTrack(trackIndex - 1, true));
+nextBtn.addEventListener('click', () => loadTrack(trackIndex + 1, true));
 
 audio.addEventListener('play', () => setPlayingIcon(true));
 audio.addEventListener('pause', () => setPlayingIcon(false));
-audio.addEventListener('ended', () => {
-if (!spotifyMode) loadTrack(trackIndex + 1, true);
-});
+audio.addEventListener('ended', () => loadTrack(trackIndex + 1, true));
 
 audio.addEventListener('loadedmetadata', () => {
 scrubber.max = audio.duration || 0;
@@ -853,13 +671,11 @@ currentTimeEl.textContent = formatTime(audio.currentTime);
 });
 
 scrubber.addEventListener('input', () => {
-if (spotifyMode) return;
 isScrubbing = true;
 currentTimeEl.textContent = formatTime(parseFloat(scrubber.value));
 });
 
 scrubber.addEventListener('change', () => {
-if (spotifyMode) return;
 audio.currentTime = parseFloat(scrubber.value);
 isScrubbing = false;
 });
