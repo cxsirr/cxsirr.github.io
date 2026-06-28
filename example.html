@@ -3,15 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>cxsir</title>
+<title>cxsir's example profile</title>
 <style>
-/* ============================================================
-   CONFIG — edit everything here. Colors/sizes are applied via
-   JS at load time (see CONFIG object in the <script> below),
-   so most visual tweaks only need changes in ONE place: the
-   CONFIG object near the top of the script.
-   ============================================================ */
-
 /* ============================================================
    BASE RESET & PAGE SCAFFOLDING
    ============================================================ */
@@ -328,7 +321,6 @@ background: none;
 /* ============================================================
    SPOTIFY STATUS BADGES (Now Playing / Recently Played)
    ============================================================ */
-/* Badges shown above the music player depending on Spotify state */
 .spotify-badge {
 position: absolute;
 top: -8px;
@@ -598,12 +590,12 @@ grid-template-columns: repeat(2, 1fr);
    ============================================================ */
 const CONFIG = {
 // ---- Profile ----
-name: "cxsir",
-bio: "a lost cause",
+name: "EXAMPLE",
+bio: "cxsir's Example Page",
 pfpUrl: "assets/pfp/cxsir.jpg", // relative to this file (root/index.html)
 
 // ---- Background ----
-bgImage: "assets/bg/cxsir.jpg",
+bgImage: "assets/bg/example.jpg",
 bgBlur: 0, // px of blur applied to the background image
 
 // ---- Main profile card styling ----
@@ -618,7 +610,7 @@ iconBorderWidth: 2, // px
 iconBackground: "rgba(20, 40, 80, 0.08)",
 
 // ---- Exophase showcase card styling ----
-exophaseCardUrl: "https://card.exophase.com/2/0/327032.png",
+exophaseCardUrl: "https://card.exophase.com/1/2/345678.png",
 showcaseBorderColor: "rgba(20, 40, 80, 0.12)",
 showcaseBorderWidth: 1, // px
 showcaseBorderRadius: 12, // px
@@ -631,31 +623,31 @@ playerBackground: "rgba(20, 40, 80, 0.55)",
 playerColorFromArt: true,
 
 // ---- Spotify "now playing" integration ----
-spotifyWorkerUrl: "https://github-io.cxsir.workers.dev",
-spotifyPollSeconds: 10,
+spotifyWorkerUrl: "https://example.username.workers.dev",
+spotifyPollSeconds: 0,
 
 // ---- Fallback / manual playlist ----
 tracks: [],
 
 // ---- Rocket League stats integration ----
-rocketLeagueWorkerUrl: "https://github-io.cxsir.workers.dev/rocketleague",
-rocketLeaguePlayerId: "cxsir",
-rocketLeagueUsername: "I cxsir I",
+rocketLeagueWorkerUrl: "https://example.username.workers.dev/rocketleague",
+rocketLeaguePlayerId: "Example",
+rocketLeagueUsername: "Example",
 
 // ---- Social links ----
 links: [
-{ name: "Snapchat", url: "https://snapchat.com/add/gangangcuh", icon: "snapchat" },
-{ name: "Instagram", url: "https://instagram.com/cxsirr", icon: "instagram" },
-{ name: "YouTube", url: "https://youtube.com/@cxsirr", icon: "youtube" },
-{ name: "Spotify", url: "https://open.spotify.com/user/dandandaman1234", icon: "spotify" },
-{ name: "Last.fm", url: "https://last.fm/user/cxsir", icon: "lastfm" },
-{ name: "PlayStation", url: "https://profile.playstation.com/IGOTTMT", icon: "playstation" },
-{ name: "Xbox", url: "https://xbox.com/play/user/cxsirr", icon: "xbox" },
-{ name: "Steam", url: "https://steamcommunity.com/id/cxsir", icon: "steam" },
-{ name: "Discord", url: "https://discord.com/users/803306255062007818", icon: "discord" },
-{ name: "Roblox", url: "https://roblox.com/users/2242266391/profile", icon: "roblox" },
-{ name: "GitHub", url: "https://github.com/cxsirr", icon: "github" },
-{ name: "Email", url: "mailto:cxsir@proton.me", icon: "email" }
+{ name: "Snapchat", url: "https://snapchat.com/add/teamsnapchat", icon: "snapchat" },
+{ name: "Instagram", url: "https://instagram.com/instagram", icon: "instagram" },
+{ name: "YouTube", url: "https://youtube.com/@youtube", icon: "youtube" },
+{ name: "Spotify", url: "https://open.spotify.com/user/spotify", icon: "spotify" },
+{ name: "Last.fm", url: "https://last.fm/user/lastfm", icon: "lastfm" },
+{ name: "PlayStation", url: "https://profile.playstation.com/playstation", icon: "playstation" },
+{ name: "Xbox", url: "https://xbox.com/play/user/xbox", icon: "xbox" },
+{ name: "Steam", url: "https://steamcommunity.com/id/gaben", icon: "steam" },
+{ name: "Discord", url: "https://discord.com/users/1234567890", icon: "discord" },
+{ name: "Roblox", url: "https://roblox.com/users/1234567890/profile", icon: "roblox" },
+{ name: "GitHub", url: "https://github.com/github", icon: "github" },
+{ name: "Email", url: "mailto:email@email.com", icon: "email" }
 ]
 };
 
