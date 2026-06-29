@@ -155,37 +155,6 @@ box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
 transform: translateY(-2px) scale(0.97);
 }
 /* ============================================================
-   EXOPHASE SHOWCASE CARD
-   ============================================================ */
-.card-showcase {
-display: flex;
-justify-content: center;
-align-items: center;
-width: 100%;
-margin: 18px 0 4px 0;
-}
-.showcase-card {
-display: block;
-width: 100%;
-max-width: 360px;
-transition: all 0.3s ease;
-border-radius: 12px;
-overflow: hidden;
-border: 1px solid rgba(255, 255, 255, 0.12);
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
-}
-.showcase-card img {
-width: 100%;
-height: auto;
-display: block;
-object-fit: contain;
-}
-.showcase-card:hover {
-transform: scale(1.03);
-border-color: rgba(255, 255, 255, 0.3);
-box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
-}
-/* ============================================================
    MUSIC PLAYER (manual/local tracks only — no Spotify on this page)
    ============================================================ */
 .music-player {
@@ -519,8 +488,6 @@ grid-template-columns: repeat(2, 1fr);
 <audio id="audioEl" preload="metadata"></audio>
 <canvas id="artSampleCanvas" width="10" height="10" style="display:none"></canvas>
 </div>
-
-<div class="card-showcase" id="cardShowcase"></div>
 </div>
 
 <div class="rl-section" id="rlSection">
@@ -568,12 +535,6 @@ cardBackground: "rgba(255, 255, 255, 0.12)",
 iconBorderColor: "rgba(255, 255, 255, 0.35)",
 iconBorderWidth: 2, // px
 iconBackground: "rgba(255, 255, 255, 0.1)",
-
-// ---- Exophase showcase card styling ----
-exophaseCardUrl: "",
-showcaseBorderColor: "rgba(255, 255, 255, 0.35)",
-showcaseBorderWidth: 1, // px
-showcaseBorderRadius: 12, // px
 
 // ---- Music player styling ----
 playerBorderColor: "rgba(255, 255, 255, 0.3)",
@@ -689,26 +650,6 @@ console.error(`Failed to load icon "${link.icon}":`, err);
 
 linksContainer.appendChild(a);
 });
-
-/* ---- Exophase showcase card ---- */
-if (CONFIG.exophaseCardUrl) {
-const showcaseContainer = document.getElementById('cardShowcase');
-const aCard = document.createElement('a');
-aCard.href = "https://www.exophase.com/user/glasscannon247/"; // update if CRKT's actual Exophase profile differs
-aCard.className = 'showcase-card';
-aCard.target = '_blank';
-aCard.title = "Exophase Card";
-aCard.style.borderColor = CONFIG.showcaseBorderColor;
-aCard.style.borderWidth = `${CONFIG.showcaseBorderWidth}px`;
-aCard.style.borderRadius = `${CONFIG.showcaseBorderRadius}px`;
-
-const imgCard = document.createElement('img');
-imgCard.src = CONFIG.exophaseCardUrl;
-imgCard.alt = "Exophase Achievement Card";
-aCard.appendChild(imgCard);
-
-showcaseContainer.appendChild(aCard);
-}
 
 /* ============================================================
    MUSIC PLAYER — element refs, album-art color tinting, and
