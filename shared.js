@@ -34,12 +34,6 @@ function applyConfig(config) {
       bg.style.backgroundImage = `url('${config.bgImage}')`;
       bg.style.filter = `blur(${config.bgBlur || 0}px)`;
     }
-
-    // Adjust overlay opacity based on config
-    document.body.style.setProperty(
-      '--overlay-opacity',
-      config.bgOverlayOpacity || '0.15'
-    );
   }
 
   // Apply card styling
@@ -74,29 +68,41 @@ function applyConfig(config) {
       border-width: ${config.iconBorderWidth || 2}px !important;
       background: ${config.iconBackground} !important;
     }
-  `;
-  document.head.appendChild(iconStyleTag);
-
-  // Inject theme background overlay
-  const overlayStyle = document.createElement('style');
-  overlayStyle.textContent = `
-    body::before {
-      background: rgba(0, 0, 0, ${config.bgOverlayOpacity || 0.15});
+    .music-scrubber {
+      background: ${config.musicScrubberBg || 'rgba(255, 255, 255, 0.5)'} !important;
     }
     .rl-best-mmr {
-      background: ${config.rlBgColor || 'rgba(20, 40, 80, 0.4)'};
+      background: ${config.rlBestMmrBg || 'rgba(255, 255, 255, 0.4)'} !important;
+    }
+    .rl-best-mmr .label {
+      color: ${config.rlBestMmrLabelColor || '#cfcfcf'} !important;
     }
     .rl-playlist-card {
-      background: ${config.rlPlaylistBgColor || 'rgba(20, 40, 80, 0.35)'};
+      background: ${config.rlPlaylistCardBg || 'rgba(255, 255, 255, 0.35)'} !important;
+    }
+    .rl-playlist-name {
+      color: ${config.rlPlaylistNameColor || '#cfcfcf'} !important;
+    }
+    .rl-playlist-division {
+      color: ${config.rlPlaylistDivisionColor || '#b8b8b8'} !important;
+    }
+    .rl-playlist-rating {
+      color: ${config.rlPlaylistRatingColor || '#b8b8b8'} !important;
     }
     .rl-stat {
-      background: ${config.rlStatBgColor || 'rgba(20, 40, 80, 0.3)'};
+      background: ${config.rlStatBg || 'rgba(255, 255, 255, 0.3)'} !important;
     }
-    .music-scrubber {
-      background: ${config.musicScrubberBgColor || 'rgba(40, 80, 160, 0.5)'};
+    .rl-stat .label {
+      color: ${config.rlStatLabelColor || '#b8b8b8'} !important;
+    }
+    .rl-updated {
+      color: ${config.rlUpdatedColor || '#9a9a9a'} !important;
+    }
+    .rl-header .rl-username {
+      color: ${config.rlUsernameColor || '#cfcfcf'} !important;
     }
   `;
-  document.head.appendChild(overlayStyle);
+  document.head.appendChild(iconStyleTag);
 }
 
 /* ============================================================
