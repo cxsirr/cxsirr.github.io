@@ -257,6 +257,23 @@ body::before {
   cursor: pointer;
 }
 
+.music-scrubber::-webkit-slider-runnable-track {
+  background: inherit;
+  height: 4px;
+  border-radius: 2px;
+}
+
+.music-scrubber::-moz-range-track {
+  background: transparent;
+  border: none;
+}
+
+.music-scrubber::-moz-range-progress {
+  background: #ffffff;
+  height: 4px;
+  border-radius: 2px;
+}
+
 .music-controls {
   display: flex;
   align-items: center;
