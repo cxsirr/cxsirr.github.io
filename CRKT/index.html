@@ -1,960 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CRKT</title>
-<style>
-/* ============================================================
-   CONFIG — edit everything here. Colors/sizes are applied via
-   JS at load time (see CONFIG object in the <script> below),
-   so most visual tweaks only need changes in ONE place: the
-   CONFIG object near the top of the script.
-   ============================================================ */
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRKT</title>
+  <link rel="stylesheet" href="../shared.css">
+  <style>
+    /* Page-specific color overrides */
+    body::before {
+      background: rgba(0, 0, 0, 0.45);
+    }
 
-/* ============================================================
-   BASE RESET & PAGE SCAFFOLDING
-   ============================================================ */
-* {
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-}
-html {
-scroll-behavior: smooth;
-}
-body {
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-background: #0f0f0f;
-color: #e0e0e0;
-min-height: 100vh;
-overflow-x: hidden;
-position: relative;
-}
-/* Background Image - blur amount is set inline from CONFIG.bgBlur via JS */
-.bg-container {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background-size: cover;
-background-position: center;
-background-repeat: no-repeat;
-transform: scale(1.1); /* avoids blurred edges showing at the viewport border */
-z-index: -2;
-}
-body::before {
-content: '';
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.45);
-z-index: -1;
-pointer-events: none;
-}
-/* ============================================================
-   LAYOUT CONTAINER & PROFILE CARD
-   ============================================================ */
-.container {
-display: flex;
-flex-direction: column;
-align-items: center;
-padding: 20px;
-z-index: 1;
-position: relative;
-min-height: 100vh;
-justify-content: center;
-gap: 18px;
-}
-/* Profile Card — border-color/width/radius set inline from CONFIG.card* via JS */
-.profile {
-text-align: center;
-width: 100%;
-max-width: 420px;
-backdrop-filter: blur(5px);
-background: rgba(255, 255, 255, 0.25);
-padding: 36px 28px 28px;
-border-radius: 24px;
-border: 1px solid rgba(255, 255, 255, 0.12);
-box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-animation: fadeIn 0.6s ease-in;
-}
-@keyframes fadeIn {
-from { opacity: 0; transform: translateY(20px); }
-to { opacity: 1; transform: translateY(0); }
-}
-/* Profile Picture */
-.pfp-wrap {
-display: flex;
-justify-content: center;
-margin-bottom: 18px;
-}
-.pfp {
-width: 110px;
-height: 110px;
-border-radius: 50%;
-object-fit: cover;
-border: 3px solid rgba(255, 255, 255, 0.25);
-box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-}
-.profile h1 {
-font-size: 2em;
-margin-bottom: 8px;
-letter-spacing: 0.5px;
-}
-.profile .tagline {
-font-size: 1.05em;
-color: #cfcfcf;
-margin-bottom: 22px;
-line-height: 1.5;
-}
-/* ============================================================
-   SOCIAL ICON LINKS
-   ============================================================ */
-.social-links {
-display: flex;
-justify-content: center;
-gap: 12px;
-flex-wrap: wrap;
-margin: 22px auto 4px auto;
-max-width: 340px;
-}
-.social-link {
-width: 44px;
-height: 44px;
-display: flex;
-align-items: center;
-justify-content: center;
-background: rgba(255, 255, 255, 0.08);
-border: 2px solid rgba(255, 255, 255, 0.15);
-border-radius: 50%;
-transition: all 0.25s ease;
-text-decoration: none;
-overflow: hidden;
-color: #ffffff;
-}
-/* Inline SVG icon styling - currentColor works since SVG markup lives in the DOM */
-.social-link svg {
-width: 22px;
-height: 22px;
-fill: currentColor;
-color: inherit;
-transition: all 0.25s ease;
-display: block;
-}
-.social-link:hover {
-background: rgba(255, 255, 255, 0.18);
-border-color: rgba(255, 255, 255, 0.5);
-transform: translateY(-4px);
-box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25);
-}
-.social-link:active {
-transform: translateY(-2px) scale(0.97);
-}
-/* ============================================================
-   MUSIC PLAYER (manual/local tracks only — no Spotify on this page)
-   ============================================================ */
-.music-player {
-margin-top: 22px;
-padding: 10px;
-display: flex;
-flex-direction: column;
-gap: 10px;
-background: rgba(255, 255, 255, 0.55);
-border: 1px solid rgba(255, 255, 255, 0.1);
-border-radius: 14px;
-position: relative;
-transition: background 0.6s ease, border-color 0.6s ease;
-}
-.music-top-row {
-display: flex;
-align-items: center;
-gap: 12px;
-width: 100%;
-}
-.music-art {
-width: 46px;
-height: 46px;
-border-radius: 8px;
-object-fit: cover;
-flex-shrink: 0;
-background: rgba(255, 255, 255, 0.08);
-}
-.music-info {
-flex: 1;
-min-width: 0;
-display: flex;
-flex-direction: column;
-gap: 4px;
-}
-.music-title {
-font-size: 0.85em;
-font-weight: 600;
-color: #f0f0f0;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-text-align: left;
-}
-.music-artist {
-font-size: 0.72em;
-color: #a8a8a8;
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-text-align: left;
-margin-top: -2px;
-}
-.music-scrub-row {
-display: flex;
-align-items: center;
-gap: 8px;
-width: 100%;
-}
-.music-time {
-font-size: 0.7em;
-color: #a0a0a0;
-flex-shrink: 0;
-flex-grow: 0;
-width: 32px;
-}
-.music-time.current { text-align: right; }
-.music-time.duration { text-align: left; }
-.music-scrubber {
-flex: 1 1 auto;
-min-width: 0;
-max-width: 100%;
--webkit-appearance: none;
-appearance: none;
-height: 4px;
-border-radius: 2px;
-background: rgba(255, 255, 255, 0.5);
-cursor: pointer;
-outline: none;
-}
-.music-scrubber::-webkit-slider-thumb {
--webkit-appearance: none;
-width: 10px;
-height: 10px;
-border-radius: 50%;
-background: #ffffff;
-cursor: pointer;
-}
-.music-scrubber::-moz-range-thumb {
-width: 10px;
-height: 10px;
-border: none;
-border-radius: 50%;
-background: #ffffff;
-cursor: pointer;
-}
-.music-controls {
-display: flex;
-align-items: center;
-gap: 2px;
-flex-shrink: 0;
-}
-.music-btn {
-width: 30px;
-height: 30px;
-display: flex;
-align-items: center;
-justify-content: center;
-background: none;
-border: none;
-color: #e0e0e0;
-cursor: pointer;
-border-radius: 50%;
-transition: background 0.2s ease;
-}
-.music-btn:hover {
-background: rgba(255, 255, 255, 0.12);
-}
-.music-btn svg {
-width: 16px;
-height: 16px;
-fill: currentColor;
-}
-.music-btn.play-pause svg {
-width: 18px;
-height: 18px;
-}
-/* ============================================================
-   ROCKET LEAGUE STATS SECTION
-   ============================================================ */
-.rl-section {
-width: 100%;
-max-width: 420px;
-}
-.rl-card {
-backdrop-filter: blur(5px);
-padding: 24px 22px;
-animation: fadeIn 0.6s ease-in;
-}
-.rl-header {
-display: flex;
-align-items: center;
-gap: 12px;
-margin-bottom: 18px;
-}
-.rl-platform-icon {
-width: 28px;
-height: 28px;
-flex-shrink: 0;
-fill: #e0e0e0;
-}
-.rl-header h2 {
-font-size: 1.3em;
-font-weight: 700;
-}
-.rl-header .rl-username {
-font-size: 0.85em;
-color: #cfcfcf;
-font-weight: 400;
-text-align: left;
-}
-.rl-loading, .rl-error {
-font-size: 0.85em;
-color: #a8a8a8;
-text-align: center;
-padding: 12px 0;
-}
-.rl-best-mmr {
-display: flex;
-justify-content: space-between;
-align-items: center;
-background: rgba(255, 255, 255, 0.4);
-border-radius: 10px;
-padding: 12px 16px;
-margin-bottom: 16px;
-}
-.rl-best-mmr .label {
-font-size: 0.8em;
-color: #cfcfcf;
-}
-.rl-best-mmr .value {
-font-size: 1.3em;
-font-weight: 700;
-color: #ffffff;
-}
-.rl-playlists {
-display: grid;
-grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-gap: 10px;
-margin-bottom: 18px;
-}
-.rl-playlist-card {
-background: rgba(255, 255, 255, 0.35);
-border-radius: 10px;
-padding: 12px 10px;
-text-align: center;
-}
-.rl-playlist-name {
-font-size: 0.7em;
-color: #cfcfcf;
-text-transform: uppercase;
-letter-spacing: 0.5px;
-margin-bottom: 6px;
-}
-.rl-playlist-rank-img {
-width: 48px;
-height: 48px;
-margin: 0 auto 6px;
-display: block;
-object-fit: contain;
-}
-.rl-playlist-rank-name {
-font-size: 0.78em;
-font-weight: 600;
-color: #f0f0f0;
-}
-.rl-playlist-division {
-font-size: 0.85em;
-font-weight: 400;
-color: #b8b8b8;
-}
-.rl-playlist-rating {
-font-size: 0.68em;
-color: #b8b8b8;
-margin-top: 2px;
-}
-.rl-overview-title {
-font-size: 0.85em;
-font-weight: 600;
-color: #cfcfcf;
-margin-bottom: 10px;
-}
-.rl-overview-grid {
-display: grid;
-grid-template-columns: repeat(3, 1fr);
-gap: 10px;
-}
-.rl-stat {
-background: rgba(255, 255, 255, 0.3);
-border-radius: 8px;
-padding: 10px 6px;
-text-align: center;
-}
-.rl-stat .value {
-font-size: 1.1em;
-font-weight: 700;
-color: #ffffff;
-}
-.rl-stat .label {
-font-size: 0.62em;
-color: #b8b8b8;
-text-transform: uppercase;
-letter-spacing: 0.3px;
-margin-top: 2px;
-}
-.rl-updated {
-font-size: 0.65em;
-color: #9a9a9a;
-text-align: right;
-margin-top: 14px;
-}
-/* ============================================================
-   RESPONSIVE / MOBILE OVERRIDES
-   ============================================================ */
-@media (max-width: 600px) {
-.profile {
-padding: 28px 18px 22px;
-}
-.pfp {
-width: 90px;
-height: 90px;
-}
-.profile h1 {
-font-size: 1.7em;
-}
-.social-links {
-gap: 8px;
-max-width: 280px;
-}
-.social-link {
-width: 40px;
-height: 40px;
-}
-.social-link svg {
-width: 19px;
-height: 19px;
-}
-.rl-overview-grid {
-grid-template-columns: repeat(2, 1fr);
-}
-}
-</style>
+    .profile,
+    .rl-card {
+      background: rgba(255, 255, 255, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .pfp {
+      border: 3px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .music-player {
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .music-scrubber {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .social-link {
+      background: rgba(255, 255, 255, 0.08);
+      border: 2px solid rgba(255, 255, 255, 0.15);
+    }
+
+    .social-link:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .rl-best-mmr {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .rl-best-mmr .label {
+      color: #cfcfcf;
+    }
+
+    .rl-playlist-card {
+      background: rgba(255, 255, 255, 0.35);
+    }
+
+    .rl-playlist-name {
+      color: #cfcfcf;
+    }
+
+    .rl-playlist-division {
+      color: #b8b8b8;
+    }
+
+    .rl-playlist-rating {
+      color: #b8b8b8;
+    }
+
+    .rl-stat {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .rl-stat .label {
+      color: #b8b8b8;
+    }
+
+    .rl-updated {
+      color: #9a9a9a;
+    }
+
+    .rl-header .rl-username {
+      color: #cfcfcf;
+    }
+  </style>
 </head>
 <body>
-<div class="bg-container" id="bgContainer"></div>
-<div class="container">
-<div class="profile" id="profileCard">
-<div class="pfp-wrap">
-<img class="pfp" id="profilePfp" src="" alt="Profile picture">
-</div>
-<h1 id="profileName"></h1>
-<p class="tagline" id="profileBio"></p>
-
-<div class="social-links" id="socialLinks"></div>
-
-<div class="music-player" id="musicPlayer">
-<div class="music-top-row">
-<img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous">
-<div class="music-info">
-<div class="music-title" id="musicTitle">No track loaded</div>
-<div class="music-artist" id="musicArtist"></div>
-</div>
-<div class="music-controls" id="musicControls">
-<button class="music-btn" id="musicPrev" title="Previous track">
-<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
-</button>
-<button class="music-btn play-pause" id="musicPlayPause" title="Play/Pause">
-<svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
-<svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
-</button>
-<button class="music-btn" id="musicNext" title="Next track">
-<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
-</button>
-</div>
-</div>
-<div class="music-scrub-row" id="musicScrubRow">
-<span class="music-time current" id="musicCurrentTime">0:00</span>
-<input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1">
-<span class="music-time duration" id="musicDuration">0:00</span>
-</div>
-<audio id="audioEl" preload="metadata"></audio>
-<canvas id="artSampleCanvas" width="10" height="10" style="display:none"></canvas>
-</div>
-</div>
-
-<div class="rl-section" id="rlSection">
-<div class="profile rl-card" id="rlCard">
-<div class="rl-header">
-<svg class="rl-platform-icon" id="rlPlatformIcon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"></svg>
-<div>
-<h2>Rocket League</h2>
-<div class="rl-username" id="rlUsername"></div>
-</div>
-</div>
-<div id="rlContent">
-<div class="rl-loading" id="rlLoading">Loading stats…</div>
-</div>
-<div class="rl-updated" id="rlUpdated"></div>
-</div>
-</div>
-
-</div>
-
-<script>
-/* ============================================================
-   CONFIG — everything you'd want to tweak lives here, at the
-   top of the file, on purpose. Profile info, background, every
-   card's border (color/width/radius), music tracks, and links.
-   ============================================================ */
-const CONFIG = {
-// ---- Profile ----
-name: "CRKT",
-bio: "Buy My Bleach",
-// Local image path, relative to this file (root/CRKT/index.html).
-pfpUrl: "../assets/pfp/crkt.jpg",
-
-// ---- Background ----
-bgImage: "../assets/bg/crkt.jpg",
-bgBlur: 0, // px of blur applied to the background image
-
-// ---- Main profile card styling ----
-cardBorderColor: "rgba(255, 255, 255, 0.35)",
-cardBorderWidth: 1, // px
-cardBorderRadius: 24, // px
-cardBackground: "rgba(255, 255, 255, 0.12)",
-
-// ---- Social icon circle styling ----
-iconBorderColor: "rgba(255, 255, 255, 0.35)",
-iconBorderWidth: 2, // px
-iconBackground: "rgba(255, 255, 255, 0.1)",
-
-// ---- Music player styling ----
-playerBorderColor: "rgba(255, 255, 255, 0.3)",
-playerBorderWidth: 1, // px
-playerBorderRadius: 14, // px
-playerBackground: "rgba(255, 255, 255, 0.14)",
-playerColorFromArt: true,
-
-// ---- Manual playlist ----
-// No Spotify integration on this page — manual/local tracks only.
-// prev/next cycle through this list; scrubber/duration update from the
-// loaded audio file itself.
-tracks: [
-{ title: "Money Long", artist: "Kevin Gates", url: "https://archive.org/download/webpage-assets/crkt1.mp3", art: "https://archive.org/download/webpage-assets/crkt1.jpg" },
-{ title: "Kamikaze", artist: "Eminem", url: "https://archive.org/download/webpage-assets/crkt2.mp3", art: "https://archive.org/download/webpage-assets/crkt2.jpg" },
-{ title: "Amnesia", artist: "Kevin Gates, Doe B", url: "https://archive.org/download/webpage-assets/crkt3.mp3", art: "https://archive.org/download/webpage-assets/crkt3.jpg" },
-],
-
-// ---- Rocket League stats integration ----
-// Reads the "glasscannon247" entry from the multi-player /rocketleague
-// response served by the Cloudflare Worker.
-rocketLeagueWorkerUrl: "https://github-io.cxsir.workers.dev/rocketleague",
-rocketLeaguePlayerId: "glasscannon247",
-rocketLeagueUsername: "GlassCannon247",
-
-// ---- Social links ----
-links: [
-{ name: "Snapchat", url: "https://snapchat.com/add/cody2477777", icon: "snapchat" },
-{ name: "Instagram", url: "https://instagram.com/codyusher247", icon: "instagram" },
-{ name: "PlayStation", url: "https://profile.playstation.com/Glass-Cannon247", icon: "playstation" },
-{ name: "Roblox", url: "https://www.roblox.com/users/5393131604/profile", icon: "roblox" },
-{ name: "Phone", url: "tel:3066306172", icon: "phone" }
-]
-};
-
-/* ============================================================
-   HELPER FUNCTIONS
-   ============================================================ */
-function formatTime(seconds) {
-if (!isFinite(seconds)) return "0:00";
-const m = Math.floor(seconds / 60);
-const s = Math.floor(seconds % 60).toString().padStart(2, '0');
-return `${m}:${s}`;
-}
-
-/* ============================================================
-   MAIN INIT — runs once the page has loaded
-   ============================================================ */
-window.addEventListener('DOMContentLoaded', () => {
-/* ---- Profile info + background ---- */
-document.getElementById('profileName').textContent = CONFIG.name;
-document.getElementById('profileBio').textContent = CONFIG.bio;
-document.getElementById('profilePfp').src = CONFIG.pfpUrl;
-
-if (CONFIG.bgImage) {
-const bg = document.getElementById('bgContainer');
-bg.style.backgroundImage = `url('${CONFIG.bgImage}')`;
-bg.style.filter = `blur(${CONFIG.bgBlur}px)`;
-}
-
-/* ---- Apply CONFIG-driven colors/borders to each card ---- */
-const profileCard = document.getElementById('profileCard');
-profileCard.style.borderColor = CONFIG.cardBorderColor;
-profileCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
-profileCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
-profileCard.style.background = CONFIG.cardBackground;
-
-const rlCard = document.getElementById('rlCard');
-rlCard.style.borderColor = CONFIG.cardBorderColor;
-rlCard.style.borderWidth = `${CONFIG.cardBorderWidth}px`;
-rlCard.style.borderRadius = `${CONFIG.cardBorderRadius}px`;
-rlCard.style.background = CONFIG.cardBackground;
-
-const musicPlayerStatic = document.getElementById('musicPlayer');
-musicPlayerStatic.style.borderColor = CONFIG.playerBorderColor;
-musicPlayerStatic.style.borderWidth = `${CONFIG.playerBorderWidth}px`;
-musicPlayerStatic.style.borderRadius = `${CONFIG.playerBorderRadius}px`;
-musicPlayerStatic.style.background = CONFIG.playerBackground;
-
-const iconStyleTag = document.createElement('style');
-iconStyleTag.textContent = `
-.social-link {
-border-color: ${CONFIG.iconBorderColor} !important;
-border-width: ${CONFIG.iconBorderWidth}px !important;
-background: ${CONFIG.iconBackground} !important;
-}
-`;
-document.head.appendChild(iconStyleTag);
-
-/* ---- Social icons: fetch + inline each SVG so currentColor (theme color) applies ---- */
-const linksContainer = document.getElementById('socialLinks');
-CONFIG.links.forEach(async (link) => {
-const a = document.createElement('a');
-a.href = link.url;
-a.className = 'social-link';
-a.title = link.name;
-a.target = '_blank';
-
-if (link.icon) {
-try {
-const res = await fetch(`../assets/logos/${link.icon}.svg`);
-if (!res.ok) throw new Error(`HTTP ${res.status}`);
-const svgText = await res.text();
-a.insertAdjacentHTML('beforeend', svgText);
-
-const svgEl = a.querySelector('svg');
-const titleEl = svgEl && svgEl.querySelector('title');
-if (titleEl) titleEl.remove();
-} catch (err) {
-console.error(`Failed to load icon "${link.icon}":`, err);
-}
-}
-
-linksContainer.appendChild(a);
-});
-
-/* ============================================================
-   MUSIC PLAYER — element refs, album-art color tinting, and
-   manual/local track playback (prev/next/play/pause/scrubber).
-   No Spotify integration on this page — manual tracks only.
-   ============================================================ */
-const audio = document.getElementById('audioEl');
-const playPauseBtn = document.getElementById('musicPlayPause');
-const playIcon = document.getElementById('playIcon');
-const pauseIcon = document.getElementById('pauseIcon');
-const prevBtn = document.getElementById('musicPrev');
-const nextBtn = document.getElementById('musicNext');
-const scrubber = document.getElementById('musicScrubber');
-const currentTimeEl = document.getElementById('musicCurrentTime');
-const durationEl = document.getElementById('musicDuration');
-const scrubRow = document.getElementById('musicScrubRow');
-const titleEl = document.getElementById('musicTitle');
-const artistEl = document.getElementById('musicArtist');
-const artEl = document.getElementById('musicArt');
-const musicPlayerEl = document.querySelector('.music-player');
-const sampleCanvas = document.getElementById('artSampleCanvas');
-const sampleCtx = sampleCanvas.getContext('2d', { willReadFrequently: true });
-
-function tintPlayerFromArt(imgEl) {
-if (!CONFIG.playerColorFromArt || !imgEl || !imgEl.src) {
-resetPlayerTint();
-return;
-}
-
-const apply = () => {
-try {
-sampleCtx.drawImage(imgEl, 0, 0, 10, 10);
-const { data } = sampleCtx.getImageData(0, 0, 10, 10);
-let r = 0, g = 0, b = 0, count = 0;
-for (let i = 0; i < data.length; i += 4) {
-r += data[i];
-g += data[i + 1];
-b += data[i + 2];
-count++;
-}
-r = Math.round(r / count);
-g = Math.round(g / count);
-b = Math.round(b / count);
-
-musicPlayerEl.style.background = `linear-gradient(135deg, rgba(${r}, ${g}, ${b}, 0.35), ${CONFIG.playerBackground})`;
-musicPlayerEl.style.borderColor = `rgba(${r}, ${g}, ${b}, 0.4)`;
-} catch (err) {
-console.warn('Album art color sampling failed:', err);
-resetPlayerTint();
-}
-};
-
-if (imgEl.complete && imgEl.naturalWidth > 0) {
-apply();
-} else {
-imgEl.onload = apply;
-imgEl.onerror = resetPlayerTint;
-}
-}
-
-function resetPlayerTint() {
-musicPlayerEl.style.background = CONFIG.playerBackground;
-musicPlayerEl.style.borderColor = CONFIG.playerBorderColor;
-}
-
-let trackIndex = 0;
-let isScrubbing = false;
-
-function loadTrack(index, autoplay) {
-if (!CONFIG.tracks.length) return;
-trackIndex = (index + CONFIG.tracks.length) % CONFIG.tracks.length;
-const track = CONFIG.tracks[trackIndex];
-renderTrack(track, autoplay);
-}
-
-function renderTrack(track, autoplay) {
-audio.src = track.url;
-titleEl.textContent = track.title || "Untitled";
-artistEl.textContent = track.artist || "";
-artistEl.style.display = track.artist ? 'block' : 'none';
-artEl.src = track.art || "";
-artEl.style.visibility = track.art ? 'visible' : 'hidden';
-tintPlayerFromArt(track.art ? artEl : null);
-scrubRow.style.display = 'flex';
-if (autoplay) audio.play().catch(() => {});
-}
-
-function setPlayingIcon(playing) {
-playIcon.style.display = playing ? 'none' : 'block';
-pauseIcon.style.display = playing ? 'block' : 'none';
-}
-
-if (CONFIG.tracks.length) {
-loadTrack(0, false);
-}
-
-playPauseBtn.addEventListener('click', () => {
-if (audio.paused) {
-audio.play().catch(() => {});
-} else {
-audio.pause();
-}
-});
-
-prevBtn.addEventListener('click', () => loadTrack(trackIndex - 1, true));
-nextBtn.addEventListener('click', () => loadTrack(trackIndex + 1, true));
-
-audio.addEventListener('play', () => setPlayingIcon(true));
-audio.addEventListener('pause', () => setPlayingIcon(false));
-audio.addEventListener('ended', () => loadTrack(trackIndex + 1, true));
-
-audio.addEventListener('loadedmetadata', () => {
-scrubber.max = audio.duration || 0;
-durationEl.textContent = formatTime(audio.duration);
-});
-
-audio.addEventListener('timeupdate', () => {
-if (isScrubbing) return;
-scrubber.value = audio.currentTime;
-currentTimeEl.textContent = formatTime(audio.currentTime);
-});
-
-scrubber.addEventListener('input', () => {
-isScrubbing = true;
-currentTimeEl.textContent = formatTime(parseFloat(scrubber.value));
-});
-
-scrubber.addEventListener('change', () => {
-audio.currentTime = parseFloat(scrubber.value);
-isScrubbing = false;
-});
-
-/* ============================================================
-   ROCKET LEAGUE INTEGRATION — fetches cached stats from the same
-   Cloudflare Worker (different path) and renders rank/division/
-   MMR per playlist plus lifetime totals
-   ============================================================ */
-document.getElementById('rlUsername').textContent = CONFIG.rocketLeagueUsername;
-
-// Load the Rocket League platform icon the same way social icons load —
-// fetched from assets/logos/ and inlined, instead of a giant inline path.
-(async () => {
-try {
-const res = await fetch('../assets/logos/rocketleague.svg');
-if (!res.ok) throw new Error(`HTTP ${res.status}`);
-const svgText = await res.text();
-const parser = new DOMParser();
-const parsed = parser.parseFromString(svgText, 'image/svg+xml');
-const fetchedSvg = parsed.querySelector('svg');
-const targetSvg = document.getElementById('rlPlatformIcon');
-if (fetchedSvg && targetSvg) {
-targetSvg.innerHTML = fetchedSvg.innerHTML;
-}
-} catch (err) {
-console.error('Failed to load Rocket League icon:', err);
-}
-})();
-
-function formatNumber(n) {
-if (typeof n !== 'number') return n;
-return n.toLocaleString();
-}
-
-function getStatValue(statsObj, keys) {
-if (!statsObj) return null;
-for (const key of keys) {
-const stat = statsObj[key];
-if (stat && typeof stat.value === 'number') return stat.value;
-if (typeof stat === 'number') return stat;
-}
-return null;
-}
-
-function renderRocketLeagueStats(profile) {
-const content = document.getElementById('rlContent');
-content.innerHTML = '';
-
-if (!profile) {
-content.innerHTML = '<div class="rl-error">No stats available yet.</div>';
-return;
-}
-
-const segments = profile.segments || [];
-const overviewSegment = segments.find((s) => s.type === 'overview') || null;
-
-const WANTED_PLAYLISTS = [
-{ apiName: 'Ranked Duel 1v1', displayName: 'Ranked 1v1' },
-{ apiName: 'Ranked Doubles 2v2', displayName: 'Ranked 2v2' },
-{ apiName: 'Rumble', displayName: 'Rumble' },
-{ apiName: 'Tournament Matches', displayName: 'Tournaments' },
-{ apiName: 'Heatseeker', displayName: 'Heatseeker' },
-{ apiName: 'Casual', displayName: 'Casual' },
-];
-const playlistSegments = WANTED_PLAYLISTS
-.map((wanted) => {
-const seg = segments.find((s) => s.type === 'playlist' && s.metadata?.name === wanted.apiName);
-return seg ? { seg, displayName: wanted.displayName } : null;
-})
-.filter(Boolean);
-
-if (typeof profile.best_2v2_mmr === 'number') {
-const mmrRow = document.createElement('div');
-mmrRow.className = 'rl-best-mmr';
-mmrRow.innerHTML = `
-<span class="label">Best 2v2 MMR</span>
-<span class="value">${formatNumber(profile.best_2v2_mmr)}</span>
-`;
-content.appendChild(mmrRow);
-}
-
-if (playlistSegments.length) {
-const grid = document.createElement('div');
-grid.className = 'rl-playlists';
-
-playlistSegments.forEach(({ seg, displayName }) => {
-const rankName = seg.stats?.tier?.metadata?.name || 'Unranked';
-const rankImg = seg.stats?.tier?.metadata?.iconUrl || '';
-const divisionName = seg.stats?.division?.metadata?.name || '';
-const rating = getStatValue(seg.stats, ['rating']);
-
-const card = document.createElement('div');
-card.className = 'rl-playlist-card';
-card.innerHTML = `
-<div class="rl-playlist-name">${displayName}</div>
-${rankImg ? `<img class="rl-playlist-rank-img" src="${rankImg}" alt="${rankName}">` : ''}
-<div class="rl-playlist-rank-name">${rankName}</div>
-${divisionName ? `<div class="rl-playlist-division">${divisionName}</div>` : ''}
-${rating !== null ? `<div class="rl-playlist-rating">${formatNumber(rating)} MMR</div>` : ''}
-`;
-grid.appendChild(card);
-});
-
-content.appendChild(grid);
-}
-
-if (overviewSegment && overviewSegment.stats) {
-const title = document.createElement('div');
-title.className = 'rl-overview-title';
-title.textContent = 'Lifetime Stats';
-content.appendChild(title);
-
-const statDefs = [
-{ keys: ['wins'], label: 'Wins' },
-{ keys: ['goals'], label: 'Goals' },
-{ keys: ['assists'], label: 'Assists' },
-{ keys: ['saves'], label: 'Saves' },
-{ keys: ['shots'], label: 'Shots' },
-{ keys: ['mVPs'], label: 'MVPs' },
-];
-
-const grid = document.createElement('div');
-grid.className = 'rl-overview-grid';
-
-statDefs.forEach((def) => {
-const val = getStatValue(overviewSegment.stats, def.keys);
-if (val === null) return;
-const cell = document.createElement('div');
-cell.className = 'rl-stat';
-cell.innerHTML = `<div class="value">${formatNumber(val)}</div><div class="label">${def.label}</div>`;
-grid.appendChild(cell);
-});
-
-if (grid.children.length) {
-content.appendChild(grid);
-} else if (!content.children.length) {
-content.innerHTML = '<div class="rl-error">No stats available yet.</div>';
-}
-}
-
-if (!content.children.length) {
-content.innerHTML = '<div class="rl-error">No stats available yet.</div>';
-}
-}
-
-async function fetchRocketLeagueStats() {
-if (!CONFIG.rocketLeagueWorkerUrl) return;
-
-try {
-const res = await fetch(CONFIG.rocketLeagueWorkerUrl, { cache: 'no-store' });
-if (!res.ok) throw new Error(`Worker returned ${res.status}`);
-const data = await res.json();
-const entry = data[CONFIG.rocketLeaguePlayerId];
-
-const updatedEl = document.getElementById('rlUpdated');
-
-if (!entry || !entry.profile) {
-document.getElementById('rlContent').innerHTML =
-`<div class="rl-loading">${entry?.error || 'Stats not cached yet — check back soon.'}</div>`;
-updatedEl.textContent = '';
-return;
-}
-
-renderRocketLeagueStats(entry.profile);
-if (entry.lastUpdated) {
-const d = new Date(entry.lastUpdated);
-updatedEl.textContent = `Updated ${d.toLocaleDateString()} ${d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-}
-} catch (err) {
-console.error('Rocket League fetch failed:', err);
-document.getElementById('rlContent').innerHTML = '<div class="rl-error">Couldn\'t load stats right now.</div>';
-}
-}
-
-fetchRocketLeagueStats();
-});
-</script>
+  <div class="bg-container" id="bgContainer"></div>
+  <div class="container">
+    <div class="profile" id="profileCard">
+      <div class="pfp-wrap">
+        <img class="pfp" id="profilePfp" src="" alt="Profile picture">
+      </div>
+      <h1 id="profileName"></h1>
+      <p class="tagline" id="profileBio"></p>
+
+      <div class="social-links" id="socialLinks"></div>
+
+      <div class="music-player" id="musicPlayer">
+        <div class="music-top-row">
+          <img class="music-art" id="musicArt" src="" alt="" crossorigin="anonymous">
+          <div class="music-info">
+            <div class="music-title" id="musicTitle">No track loaded</div>
+            <div class="music-artist" id="musicArtist"></div>
+          </div>
+          <div class="music-controls" id="musicControls">
+            <button class="music-btn" id="musicPrev" title="Previous track">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+            </button>
+            <button class="music-btn play-pause" id="musicPlayPause" title="Play/Pause">
+              <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 5v14l11-7z"/></svg>
+              <svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+            </button>
+            <button class="music-btn" id="musicNext" title="Next track">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="music-scrub-row" id="musicScrubRow">
+          <span class="music-time current" id="musicCurrentTime">0:00</span>
+          <input type="range" class="music-scrubber" id="musicScrubber" value="0" min="0" max="100" step="0.1">
+          <span class="music-time duration" id="musicDuration">0:00</span>
+        </div>
+        <audio id="audioEl" preload="metadata"></audio>
+        <canvas id="artSampleCanvas" width="10" height="10" style="display:none"></canvas>
+      </div>
+    </div>
+
+    <div class="rl-section" id="rlSection">
+      <div class="profile rl-card" id="rlCard">
+        <div class="rl-header">
+          <svg class="rl-platform-icon" id="rlPlatformIcon" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"></svg>
+          <div>
+            <h2>Rocket League</h2>
+            <div class="rl-username" id="rlUsername"></div>
+          </div>
+        </div>
+        <div id="rlContent">
+          <div class="rl-loading" id="rlLoading">Loading stats…</div>
+        </div>
+        <div class="rl-updated" id="rlUpdated"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../shared.js"></script>
+  <script>
+    const CONFIG = {
+      name: "CRKT",
+      bio: "Buy My Bleach",
+      pfpUrl: "../assets/pfp/crkt.jpg",
+      bgImage: "../assets/bg/crkt.jpg",
+      bgBlur: 0,
+      cardBorderColor: "rgba(255, 255, 255, 0.35)",
+      cardBorderWidth: 1,
+      cardBorderRadius: 24,
+      cardBackground: "rgba(255, 255, 255, 0.12)",
+      iconBorderColor: "rgba(255, 255, 255, 0.35)",
+      iconBorderWidth: 2,
+      iconBackground: "rgba(255, 255, 255, 0.1)",
+      playerBorderColor: "rgba(255, 255, 255, 0.3)",
+      playerBorderWidth: 1,
+      playerBorderRadius: 14,
+      playerBackground: "rgba(255, 255, 255, 0.14)",
+      playerColorFromArt: true,
+      tracks: [
+        { title: "Money Long", artist: "Kevin Gates", url: "https://archive.org/download/webpage-assets/crkt1.mp3", art: "https://archive.org/download/webpage-assets/crkt1.jpg" },
+        { title: "Kamikaze", artist: "Eminem", url: "https://archive.org/download/webpage-assets/crkt2.mp3", art: "https://archive.org/download/webpage-assets/crkt2.jpg" },
+        { title: "Amnesia", artist: "Kevin Gates, Doe B", url: "https://archive.org/download/webpage-assets/crkt3.mp3", art: "https://archive.org/download/webpage-assets/crkt3.jpg" }
+      ],
+      rocketLeagueWorkerUrl: "https://github-io.cxsir.workers.dev/rocketleague",
+      rocketLeaguePlayerId: "glasscannon247",
+      rocketLeagueUsername: "GlassCannon247",
+      links: [
+        { name: "Snapchat", url: "https://snapchat.com/add/cody2477777", icon: "snapchat" },
+        { name: "Instagram", url: "https://instagram.com/codyusher247", icon: "instagram" },
+        { name: "PlayStation", url: "https://profile.playstation.com/Glass-Cannon247", icon: "playstation" },
+        { name: "Roblox", url: "https://www.roblox.com/users/5393131604/profile", icon: "roblox" },
+        { name: "Phone", url: "tel:3066306172", icon: "phone" }
+      ]
+    };
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      await initProfilePage(CONFIG, '../');
+      if (CONFIG.rocketLeagueWorkerUrl) {
+        await fetchRocketLeagueStats(CONFIG);
+      }
+    });
+  </script>
 </body>
 </html>
