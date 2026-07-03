@@ -11,34 +11,13 @@
       background: rgba(0, 0, 0, 0.15);
     }
 
-    .profile,
-    .rl-card {
-      background: rgba(20, 40, 80, 0.25);
-      border: 1px solid rgba(20, 40, 80, 0.12);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-    }
-
     .pfp {
       border: 3px solid rgba(20, 40, 80, 0.25);
     }
 
-    .music-player {
-      background: rgba(20, 40, 80, 0.55);
-      border: 1px solid rgba(20, 40, 80, 0.1);
-    }
-
-    .music-scrubber {
-      background: rgba(40, 80, 160, 0.5);
-    }
-
-    .social-link {
-      background: rgba(20, 40, 80, 0.08);
-      border: 2px solid rgba(20, 40, 80, 0.15);
-    }
-
     .social-link:hover {
-      background: rgba(20, 40, 80, 0.18);
-      border-color: rgba(20, 40, 80, 0.5);
+      background: rgba(20, 40, 80, 0.18) !important;
+      border-color: rgba(20, 40, 80, 0.5) !important;
     }
 
     .showcase-card {
@@ -55,47 +34,7 @@
       color: #cfe0ff;
       border: 1px solid rgba(207, 224, 255, 0.4);
     }
-
-    .rl-best-mmr {
-      background: rgba(20, 40, 80, 0.4);
-    }
-
-    .rl-best-mmr .label {
-      color: #a8b8d8;
-    }
-
-    .rl-playlist-card {
-      background: rgba(20, 40, 80, 0.35);
-    }
-
-    .rl-playlist-name {
-      color: #a8b8d8;
-    }
-
-    .rl-playlist-division {
-      color: #8a9bc0;
-    }
-
-    .rl-playlist-rating {
-      color: #8a9bc0;
-    }
-
-    .rl-stat {
-      background: rgba(20, 40, 80, 0.3);
-    }
-
-    .rl-stat .label {
-      color: #8a9bc0;
-    }
-
-    .rl-updated {
-      color: #6f80a0;
-    }
-
-    .rl-header .rl-username {
-      color: #a8b8d8;
-    }
-  </style>
+</style>
 </head>
 <body>
   <div class="bg-container" id="bgContainer"></div>
@@ -162,7 +101,7 @@
 
   <script src="shared.js"></script>
   <script>
-    const CONFIG = {
+        const CONFIG = {
       name: "cxsir",
       bio: "a lost cause",
       pfpUrl: "assets/pfp/cxsir.jpg",
@@ -184,6 +123,17 @@
       showcaseBorderColor: "rgba(20, 40, 80, 0.12)",
       showcaseBorderWidth: 1,
       showcaseBorderRadius: 12,
+      musicScrubberBg: "rgba(40, 80, 160, 0.5)",
+      rlBestMmrBg: "rgba(20, 40, 80, 0.4)",
+      rlBestMmrLabelColor: "#a8b8d8",
+      rlPlaylistCardBg: "rgba(20, 40, 80, 0.35)",
+      rlPlaylistNameColor: "#a8b8d8",
+      rlPlaylistDivisionColor: "#8a9bc0",
+      rlPlaylistRatingColor: "#8a9bc0",
+      rlStatBg: "rgba(20, 40, 80, 0.3)",
+      rlStatLabelColor: "#8a9bc0",
+      rlUpdatedColor: "#6f80a0",
+      rlUsernameColor: "#a8b8d8",
       spotifyWorkerUrl: "https://github-io.cxsir.workers.dev",
       spotifyPollSeconds: 10,
       tracks: [],
@@ -205,7 +155,6 @@
         { name: "Email", url: "mailto:cxsir@proton.me", icon: "email" }
       ]
     };
-
     window.addEventListener('DOMContentLoaded', async () => {
       await initProfilePage(CONFIG, '');
       if (CONFIG.rocketLeagueWorkerUrl) {
