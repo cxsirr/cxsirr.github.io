@@ -4,208 +4,165 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gamercard</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/3.4.1/tailwind.min.js"></script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
 <style>
-  :root {
-    --ink: #e9ecf5;
-    --ink-dim: #8b93a7;
-    --panel: #14141b;
-    --panel-alt: #0e0e13;
-    --hairline: rgba(255,255,255,0.08);
-    --amber: #ffb020;
+  /* Matches index.html's navy card theme so this drops in cleanly */
+  body::before { background: rgba(0, 0, 0, 0.15); }
+  .gc-wrap { max-width: 920px; margin: 0 auto; padding: 20px; }
+  .gc-title { font-size: 1.4em; font-weight: 700; color: #e0e0e0; margin: 0 0 16px 4px; letter-spacing: 0.5px; }
+  .gc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .gc-card { max-width: none; width: 100%; text-align: left; padding: 20px 20px 16px; }
+  .gc-card .rl-header { margin-bottom: 14px; }
+  .gc-icon { width: 26px; height: 26px; flex-shrink: 0; }
+  .gc-hours-note { font-size: 0.65em; color: #6f80a0; margin-top: 2px; }
+
+  .profile, .rl-card {
+    background: rgba(20, 40, 80, 0.25);
+    border: 1px solid rgba(20, 40, 80, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   }
-  body { background: #0a0a0f; font-family: 'Inter', sans-serif; }
-  .font-display { font-family: 'Rajdhani', sans-serif; }
-  .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-  .card {
-    position: relative;
-    background: var(--panel);
-    border: 1px solid var(--hairline);
-    overflow: hidden;
-    isolation: isolate;
-  }
-
-  /* diagonal brand stripe — the signature element, repeated across every
-     card regardless of platform color, so the grid reads as one system */
-  .brand-stripe {
-    position: absolute;
-    top: 0; right: 0;
-    width: 130px; height: 130px;
-    clip-path: polygon(100% 0, 100% 100%, 30% 0);
-    opacity: 0.16;
-    z-index: 0;
-  }
-
-  .hex-badge {
-    clip-path: polygon(25% 6%, 75% 6%, 100% 50%, 75% 94%, 25% 94%, 0% 50%);
-    display: flex; align-items: center; justify-content: center;
-  }
-
-  .xp-track { background: var(--panel-alt); border: 1px solid var(--hairline); }
-  .xp-fill { background: linear-gradient(90deg, var(--amber), #ffd27a); transition: width 0.8s cubic-bezier(.16,1,.3,1); }
-
-  .skeleton { background: linear-gradient(90deg, #17171f 25%, #1e1e28 37%, #17171f 63%); background-size: 400% 100%; animation: shimmer 1.4s infinite; }
-  @keyframes shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+  .rl-best-mmr { background: rgba(20, 40, 80, 0.4); }
+  .rl-best-mmr .label { color: #a8b8d8; }
+  .rl-best-mmr .value { color: #ffffff; }
+  .rl-stat { background: rgba(20, 40, 80, 0.3); }
+  .rl-stat .value { color: #ffffff; }
+  .rl-stat .label { color: #8a9bc0; }
+  .rl-updated { color: #6f80a0; }
+  .rl-header h2 { color: #e0e0e0; }
+  .rl-header .rl-username { color: #a8b8d8; }
+  .gc-error { color: #ff9a9a; font-size: 0.85em; text-align: center; padding: 16px; }
 </style>
 </head>
-<body class="min-h-screen py-10 px-4">
-
-  <div class="max-w-5xl mx-auto">
-
-    <!-- SUMMARY BAR -->
-    <div class="font-display text-3xl font-700 text-[var(--ink)] mb-1 tracking-wide">GAMERCARD</div>
-    <div id="summaryBar" class="card rounded-lg p-5 mb-8 grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="skeleton h-14 rounded col-span-2 md:col-span-4"></div>
+<body>
+  <div class="bg-container"></div>
+  <div class="gc-wrap">
+    <div class="gc-title">Gamercard</div>
+    <div class="gc-grid" id="gcGrid">
+      <div class="rl-loading">Loading stats…</div>
     </div>
-
-    <!-- CARD GRID -->
-    <div id="cardGrid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- skeleton placeholders while loading -->
-      <div class="card rounded-lg h-32 skeleton"></div>
-      <div class="card rounded-lg h-32 skeleton"></div>
-      <div class="card rounded-lg h-32 skeleton"></div>
-      <div class="card rounded-lg h-32 skeleton"></div>
-    </div>
-
-    <div id="errorBox" class="hidden mt-6 text-sm text-red-400 font-mono"></div>
   </div>
 
 <script>
-  // Point this at wherever you deploy gamercard-worker.js — either its own
-  // worker, or a new route on your existing worker (e.g. add "/gamercard").
+  // Point this at wherever the /gamercard route lives on your worker.
   const WORKER_URL = "https://github-io.cxsir.workers.dev/gamercard";
 
+  // Simple, distinct icon glyphs per platform (not exact brand logos —
+  // swap in official marks from simpleicons.org later if you want pixel-
+  // perfect logos; these are just clearly-differentiated stand-ins).
   const PLATFORM_META = {
-    psn:               { name: "PlayStation",       color: "#0070d1" },
-    xbox:              { name: "Xbox",              color: "#107c10" },
-    epic:              { name: "Epic Games",        color: "#c0c0c0" },
-    ubisoft:           { name: "Ubisoft Connect",   color: "#0084ff" },
-    eaplay:            { name: "EA Play",           color: "#ff4747" },
-    steam:             { name: "Steam",              color: "#66c0f4" },
-    googlePlayGames:   { name: "Google Play Games", color: "#4285f4" },
-    retroachievements: { name: "RetroAchievements", color: "#ffb020" },
-    gog:               { name: "GOG",                color: "#a24fd6" },
+    psn: {
+      name: "PlayStation", color: "#0070d1",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polygon points="6,3 9,9 3,9"/><circle cx="18" cy="6" r="3.2"/><line x1="3" y1="15" x2="9" y2="21"/><line x1="9" y1="15" x2="3" y2="21"/><rect x="14.5" y="14.5" width="7" height="7"/></svg>'
+    },
+    xbox: {
+      name: "Xbox", color: "#68c022",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9.5" stroke-width="1.2"/><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>'
+    },
+    epic: {
+      name: "Epic Games", color: "#d0d0d0",
+      icon: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.4"/><text x="12" y="16.5" font-size="11" font-weight="700" text-anchor="middle" fill="currentColor" font-family="Arial, sans-serif">E</text></svg>'
+    },
+    ubisoft: {
+      name: "Ubisoft Connect", color: "#0084ff",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 3a9 9 0 1 0 6.36 15.36"/><path d="M12 7a5 5 0 1 0 3.54 8.54"/></svg>'
+    },
+    eaplay: {
+      name: "EA Play", color: "#ff5c5c",
+      icon: '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="1.4"/><text x="12" y="15.5" font-size="8.5" font-weight="700" text-anchor="middle" fill="currentColor" font-family="Arial, sans-serif">EA</text></svg>'
+    },
+    steam: {
+      name: "Steam", color: "#66c0f4",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="9" cy="15" r="2" fill="currentColor" stroke="none"/><circle cx="15" cy="9" r="2" fill="currentColor" stroke="none"/><line x1="9" y1="15" x2="15" y2="9"/></svg>'
+    },
+    googlePlayGames: {
+      name: "Google Play Games", color: "#4285f4",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="9" rx="4.5"/><path d="M7 10v4M5 12h4"/><circle cx="16" cy="11" r="1" fill="currentColor" stroke="none"/><circle cx="18" cy="14" r="1" fill="currentColor" stroke="none"/></svg>'
+    },
+    retroachievements: {
+      name: "RetroAchievements", color: "#ffb020",
+      icon: '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="9" y="3" width="6" height="2"/><rect x="7" y="5" width="10" height="2"/><rect x="7" y="7" width="10" height="4"/><rect x="9" y="11" width="6" height="2"/><rect x="10" y="13" width="4" height="3"/><rect x="8" y="16" width="8" height="2"/><rect x="5" y="7" width="2" height="3"/><rect x="17" y="7" width="2" height="3"/></svg>'
+    },
+    gog: {
+      name: "GOG", color: "#c07af0",
+      icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><polygon points="12,3 21,12 12,21 3,12"/><circle cx="12" cy="12" r="3" fill="currentColor" stroke="none"/></svg>'
+    },
   };
 
-  function el(tag, className, html) {
-    const e = document.createElement(tag);
-    if (className) e.className = className;
-    if (html !== undefined) e.innerHTML = html;
-    return e;
-  }
-
-  function renderSummary(summary) {
-    const bar = document.getElementById("summaryBar");
-    bar.innerHTML = "";
-    const items = [
-      { label: "Accounts Tracked", value: summary.accountsOk + " / " + summary.accountsTracked },
-      { label: "Achievements", value: summary.totalAchievementsUnlocked.toLocaleString() + " / " + summary.totalAchievementsPossible.toLocaleString() },
-      { label: "Combined Completion", value: summary.combinedCompletionPercent + "%" },
-      { label: "Average Level", value: summary.averageLevel ?? "—" },
-    ];
-    items.forEach((item) => {
-      const cell = el("div", "");
-      cell.appendChild(el("div", "font-mono text-2xl font-600 text-[var(--ink)]", item.value));
-      cell.appendChild(el("div", "text-xs uppercase tracking-wider text-[var(--ink-dim)] mt-1", item.label));
-      bar.appendChild(cell);
-    });
+  function fmtHours(h) {
+    return typeof h === "number" ? h.toLocaleString() + " hrs" : "—";
   }
 
   function renderCard(account) {
-    const meta = PLATFORM_META[account.platform] || { name: account.platform, color: "#888" };
-    const card = el("div", "card rounded-lg p-4 flex gap-4");
-
-    const stripe = el("div", "brand-stripe");
-    stripe.style.background = meta.color;
-    card.appendChild(stripe);
-
-    // avatar + hex level badge
-    const left = el("div", "relative flex-shrink-0 z-[1]");
-    const avatar = el("img", "w-14 h-14 rounded object-cover border border-[var(--hairline)]");
-    avatar.src = account.avatarUrl;
-    avatar.alt = account.username;
-    left.appendChild(avatar);
-
-    if (account.level !== null && account.level !== undefined) {
-      const badge = el("div", "hex-badge absolute -bottom-2 -right-2 w-7 h-7 font-mono text-[10px] font-600 text-black");
-      badge.style.background = meta.color;
-      badge.textContent = account.level;
-      left.appendChild(badge);
-    }
-    card.appendChild(left);
-
-    // main content
-    const main = el("div", "flex-1 min-w-0 z-[1]");
-
-    const header = el("div", "flex items-center justify-between gap-2 mb-1");
-    header.appendChild(el("div", "font-display text-lg font-600 text-[var(--ink)] truncate", account.username));
-    const tag = el("div", "text-[10px] uppercase tracking-wider font-600 px-2 py-0.5 rounded-full flex-shrink-0");
-    tag.style.color = meta.color;
-    tag.style.border = `1px solid ${meta.color}55`;
-    tag.textContent = meta.name;
-    header.appendChild(tag);
-    main.appendChild(header);
-
+    const meta = PLATFORM_META[account.platform] || { name: account.platform, color: "#8a9bc0", icon: "" };
     const pct = account.achievementsTotal
       ? Math.round((account.achievementsUnlocked / account.achievementsTotal) * 100)
       : 0;
 
-    const statRow = el("div", "flex items-center justify-between text-xs font-mono text-[var(--ink-dim)] mb-1");
-    statRow.appendChild(el("span", "", `${account.achievementsUnlocked.toLocaleString()} / ${account.achievementsTotal.toLocaleString()} unlocked`));
-    statRow.appendChild(el("span", "text-[var(--ink)] font-600", `${pct}%`));
-    main.appendChild(statRow);
-
-    const track = el("div", "xp-track w-full h-1.5 rounded-full overflow-hidden mb-2");
-    const fill = el("div", "xp-fill h-full rounded-full");
-    fill.style.width = "0%";
-    track.appendChild(fill);
-    main.appendChild(track);
-    requestAnimationFrame(() => { fill.style.width = pct + "%"; });
-
-    if (account.recentGame) {
-      const recent = el("div", "text-xs text-[var(--ink-dim)] truncate");
-      recent.textContent = `Recently playing: ${account.recentGame.name}`;
-      main.appendChild(recent);
+    const statBoxes = [
+      { value: account.achievementsUnlocked.toLocaleString() + " / " + account.achievementsTotal.toLocaleString(), label: "Achievements" },
+      { value: pct + "%", label: "Completion" },
+    ];
+    if (typeof account.level === "number") {
+      statBoxes.push({ value: account.level, label: "Level" });
     }
 
-    card.appendChild(main);
-    return card;
+    return `
+      <div class="profile rl-card gc-card">
+        <div class="rl-header">
+          <svg class="rl-platform-icon gc-icon" style="color:${meta.color}">${meta.icon}</svg>
+          <div>
+            <h2>${meta.name}</h2>
+            <div class="rl-username">${account.label || account.username}</div>
+          </div>
+        </div>
+        <div class="rl-best-mmr">
+          <div class="label">Hours Played</div>
+          <div class="value">${fmtHours(account.hoursPlayed)}</div>
+        </div>
+        <div class="rl-overview-grid">
+          ${statBoxes.map(s => `<div class="rl-stat"><div class="value">${s.value}</div><div class="label">${s.label}</div></div>`).join("")}
+        </div>
+        ${account.hoursPlayed === null ? '<div class="gc-hours-note">No official hours data available for this platform</div>' : ""}
+      </div>
+    `;
+  }
+
+  function renderSummaryCard(summary) {
+    return `
+      <div class="profile rl-card gc-card">
+        <div class="rl-header">
+          <div><h2>Overview</h2><div class="rl-username">${summary.accountsOk} / ${summary.accountsTracked} accounts</div></div>
+        </div>
+        <div class="rl-best-mmr">
+          <div class="label">Total Hours Played</div>
+          <div class="value">${fmtHours(summary.totalHoursPlayed)}</div>
+        </div>
+        <div class="rl-overview-grid">
+          <div class="rl-stat"><div class="value">${summary.totalAchievementsUnlocked.toLocaleString()}</div><div class="label">Achievements</div></div>
+          <div class="rl-stat"><div class="value">${summary.combinedCompletionPercent}%</div><div class="label">Completion</div></div>
+        </div>
+      </div>
+    `;
   }
 
   async function loadGamercard() {
-    const grid = document.getElementById("cardGrid");
-    const errorBox = document.getElementById("errorBox");
+    const grid = document.getElementById("gcGrid");
     try {
       const res = await fetch(WORKER_URL);
       if (!res.ok) throw new Error(`Worker responded ${res.status}`);
       const data = await res.json();
 
-      renderSummary(data.summary);
-
-      grid.innerHTML = "";
+      const cards = [renderSummaryCard(data.summary)];
       data.accounts.forEach((account) => {
-        if (account.ok) grid.appendChild(renderCard(account));
+        if (account.ok) cards.push(renderCard(account));
       });
+      grid.innerHTML = cards.join("");
     } catch (err) {
-      errorBox.textContent = "Couldn't load gamercard data: " + err.message;
-      errorBox.classList.remove("hidden");
+      grid.innerHTML = `<div class="gc-error">Couldn't load gamercard data: ${err.message}</div>`;
     }
   }
 
   window.addEventListener("DOMContentLoaded", loadGamercard);
-
-  // Report height to a parent page if this file is embedded via <iframe>,
-  // so the iframe can auto-resize instead of showing scrollbars or gaps.
-  function reportHeight() {
-    if (window.parent !== window) {
-      window.parent.postMessage({ type: "gamercard-height", height: document.documentElement.scrollHeight }, "*");
-    }
-  }
-  window.addEventListener("load", reportHeight);
-  new ResizeObserver(reportHeight).observe(document.body);
 </script>
 </body>
 </html>
